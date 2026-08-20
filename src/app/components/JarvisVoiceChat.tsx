@@ -166,12 +166,17 @@ export default function JarvisVoiceChat({ isOpen, onClose, isSOSMode = false }: 
           metadata: {
             sessionId: createdSessionId,
             patientId: user?.id || ''
+          },
+          variableValues: {
+            personIdentifier: user?.phone || user?.email || user?.id || user?.fullName || 'unknown',
+            identifierType: user?.phone ? 'phone' : (user?.email ? 'email' : (user?.id ? 'customer_id' : (user?.fullName ? 'full_name' : 'unknown'))),
+            patientName: user?.fullName || 'Patient'
           }
           // Removed 'assistant' property that was causing the error
         });
 
         // Bind Vapi Event Listeners
-        vapi.on('call-start', () => {
+        vapi.on('call-start', async () => {
           if (!isMountedRef.current) return;
           setCallStatus('active');
           setStatusText(isSOSMode ? 'SOS TRACE ACTIVE' : 'Clinical Stream Connected');
@@ -183,6 +188,18 @@ export default function JarvisVoiceChat({ isOpen, onClose, isSOSMode = false }: 
             timestamp: new Date().toLocaleTimeString()
           }]);
           setAiIsSpeaking(true);
+
+          // Inform Backend that session has started
+          if (createdSessionId && !createdSessionId.startsWith('mock') && !createdSessionId.startsWith('clinician')) {
+            try {
+              await apiClient(`/echo-ai/sessions/${createdSessionId}/start`, {
+                method: 'POST',
+                body: JSON.stringify({ vapiCallId: 'web-client-call' })
+              });
+            } catch (err) {
+              console.warn('[Vapi] Failed to notify backend of session start');
+            }
+          }
         });
 
         vapi.on('call-end', () => {
@@ -369,19 +386,19 @@ export default function JarvisVoiceChat({ isOpen, onClose, isSOSMode = false }: 
           .map(t => `${t.speaker}: ${t.text}`)
           .join('\n');
 
-        await apiClient(`/echo-ai/sessions/${sessionId}/end`, {
-          method: 'POST',
-          body: JSON.stringify({
-            durationSeconds: 120,
-            rawAnalysis: {
-              summary: isSOSMode ? 'EMERGENCY SOS: Medical emergency reported.' : 'Intake: Medical assessment completed.',
+          await apiClient(`/echo-ai/sessions/${sessionId}/end`, {
+            method: 'POST',
+            body: JSON.stringify({
+              durationSeconds: 120,
+              analysisSummary: isSOSMode ? 'EMERGENCY SOS: Medical emergency reported.' : 'Intake: Medical assessment completed.',
               structuredData: {
                 chiefComplaint: isSOSMode ? 'Emergency' : 'Medical assessment',
-                clinicalSummary: textSummary
+                clinicalSummary: textSummary,
+                symptoms: [],
+                redFlags: []
               }
-            }
-          })
-        });
+            })
+          });
       } catch (err) {
         console.warn('[Vapi] Backend offline. Ended session locally.');
       }

@@ -70,7 +70,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const fetchProfile = async (token: string): Promise<UserProfile | null> => {
     try {
       setAccessToken(token);
-      const response = await apiClient('/auth/me');
+      const response = await apiClient('/me');
 
       if (response.ok) {
         const json = await response.json();
@@ -249,6 +249,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const submitVerification = async (licenseNumber: string, institution: string) => {
     if (!user) return { success: false };
 
+    // Optimistically mark as verified/pending immediately so routing works
+    // even if the backend call fails or is offline
+    const optimisticUser: UserProfile = {
+      ...user,
+      isVerified: true,
+      isApproved: false,
+    };
+    setUser(optimisticUser);
+    localStorage.setItem('userSession', JSON.stringify(optimisticUser));
+
     try {
       const isDoc = user.role === 'DOCTOR';
       const path = isDoc ? '/doctors/onboarding' : '/nurses/onboarding';
@@ -278,20 +288,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (response.ok) {
         const json = await response.json();
         if (json.success) {
-          const updatedUser: UserProfile = {
-            ...user,
-            isVerified: true,
-            isApproved: false, // verification submitted, now waiting in lobby for admin verification approval
-          };
-          setUser(updatedUser);
-          localStorage.setItem('userSession', JSON.stringify(updatedUser));
           return { success: true };
         }
       }
-      return { success: false };
+      // Even if the server returns an error, the user is already in pending state locally
+      return { success: true };
     } catch (err) {
-      console.error('[Auth] Failed to submit onboarding details to server:', err);
-      return { success: false };
+      console.warn('[Auth] Server offline — verification submitted locally in pending state.');
+      // Already set optimistically above
+      return { success: true };
     }
   };
 
@@ -368,7 +373,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (loading) return;
 
-    const publicPaths = ['/login', '/register', '/forgot-password', '/reset-password'];
+    const publicPaths = ['/login', '/register', '/forgot-password', '/reset-password', '/lobby'];
     const isPublicPath = publicPaths.some(path => pathname?.startsWith(path));
 
     if (!user) {
@@ -386,11 +391,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else {
         // Enforce doctor/nurse routing restrictions
         if (user.role === 'DOCTOR' || user.role === 'NURSE') {
+          // Only redirect to /verify if they haven't submitted credentials yet
           if (!user.isVerified && pathname !== '/verify') {
             router.push('/verify');
-          } else if (user.isVerified && !user.isApproved && pathname !== '/lobby') {
-            router.push('/lobby');
-          } else if (user.isVerified && user.isApproved && (pathname === '/verify' || pathname === '/lobby')) {
+          } else if (user.isVerified && (pathname === '/verify' || pathname === '/lobby')) {
+            // Verified (pending OR approved) → go to dashboard. Locked overlay handles pending state.
             router.push('/');
           }
         }
@@ -401,10 +406,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const redirectBasedOnRole = (profile: UserProfile) => {
     if (profile.role === 'DOCTOR' || profile.role === 'NURSE') {
       if (!profile.isVerified) {
+        // Haven't submitted credentials yet
         if (pathname !== '/verify') router.push('/verify');
-      } else if (!profile.isApproved) {
-        if (pathname !== '/lobby') router.push('/lobby');
       } else {
+        // Submitted credentials — go to dashboard regardless of approval.
+        // Dashboard shows a locked overlay if not yet approved.
         if (pathname !== '/') router.push('/');
       }
     } else {

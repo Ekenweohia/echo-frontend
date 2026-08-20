@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { apiClient } from '@/services/apiClient';
 import VideoRoom from './VideoRoom';
+import WalletConsole from './WalletConsole';
 
 interface QueueEntry {
   id: string;
@@ -48,9 +49,20 @@ export default function ClinicianDashboard() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [systemTime, setSystemTime] = useState(new Date());
 
+  // Wallet balance (header chip)
+  const [walletBalance, setWalletBalance] = useState<number | null>(null);
+  const [walletCurrency, setWalletCurrency] = useState('NGN');
+
   // Theme states
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
   const [customRoomId, setCustomRoomId] = useState('');
+
+  // UI States
+  const [activeTab, setActiveTab] = useState('queue');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Clinician is verified (submitted docs) but not yet admin-approved
+  const isPending = (user?.role === 'DOCTOR' || user?.role === 'NURSE') && user?.isVerified && !user?.isApproved;
 
   const handleDirectJoin = () => {
     if (!customRoomId.trim()) return;
@@ -80,14 +92,33 @@ export default function ClinicianDashboard() {
     // Poll clinical queue every 4 seconds
     fetchQueue();
     checkActiveConsultation();
+    fetchWalletBalance();
     const interval = setInterval(fetchQueue, 4000);
     const clock = setInterval(() => setSystemTime(new Date()), 1000);
+    // Refresh wallet balance every 30s
+    const walletInterval = setInterval(fetchWalletBalance, 30000);
 
     return () => {
       clearInterval(interval);
       clearInterval(clock);
+      clearInterval(walletInterval);
     };
   }, []);
+
+  const fetchWalletBalance = async () => {
+    try {
+      const res = await apiClient('/billing/wallet');
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success && json.data) {
+          setWalletBalance(json.data.balance);
+          setWalletCurrency(json.data.currency || 'NGN');
+        }
+      }
+    } catch {
+      // Offline — keep stale value or show nothing
+    }
+  };
 
   const fetchQueue = async () => {
     try {
@@ -273,145 +304,218 @@ export default function ClinicianDashboard() {
   };
 
   return (
-    <div style={containerStyle}>
-      {/* Brand Navigation */}
-      <header style={headerStyle} className="glass-panel">
-        <div style={logoSectionStyle}>
-          <img src="/assets/emergencyecho.png" alt="EmergencyEcho Logo" style={{ height: '36px', objectFit: 'contain' }} />
+    <div className="app-container">
+      {/* Sidebar Navigation */}
+      <div className={`sidebar-overlay ${sidebarOpen ? 'open' : ''}`} onClick={() => setSidebarOpen(false)} />
+      <aside className={`app-sidebar ${sidebarOpen ? 'open' : ''}`}>
+        <div style={{ padding: '0 1.5rem 1.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <img src="/assets/emergencyecho.png" alt="EmergencyEcho Logo" style={{ height: '32px', objectFit: 'contain' }} />
+          <span style={{ fontWeight: 800, fontSize: '1.2rem' }}>Echo</span>
         </div>
-
-        <div style={userPanelStyle}>
-          <button onClick={toggleTheme} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.1rem', marginRight: '0.75rem', display: 'flex', alignItems: 'center' }} title="Toggle Theme">
-            {theme === 'dark' ? '☀️' : '🌙'}
-          </button>
-          <div style={clinicianBadgeStyle}>
-            {user?.fullName} ({user?.role})
-          </div>
-          <button onClick={logout} style={logoutBtnStyle}>
-            Sign Out
-          </button>
-        </div>
-      </header>
-
-      {/* Main Grid Workspace */}
-      <main style={gridStyle}>
+        <div style={{ padding: '0.5rem 1.5rem', fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Clinician Menu</div>
         
-        {/* CLINICAL QUEUE SECTION */}
-        <section style={queueSectionStyle}>
-          <div style={sectionHeaderStyle}>
-            <h2 style={sectionTitleStyle}>Patient Intake Clinical Queue</h2>
-            <p style={sectionSubStyle}>Select a pending session to accept and begin a video consultation.</p>
+        <div className={`sidebar-nav-item ${activeTab === 'queue' ? 'active' : ''}`} onClick={() => {setActiveTab('queue'); setSidebarOpen(false);}}>
+          <span>📋</span> Active Queue
+        </div>
+        <div className={`sidebar-nav-item ${activeTab === 'workspace' ? 'active' : ''}`} onClick={() => {setActiveTab('workspace'); setSidebarOpen(false);}}>
+          <span>💻</span> Workspace
+        </div>
+        <div className={`sidebar-nav-item ${activeTab === 'wallet' ? 'active' : ''}`} onClick={() => {setActiveTab('wallet'); setSidebarOpen(false);}}>
+          <span>💳</span> Wallet & Payouts
+        </div>
+        <div className={`sidebar-nav-item ${activeTab === 'settings' ? 'active' : ''}`} onClick={() => {setActiveTab('settings'); setSidebarOpen(false);}}>
+          <span>⚙️</span> Settings
+        </div>
+      </aside>
+
+      {/* Main Content Area */}
+      <div className="app-main">
+        {/* Background Decorative Glows */}
+        <div className="glow-orb glow-orb-secondary" style={{ opacity: 0.1, top: '-50px' }} />
+
+        {/* Header */}
+        <header style={headerStyle} className="glass-panel">
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <button className="mobile-menu-toggle" onClick={() => setSidebarOpen(true)}>☰</button>
+            <h1 style={{ fontSize: '1.2rem', fontWeight: 700, margin: 0, padding: 0 }}>
+              {activeTab === 'queue' && 'Patient Intake Queue'}
+              {activeTab === 'workspace' && 'Clinician Workspace'}
+              {activeTab === 'wallet' && 'Wallet & Payouts'}
+              {activeTab === 'settings' && 'Profile & Settings'}
+            </h1>
           </div>
 
-
-          {errorMessage && (
-            <div style={errorBannerStyle}>
-              <span>⚠️ {errorMessage}</span>
-              <button onClick={() => setErrorMessage(null)} style={closeErrorBtn}>✕</button>
-            </div>
-          )}
-
-          <div style={listContainerStyle}>
-            {queue.length === 0 ? (
-              <div style={emptyQueueStyle}>
-                <p>No patients are currently in queue. Standing by...</p>
-              </div>
-            ) : (
-              queue.map((entry) => {
-                const windowStatus = getPriorityWindowStatus(entry.queuedAt, entry.isSOS);
-                return (
-                  <div 
-                    key={entry.id} 
-                    style={queueCardStyle(entry.isSOS, windowStatus.isLocked)} 
-                    className="glass-panel-interactive"
-                  >
-                    {/* Urgency Badge */}
-                    <div style={cardHeaderStyle}>
-                      <div style={badgeRowStyle}>
-                        {entry.isSOS && <span style={sosBadgeStyle}>EMERGENCY SOS</span>}
-                        <span style={acuityBadgeStyle(entry.session.triageResult?.acuity)}>
-                          {entry.session.triageResult?.acuity || 'UNKNOWN'} (Score: {entry.session.triageResult?.urgencyScore || 0})
-                        </span>
-                      </div>
-                      <span style={timeStyle}>
-                        Queued: {new Date(entry.queuedAt).toLocaleTimeString()}
-                      </span>
-                    </div>
-
-                    {/* Patient Context Summary */}
-                    <div style={patientMetaRowStyle}>
-                      <span style={patientNameStyle}>{entry.session.patient.fullName}</span>
-                      <span style={patientProfileDetailStyle}>
-                        {entry.session.patient.patientProfile?.gender || 'N/A'} • {
-                          entry.session.patient.patientProfile?.dateOfBirth 
-                            ? `${new Date().getFullYear() - new Date(entry.session.patient.patientProfile.dateOfBirth).getFullYear()} yrs`
-                            : 'N/A'
-                        }
-                      </span>
-                    </div>
-
-                    <div style={complaintBlockStyle}>
-                      <strong style={labelStyle}>Chief Complaint:</strong>
-                      <p style={complaintTextStyle}>{entry.session.clinicalIntake?.chiefComplaint || 'Not Specified'}</p>
-                    </div>
-
-                    <div style={reasonsBlockStyle}>
-                      <strong style={labelStyle}>Echo Triage Decision:</strong>
-                      <p style={reasonsTextStyle}>{entry.session.triageResult?.reasons || 'No summary available.'}</p>
-                    </div>
-
-                    {/* Claim Control Button */}
-                    <div style={{ ...btnRowStyle, justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ fontSize: '0.68rem', color: 'var(--text-secondary)', fontFamily: 'monospace' }}>
-                        Room ID: <strong style={{ color: 'var(--primary)' }}>{entry.session.id}</strong>
-                      </span>
-                      {windowStatus.isLocked ? (
-                        <div style={lockedBannerStyle}>
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                          </svg>
-                          <span>Locked for {windowStatus.remaining}s (Doctor priority)</span>
-                        </div>
-                      ) : (
-                        <button 
-                          onClick={() => claimCase(entry.id)} 
-                          style={claimBtnStyle(entry.isSOS)}
-                        >
-                          Claim Case & Start Video
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                );
-              })
-            )}
-          </div>
-        </section>
-
-        {/* CLINICIAN WORKSPACE (Active Panel) */}
-        <section style={workspacePanelStyle} className="glass-panel">
-          <h3 style={panelTitleStyle}>Clinician Workspace</h3>
-          {activeConsultation ? (
-            <div style={activeConsoleStyle}>
-              <div style={activeBadgeStyle}>ACTIVE CONSULTATION RUNNING</div>
-              <p style={activeMetaTextStyle}>Room: {activeConsultation.livekitRoomName}</p>
-              <button 
-                onClick={() => setIsVideoOpen(true)} 
-                style={rejoinBtnStyle}
+          <div style={userPanelStyle}>
+            <button onClick={toggleTheme} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.1rem', marginRight: '0.75rem', display: 'flex', alignItems: 'center' }} title="Toggle Theme">
+              {theme === 'dark' ? '☀️' : '🌙'}
+            </button>
+            {/* Wallet Balance Chip */}
+            {walletBalance !== null && (
+              <button
+                onClick={() => { setActiveTab('wallet'); setSidebarOpen(false); }}
+                style={walletChipStyle}
+                title="View Wallet & Payouts"
               >
-                Open Video Consultation Room
+                <span style={{ fontSize: '0.72rem' }}>💳</span>
+                <span>{walletCurrency === 'NGN' ? '₦' : '$'}{walletBalance.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
               </button>
+            )}
+            <div style={clinicianBadgeStyle}>
+              {user?.fullName} ({user?.role})
             </div>
-          ) : (
-            <div style={emptyConsoleStyle}>
-              <div style={radarIconStyle}>🛰️</div>
-              <p style={emptyConsoleTextStyle}>No active consultation room running. Standing by for incoming clinical triage intakes.</p>
+            {isPending && (
+              <div style={pendingHeaderBadgeStyle}>
+                <span style={{ fontSize: '0.6rem' }}>⏳</span> PENDING REVIEW
+              </div>
+            )}
+            <button onClick={logout} style={logoutBtnStyle}>
+              Sign Out
+            </button>
+          </div>
+        </header>
+
+        {/* Main Content Area */}
+        <main style={{ padding: '1.5rem', flex: 1, zIndex: 1 }}>
+          
+          {activeTab === 'queue' && (
+            <div style={{ maxWidth: '900px', margin: '0 auto' }}>
+              <section style={queueSectionStyle}>
+                <div style={sectionHeaderStyle}>
+                  <h2 style={sectionTitleStyle}>Patient Intake Clinical Queue</h2>
+                  <p style={sectionSubStyle}>Select a pending session to accept and begin a video consultation.</p>
+                </div>
+
+
+                {errorMessage && (
+                  <div style={errorBannerStyle}>
+                    <span>⚠️ {errorMessage}</span>
+                    <button onClick={() => setErrorMessage(null)} style={closeErrorBtn}>✕</button>
+                  </div>
+                )}
+
+                <div style={listContainerStyle}>
+                  {queue.length === 0 ? (
+                    <div style={emptyQueueStyle}>
+                      <p>No patients are currently in queue. Standing by...</p>
+                    </div>
+                  ) : (
+                    queue.map((entry) => {
+                      const windowStatus = getPriorityWindowStatus(entry.queuedAt, entry.isSOS);
+                      return (
+                        <div 
+                          key={entry.id} 
+                          style={queueCardStyle(entry.isSOS, windowStatus.isLocked)} 
+                          className="glass-panel-interactive"
+                        >
+                          {/* Urgency Badge */}
+                          <div style={cardHeaderStyle}>
+                            <div style={badgeRowStyle}>
+                              {entry.isSOS && <span style={sosBadgeStyle}>EMERGENCY SOS</span>}
+                              <span style={acuityBadgeStyle(entry.session.triageResult?.acuity)}>
+                                {entry.session.triageResult?.acuity || 'UNKNOWN'} (Score: {entry.session.triageResult?.urgencyScore || 0})
+                              </span>
+                            </div>
+                            <span style={timeStyle}>
+                              Queued: {new Date(entry.queuedAt).toLocaleTimeString()}
+                            </span>
+                          </div>
+
+                          {/* Patient Context Summary */}
+                          <div style={patientMetaRowStyle}>
+                            <span style={patientNameStyle}>{entry.session.patient.fullName}</span>
+                            <span style={patientProfileDetailStyle}>
+                              {entry.session.patient.patientProfile?.gender || 'N/A'} • {
+                                entry.session.patient.patientProfile?.dateOfBirth 
+                                  ? `${new Date().getFullYear() - new Date(entry.session.patient.patientProfile.dateOfBirth).getFullYear()} yrs`
+                                  : 'N/A'
+                              }
+                            </span>
+                          </div>
+
+                          <div style={complaintBlockStyle}>
+                            <strong style={labelStyle}>Chief Complaint:</strong>
+                            <p style={complaintTextStyle}>{entry.session.clinicalIntake?.chiefComplaint || 'Not Specified'}</p>
+                          </div>
+
+                          <div style={reasonsBlockStyle}>
+                            <strong style={labelStyle}>Echo Triage Decision:</strong>
+                            <p style={reasonsTextStyle}>{entry.session.triageResult?.reasons || 'No summary available.'}</p>
+                          </div>
+
+                          {/* Claim Control Button */}
+                          <div style={{ ...btnRowStyle, justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ fontSize: '0.68rem', color: 'var(--text-secondary)', fontFamily: 'monospace' }}>
+                              Room ID: <strong style={{ color: 'var(--primary)' }}>{entry.session.id}</strong>
+                            </span>
+                            {windowStatus.isLocked ? (
+                              <div style={lockedBannerStyle}>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                                </svg>
+                                <span>Locked for {windowStatus.remaining}s (Doctor priority)</span>
+                              </div>
+                            ) : (
+                              <button 
+                                onClick={() => claimCase(entry.id)} 
+                                style={claimBtnStyle(entry.isSOS)}
+                              >
+                                Claim Case & Start Video
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+              </section>
             </div>
           )}
-        </section>
 
-      </main>
+          {activeTab === 'workspace' && (
+            <div style={{ maxWidth: '900px', margin: '0 auto' }}>
+              <section style={workspacePanelStyle} className="glass-panel">
+                <h3 style={panelTitleStyle}>Clinician Workspace</h3>
+                {activeConsultation ? (
+                  <div style={activeConsoleStyle}>
+                    <div style={activeBadgeStyle}>ACTIVE CONSULTATION RUNNING</div>
+                    <p style={activeMetaTextStyle}>Room: {activeConsultation.livekitRoomName}</p>
+                    <button 
+                      onClick={() => setIsVideoOpen(true)} 
+                      style={rejoinBtnStyle}
+                    >
+                      Open Video Consultation Room
+                    </button>
+                  </div>
+                ) : (
+                  <div style={emptyConsoleStyle}>
+                    <div style={radarIconStyle}>🛰️</div>
+                    <p style={emptyConsoleTextStyle}>No active consultation room running. Standing by for incoming clinical triage intakes.</p>
+                  </div>
+                )}
+              </section>
+            </div>
+          )}
+
+          {activeTab === 'wallet' && (
+            <div style={{ maxWidth: '900px', margin: '0 auto' }}>
+              <div style={{ marginBottom: '1.25rem' }}>
+                <h2 style={sectionTitleStyle}>Wallet & Payouts</h2>
+                <p style={sectionSubStyle}>View your earnings balance, add a bank account, and request a withdrawal.</p>
+              </div>
+              <WalletConsole />
+            </div>
+          )}
+
+          {activeTab === 'settings' && (
+             <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+               Settings configuration not yet available in this build.
+             </div>
+          )}
+
+        </main>
+      </div>
 
       {/* Fullscreen Video Call Room */}
       {isVideoOpen && activeConsultation && (
@@ -422,6 +526,62 @@ export default function ClinicianDashboard() {
             checkActiveConsultation();
           }}
         />
+      )}
+
+      {/* Pending Verification Overlay */}
+      {isPending && (
+        <div style={pendingOverlayStyle}>
+          <div style={pendingCardStyle}>
+            {/* Animated lock icon */}
+            <div style={pendingIconWrapStyle}>
+              <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ color: 'var(--secondary)' }}>
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                <circle cx="12" cy="16" r="1" fill="currentColor" />
+              </svg>
+            </div>
+
+            {/* Status pill */}
+            <div style={pendingStatusPillStyle}>
+              <span style={pendingDotStyle} />
+              AWAITING ADMIN VERIFICATION
+            </div>
+
+            <h2 style={pendingTitleStyle}>Account Pending Review</h2>
+            <p style={pendingBodyStyle}>
+              Your credentials have been submitted and are currently under review by the Echo administrative team.
+              Once your account is approved, you'll have full access to the clinical queue and all platform features.
+            </p>
+
+            {/* Info grid */}
+            <div style={pendingInfoGridStyle}>
+              <div style={pendingInfoBoxStyle}>
+                <span style={pendingInfoLabelStyle}>NAME</span>
+                <span style={pendingInfoValStyle}>{user?.fullName}</span>
+              </div>
+              <div style={pendingInfoBoxStyle}>
+                <span style={pendingInfoLabelStyle}>ROLE</span>
+                <span style={pendingInfoValStyle}>{user?.role}</span>
+              </div>
+              <div style={pendingInfoBoxStyle}>
+                <span style={pendingInfoLabelStyle}>DOCS SUBMITTED</span>
+                <span style={{ ...pendingInfoValStyle, color: 'var(--primary)', fontSize: '0.88rem' }}>✓ Yes</span>
+              </div>
+              <div style={pendingInfoBoxStyle}>
+                <span style={pendingInfoLabelStyle}>STATUS</span>
+                <span style={{ ...pendingInfoValStyle, color: '#f59e0b' }}>Under Review</span>
+              </div>
+            </div>
+
+            <p style={pendingHintStyle}>
+              Typical review time is 24–48 hours. You will receive an email notification once approved.
+            </p>
+
+            <button onClick={logout} style={pendingSignOutBtnStyle}>
+              Sign Out
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );
@@ -501,6 +661,23 @@ const logoutBtnStyle: React.CSSProperties = {
   fontWeight: 600,
   cursor: 'pointer',
   transition: 'color 0.2s',
+};
+
+const walletChipStyle: React.CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: '0.4rem',
+  padding: '0.38rem 0.85rem',
+  borderRadius: '999px',
+  background: 'rgba(0, 245, 212, 0.07)',
+  border: '1px solid rgba(0, 245, 212, 0.22)',
+  color: 'var(--primary)',
+  fontSize: '0.76rem',
+  fontWeight: 700,
+  cursor: 'pointer',
+  letterSpacing: '0.01em',
+  transition: 'background 0.2s',
+  whiteSpace: 'nowrap',
 };
 
 const gridStyle: React.CSSProperties = {
@@ -804,4 +981,153 @@ const emptyConsoleTextStyle: React.CSSProperties = {
   fontSize: '0.78rem',
   color: 'var(--text-muted)',
   lineHeight: '1.55',
+};
+
+// --- Pending Verification Overlay Styles ---
+
+const pendingHeaderBadgeStyle: React.CSSProperties = {
+  fontSize: '0.62rem',
+  fontWeight: 800,
+  padding: '0.3rem 0.65rem',
+  borderRadius: '4px',
+  background: 'rgba(245, 158, 11, 0.12)',
+  border: '1px solid rgba(245, 158, 11, 0.3)',
+  color: '#f59e0b',
+  letterSpacing: '0.05em',
+  display: 'flex',
+  alignItems: 'center',
+  gap: '0.35rem',
+};
+
+const pendingOverlayStyle: React.CSSProperties = {
+  position: 'fixed',
+  inset: 0,
+  zIndex: 99999,
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  padding: '1.5rem',
+  backgroundColor: 'rgba(5, 7, 12, 0.82)',
+  backdropFilter: 'blur(16px)',
+  WebkitBackdropFilter: 'blur(16px)',
+};
+
+const pendingCardStyle: React.CSSProperties = {
+  width: '100%',
+  maxWidth: '480px',
+  padding: '2.5rem 2rem',
+  borderRadius: '20px',
+  background: 'rgba(15, 22, 38, 0.9)',
+  border: '1px solid rgba(0, 187, 249, 0.15)',
+  boxShadow: '0 0 60px rgba(0, 187, 249, 0.08), 0 30px 80px rgba(0,0,0,0.5)',
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  gap: '1.25rem',
+  textAlign: 'center',
+  animation: 'fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+};
+
+const pendingIconWrapStyle: React.CSSProperties = {
+  width: '72px',
+  height: '72px',
+  borderRadius: '50%',
+  background: 'radial-gradient(circle, rgba(0, 187, 249, 0.12) 0%, transparent 70%)',
+  border: '1px solid rgba(0, 187, 249, 0.2)',
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  animation: 'pulseGlow 3s infinite ease-in-out',
+};
+
+const pendingStatusPillStyle: React.CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: '0.5rem',
+  fontSize: '0.64rem',
+  fontWeight: 800,
+  letterSpacing: '0.08em',
+  color: '#f59e0b',
+  background: 'rgba(245, 158, 11, 0.1)',
+  border: '1px solid rgba(245, 158, 11, 0.25)',
+  padding: '0.35rem 0.85rem',
+  borderRadius: '999px',
+};
+
+const pendingDotStyle: React.CSSProperties = {
+  width: '6px',
+  height: '6px',
+  borderRadius: '50%',
+  background: '#f59e0b',
+  animation: 'pulseGlow 1.5s infinite ease-in-out',
+  display: 'inline-block',
+  flexShrink: 0,
+};
+
+const pendingTitleStyle: React.CSSProperties = {
+  fontSize: '1.4rem',
+  fontWeight: 800,
+  letterSpacing: '-0.02em',
+  color: 'var(--text-primary)',
+  margin: 0,
+};
+
+const pendingBodyStyle: React.CSSProperties = {
+  fontSize: '0.84rem',
+  color: 'var(--text-secondary)',
+  lineHeight: '1.65',
+  maxWidth: '380px',
+  margin: '0 auto',
+};
+
+const pendingInfoGridStyle: React.CSSProperties = {
+  display: 'grid',
+  gridTemplateColumns: '1fr 1fr',
+  gap: '0.75rem',
+  width: '100%',
+  marginTop: '0.25rem',
+};
+
+const pendingInfoBoxStyle: React.CSSProperties = {
+  background: 'rgba(255, 255, 255, 0.02)',
+  border: '1px solid rgba(255, 255, 255, 0.05)',
+  borderRadius: '10px',
+  padding: '0.85rem',
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '0.35rem',
+  textAlign: 'left',
+};
+
+const pendingInfoLabelStyle: React.CSSProperties = {
+  fontSize: '0.58rem',
+  fontWeight: 800,
+  letterSpacing: '0.08em',
+  color: 'var(--text-muted)',
+};
+
+const pendingInfoValStyle: React.CSSProperties = {
+  fontSize: '0.82rem',
+  fontWeight: 700,
+  color: 'var(--text-primary)',
+};
+
+const pendingHintStyle: React.CSSProperties = {
+  fontSize: '0.72rem',
+  color: 'var(--text-muted)',
+  lineHeight: '1.55',
+  maxWidth: '340px',
+};
+
+const pendingSignOutBtnStyle: React.CSSProperties = {
+  marginTop: '0.5rem',
+  padding: '0.75rem 2rem',
+  borderRadius: '8px',
+  background: 'transparent',
+  border: '1px solid rgba(255, 255, 255, 0.1)',
+  color: 'var(--text-secondary)',
+  fontSize: '0.8rem',
+  fontWeight: 600,
+  cursor: 'pointer',
+  transition: 'all 0.2s',
 };

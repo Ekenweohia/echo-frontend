@@ -23,13 +23,13 @@ export default function LandingPage() {
   return (
     <div style={landingWrapperStyle}>
       {/* Navbar */}
-      <header style={navStyle} className="glass-panel">
+      <header style={navStyle} className="glass-panel landing-nav">
         <div style={logoWrapperStyle}>
           <img src="/assets/emergencyecho.png" alt="EmergencyEcho Logo" style={{ height: '32px', objectFit: 'contain' }} />
-          <span style={logoTextStyle}>EmergencyEcho</span>
+          <span style={logoTextStyle} className="logo-text">EmergencyEcho</span>
         </div>
 
-        <nav style={navLinksStyle}>
+        <nav className="landing-nav-links">
           <a href="#how-it-works" style={navLinkStyle}>How it works</a>
           <a href="#features" style={navLinkStyle}>Features</a>
           <a href="#security" style={navLinkStyle}>Security</a>
@@ -37,7 +37,7 @@ export default function LandingPage() {
           <a href="#team" style={navLinkStyle}>Team</a>
         </nav>
 
-        <div style={navActionsStyle}>
+        <div style={navActionsStyle} className="landing-nav-actions">
           <button onClick={toggleTheme} style={themeToggleBtnStyle} title="Toggle Dark/Light Mode">
             {theme === 'dark' ? '☀️' : '🌙'}
           </button>
@@ -47,7 +47,7 @@ export default function LandingPage() {
       </header>
 
       {/* Hero Section */}
-      <section style={heroSectionStyle}>
+      <section className="landing-hero" style={heroSectionBaseStyle}>
         <div style={heroLeftStyle}>
           <h1 style={heroTitleStyle}>
             Instant medical guidance, <span style={highlightTextStyle}>everywhere, when it matters.</span>
@@ -56,13 +56,13 @@ export default function LandingPage() {
             Voice-activated AI triage, encrypted medical records, and verified clinicians - instantly. The ultimate response system built for Africa and beyond.
           </p>
 
-          <div style={heroActionsStyle}>
+          <div className="landing-hero-actions" style={heroActionsStyle}>
             <button onClick={() => router.push('/register')} style={heroBtnPrimaryStyle}>Get started</button>
             <button onClick={() => router.push('/register')} style={heroBtnSecondaryStyle}>Try EchoAI for free</button>
           </div>
 
           {/* Download Badges */}
-          <div style={badgeContainerStyle}>
+          <div className="landing-badge-container" style={badgeContainerStyle}>
             <div style={appBadgeWrapper}>
               <div style={badgeLabelStyle}>Coming Soon</div>
               <img src="/assets/appstore.png" alt="App Store" style={{ height: '38px', width: '128px', objectFit: 'contain', cursor: 'pointer' }} />
@@ -98,7 +98,7 @@ export default function LandingPage() {
         </h2>
         <p style={sectionSubTitleStyle}>A seamless, three-step journey to rapid medical response.</p>
 
-        <div style={cardGridStyle}>
+        <div className="landing-card-grid" style={cardGridBaseStyle}>
           {/* Card 1 */}
           <div style={stepCardStyle} className="glass-panel">
             <div style={stepNumberStyle}>1</div>
@@ -129,7 +129,7 @@ export default function LandingPage() {
       </section>
 
       {/* Section 2: The Patient Experience */}
-      <section id="features" style={featuresSectionStyle}>
+      <section id="features" className="landing-features" style={featuresSectionBaseStyle}>
         <div style={featuresLeftStyle}>
           <h2 style={sectionTitleStyle}>
             The <span style={{ color: 'var(--coral-red)' }}>Patient</span> Experience
@@ -178,7 +178,7 @@ export default function LandingPage() {
           Security and <span style={{ color: 'var(--coral-red)' }}>Privacy</span> First
         </h2>
         
-        <div style={securityGridStyle}>
+        <div className="landing-security">
           <div style={securityLeftStyle}>
             <h3 style={securitySubHeadingStyle}>NDPR Compliant & Encrypted</h3>
             <p style={securityDescStyle}>
@@ -232,7 +232,7 @@ export default function LandingPage() {
         </h2>
         <p style={sectionSubTitleStyle}>Real reviews from the front lines of emergency care.</p>
 
-        <div style={cardGridStyle}>
+        <div className="landing-card-grid" style={cardGridBaseStyle}>
           {/* Card 1 */}
           <div style={testimonialCardStyle} className="glass-panel">
             <h4 style={cardTitleStyle}>Dr. Balogun</h4>
@@ -326,6 +326,47 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+      {/* Global Footer */}
+      <footer style={footerStyle}>
+        <div style={footerContentStyle} className="landing-footer-content">
+          <div style={footerBrandStyle} className="landing-footer-brand">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <img src="/assets/emergencyecho.png" alt="EmergencyEcho Logo" style={{ height: '24px', objectFit: 'contain' }} />
+              <span style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-primary)' }}>EmergencyEcho</span>
+            </div>
+            <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginTop: '0.5rem', maxWidth: '300px' }}>
+              The ultimate response system built for Africa and beyond. Voice-activated AI triage and secure medical records.
+            </p>
+          </div>
+
+          <div style={footerLinksContainerStyle} className="landing-footer-links">
+            <div style={footerLinksColumnStyle}>
+              <h4 style={footerLinksTitleStyle}>Company</h4>
+              <a href="#" style={footerLinkStyle}>About Us</a>
+              <a href="#team" style={footerLinkStyle}>Team</a>
+              <a href="#" style={footerLinkStyle}>Careers</a>
+              <a href="#" style={footerLinkStyle}>Contact</a>
+            </div>
+            <div style={footerLinksColumnStyle}>
+              <h4 style={footerLinksTitleStyle}>Legal</h4>
+              <a href="#" style={footerLinkStyle}>Privacy Policy</a>
+              <a href="#" style={footerLinkStyle}>Terms of Service</a>
+              <a href="#" style={footerLinkStyle}>NDPR Compliance</a>
+            </div>
+          </div>
+        </div>
+
+        <div style={footerBottomStyle} className="landing-footer-bottom">
+          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+            © {new Date().getFullYear()} EmergencyEcho. All rights reserved.
+          </span>
+          <div style={socialLinksStyle}>
+            <a href="#" style={socialLinkStyle} title="Twitter">𝕏</a>
+            <a href="#" style={socialLinkStyle} title="LinkedIn">in</a>
+            <a href="#" style={socialLinkStyle} title="Instagram">ig</a>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
@@ -347,7 +388,7 @@ const landingWrapperStyle: React.CSSProperties = {
 
 const navStyle: React.CSSProperties = {
   position: 'fixed',
-  top: '1.5rem',
+  top: '1rem',
   left: '50%',
   transform: 'translateX(-50%)',
   width: 'calc(100% - 3rem)',
@@ -357,6 +398,8 @@ const navStyle: React.CSSProperties = {
   justifyContent: 'space-between',
   alignItems: 'center',
   padding: '0.85rem 1.5rem',
+  borderRadius: '100px', /* Make it pill shaped on desktop */
+  border: '1px solid rgba(255, 255, 255, 0.1)',
 };
 
 const logoWrapperStyle: React.CSSProperties = {
@@ -419,14 +462,10 @@ const btnGetStartedStyle: React.CSSProperties = {
   transition: 'transform 0.2s ease',
 };
 
-const heroSectionStyle: React.CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: '1.2fr 1fr',
-  gap: '3rem',
+const heroSectionBaseStyle: React.CSSProperties = {
   width: '100%',
   maxWidth: '1200px',
   margin: '2rem auto 0 auto',
-  alignItems: 'center',
 };
 
 const heroLeftStyle: React.CSSProperties = {
@@ -559,10 +598,7 @@ const sectionSubTitleStyle: React.CSSProperties = {
   color: 'var(--text-secondary)',
 };
 
-const cardGridStyle: React.CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: 'repeat(3, 1fr)',
-  gap: '1.5rem',
+const cardGridBaseStyle: React.CSSProperties = {
   marginTop: '2rem',
 };
 
@@ -605,14 +641,10 @@ const cardDescStyle: React.CSSProperties = {
   lineHeight: '1.45',
 };
 
-const featuresSectionStyle: React.CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: '1.2fr 1fr',
-  gap: '4rem',
+const featuresSectionBaseStyle: React.CSSProperties = {
   width: '100%',
   maxWidth: '1200px',
   margin: '2rem auto',
-  alignItems: 'center',
 };
 
 const featuresLeftStyle: React.CSSProperties = {
@@ -832,6 +864,93 @@ const teamDetailPrimaryStyle: React.CSSProperties = {
 };
 
 const teamDetailSecondaryStyle: React.CSSProperties = {
-  fontSize: '0.7rem',
+  fontSize: '0.75rem',
+  color: 'var(--text-muted)',
+};
+
+const footerStyle: React.CSSProperties = {
+  marginTop: '4rem',
+  padding: '4rem 1.5rem 2rem 1.5rem',
+  background: 'rgba(15, 22, 38, 0.4)',
+  borderTop: '1px solid rgba(255, 255, 255, 0.05)',
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+};
+
+const footerContentStyle: React.CSSProperties = {
+  width: '100%',
+  maxWidth: '1200px',
+  display: 'flex',
+  flexWrap: 'wrap',
+  justifyContent: 'space-between',
+  gap: '3rem',
+  marginBottom: '3rem',
+};
+
+const footerBrandStyle: React.CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '0.5rem',
+  flex: '1 1 300px',
+};
+
+const footerLinksContainerStyle: React.CSSProperties = {
+  display: 'flex',
+  gap: '3rem',
+  flexWrap: 'wrap',
+  flex: '2 1 400px',
+  justifyContent: 'flex-start',
+};
+
+const footerLinksColumnStyle: React.CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '0.75rem',
+  minWidth: '140px',
+};
+
+const footerLinksTitleStyle: React.CSSProperties = {
+  fontSize: '1rem',
+  fontWeight: 700,
+  color: 'var(--text-primary)',
+  marginBottom: '0.5rem',
+};
+
+const footerLinkStyle: React.CSSProperties = {
+  fontSize: '0.85rem',
   color: 'var(--text-secondary)',
+  textDecoration: 'none',
+  transition: 'color 0.2s',
+};
+
+const footerBottomStyle: React.CSSProperties = {
+  width: '100%',
+  maxWidth: '1200px',
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  paddingTop: '2rem',
+  borderTop: '1px solid rgba(255, 255, 255, 0.05)',
+  flexWrap: 'wrap',
+  gap: '1rem',
+};
+
+const socialLinksStyle: React.CSSProperties = {
+  display: 'flex',
+  gap: '1rem',
+};
+
+const socialLinkStyle: React.CSSProperties = {
+  width: '32px',
+  height: '32px',
+  borderRadius: '50%',
+  background: 'rgba(255, 255, 255, 0.05)',
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  color: 'var(--text-primary)',
+  textDecoration: 'none',
+  fontSize: '0.8rem',
+  transition: 'background 0.2s',
 };

@@ -43,7 +43,7 @@ export default function WalletConsole() {
   const [selectedBankId, setSelectedBankId] = useState('');
 
   // Add Bank inputs
-  const [bankName, setBankName] = useState('Access Bank');
+  const [bankName, setBankName] = useState('');
   const [accountNumber, setAccountNumber] = useState('');
   const [accountName, setAccountName] = useState('');
 
@@ -188,7 +188,30 @@ export default function WalletConsole() {
     e.preventDefault();
     if (!accountNumber || !accountName) return;
 
-    const body = { accountName, accountNumber, bankName, bankCode: '044' };
+    const BANK_CODES: Record<string, string> = {
+      'Access Bank': '044',
+      'GTBank': '058',
+      'Guaranty Trust Bank': '058',
+      'Zenith Bank': '057',
+      'UBA': '033',
+      'United Bank for Africa': '033',
+      'First Bank': '011',
+      'First Bank of Nigeria': '011',
+      'Opay': '100004',
+      'Palmpay': '100033',
+      'Kuda': '090267',
+      'Moniepoint': '090405',
+      'Wema Bank': '035',
+      'Stanbic IBTC': '221',
+      'Fidelity Bank': '070',
+      'Union Bank': '032',
+      'Sterling Bank': '232',
+      'Polaris Bank': '076',
+      'Ecobank': '050',
+      'FCMB': '214',
+    };
+    const bankCode = BANK_CODES[bankName] || '999';
+    const body = { accountName, accountNumber, bankName, bankCode };
     try {
       const response = await apiClient('/billing/wallet/bank-accounts', {
         method: 'POST',
@@ -212,6 +235,7 @@ export default function WalletConsole() {
     }
     setAccountNumber('');
     setAccountName('');
+    setBankName('');
     setShowAddBankModal(false);
   };
 
@@ -473,12 +497,34 @@ export default function WalletConsole() {
             <form onSubmit={handleAddBank} style={popupFormStyle}>
               <div style={formGroupStyle}>
                 <label style={popupLabelStyle}>Bank Name</label>
-                <select value={bankName} onChange={e => setBankName(e.target.value)} style={popupSelectStyle}>
-                  <option value="Access Bank">Access Bank</option>
-                  <option value="GTBank">Guaranty Trust Bank (GTB)</option>
-                  <option value="Zenith Bank">Zenith Bank</option>
-                  <option value="United Bank for Africa">United Bank for Africa (UBA)</option>
-                </select>
+                <input
+                  type="text"
+                  list="bank-name-list"
+                  placeholder="e.g. Access Bank, GTBank, Opay..."
+                  value={bankName}
+                  onChange={e => setBankName(e.target.value)}
+                  style={popupInputStyle}
+                  required
+                />
+                <datalist id="bank-name-list">
+                  <option value="Access Bank" />
+                  <option value="Guaranty Trust Bank" />
+                  <option value="Zenith Bank" />
+                  <option value="United Bank for Africa" />
+                  <option value="First Bank of Nigeria" />
+                  <option value="Opay" />
+                  <option value="Palmpay" />
+                  <option value="Kuda" />
+                  <option value="Moniepoint" />
+                  <option value="Wema Bank" />
+                  <option value="Stanbic IBTC" />
+                  <option value="Fidelity Bank" />
+                  <option value="Union Bank" />
+                  <option value="Sterling Bank" />
+                  <option value="Polaris Bank" />
+                  <option value="Ecobank" />
+                  <option value="FCMB" />
+                </datalist>
               </div>
 
               <div style={formGroupStyle}>
