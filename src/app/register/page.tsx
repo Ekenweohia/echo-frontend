@@ -42,11 +42,8 @@ export default function RegisterPage() {
       });
 
       if (regRes.success) {
-        // Silent login to fetch token & route dynamically
-        const logRes = await login(email, password);
-        if (!logRes.success) {
-          router.push('/login');
-        }
+        // Redirect to email verification screen to enter the 6-digit code
+        router.push(`/verify-email?sent=true&email=${encodeURIComponent(email)}`);
       } else {
         setErrorMessage(regRes.error || 'Registration failed. Please try again.');
       }

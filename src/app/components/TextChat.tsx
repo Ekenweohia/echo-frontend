@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { FormEvent, useCallback, useEffect, useRef, useState } from 'react';
+import Vapi from '@vapi-ai/web';
 import { useAuth } from '@/context/AuthContext';
 import { apiClient } from '@/services/apiClient';
 
@@ -13,497 +14,219 @@ interface TextChatProps {
   illnessIcon?: string;
 }
 
-interface ChatMessage {
+interface TranscriptLine {
   id: string;
-  role: 'user' | 'ai' | 'system';
+  speaker: 'AI' | 'USER' | 'SYSTEM';
   text: string;
-  timestamp: string;
 }
 
-const ILLNESS_SYSTEM_PROMPTS: Record<string, string> = {
-  diabetes: 'You are Echo, a clinical AI assistant. The patient wants to discuss diabetes — symptoms, management, blood sugar, insulin, diet, and lifestyle. Be empathetic, clear, and always recommend consulting a real doctor for diagnosis.',
-  hypertension: 'You are Echo, a clinical AI assistant. The patient wants to discuss hypertension — blood pressure management, medications, lifestyle changes, salt intake, and stress. Be empathetic and helpful.',
-  asthma: 'You are Echo, a clinical AI assistant. The patient wants to discuss asthma — triggers, inhalers, breathing exercises, and emergency protocols. Be empathetic and clear.',
-  malaria: 'You are Echo, a clinical AI assistant. The patient wants to discuss malaria — symptoms, treatment, prevention, and when to seek emergency care. Be thorough and empathetic.',
-  typhoid: 'You are Echo, a clinical AI assistant. The patient wants to discuss typhoid fever — symptoms, antibiotic treatment, hydration, and prevention. Be helpful and clear.',
-  fever: 'You are Echo, a clinical AI assistant. The patient is experiencing fever. Help assess severity, recommend home care, and advise when to seek emergency care.',
-  chest_pain: 'You are Echo, a clinical AI assistant. The patient has chest pain concerns. Take this seriously — help them assess whether it is an emergency, and guide them appropriately.',
-  headache: 'You are Echo, a clinical AI assistant. The patient wants to discuss headaches — tension, migraine, cluster types, triggers, and treatments.',
-  'baby-sick': 'You are Echo, a clinical AI assistant. The patient is concerned about a sick baby or child. Be extra careful, empathetic, and thorough about pediatric symptoms.',
-  injury: 'You are Echo, a clinical AI assistant. The patient has an injury concern. Help assess severity, first aid, and when to seek immediate care.',
-  elderly: 'You are Echo, a clinical AI assistant. The patient is seeking advice for elderly care — fall prevention, chronic disease management, medication safety, and cognitive health.',
-  seizure: 'You are Echo, a clinical AI assistant. The patient wants to discuss seizures — types, triggers, first aid, medications, and when to call emergency services.',
-  emergency: 'You are Echo, a clinical AI assistant. The patient may have a medical emergency. Be calm, clear, and direct. Help them assess the situation and call for help if needed.',
-  general: 'You are Echo, a clinical AI assistant. You help patients understand their symptoms, medical conditions, and general health questions. Always recommend consulting a real doctor for diagnosis and treatment.',
-};
+const VAPI_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPI_PUBLIC_KEY || 'c0c5baf7-ec97-4971-b7ac-a18e9bb8db2b';
+const VAPI_ASSISTANT_ID = process.env.NEXT_PUBLIC_VAPI_ASSISTANT_ID || 'cd66b0d9-3543-4417-9f12-e1f18b67f951';
+const isBackendSession = (id: string | null) => Boolean(id && !id.startsWith('mock-') && !id.startsWith('clinician-'));
 
 export default function TextChat({ isOpen, onClose, illnessTag, illnessTitle = 'Medical Chat', illnessColor = '#00f5d4', illnessIcon = '🩺' }: TextChatProps) {
   const { user } = useAuth();
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [inputText, setInputText] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [status, setStatus] = useState<'connecting' | 'active' | 'error'>('connecting');
+  const [input, setInput] = useState('');
+  const [transcript, setTranscript] = useState<TranscriptLine[]>([]);
   const [sessionId, setSessionId] = useState<string | null>(null);
-  const [sessionInitialized, setSessionInitialized] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLTextAreaElement>(null);
-  const isMountedRef = useRef(true);
+  const vapiRef = useRef<Vapi | null>(null);
+  const sessionIdRef = useRef<string | null>(null);
+  const transcriptRef = useRef<TranscriptLine[]>([]);
+  const pendingUserMessagesRef = useRef<string[]>([]);
+  const startedAtRef = useRef<number | null>(null);
+  const endedRef = useRef(false);
+  const mountedRef = useRef(false);
+  const transcriptEndRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    isMountedRef.current = true;
-    return () => { isMountedRef.current = false; };
+  const addLine = useCallback((speaker: TranscriptLine['speaker'], text: string) => {
+    const line = { id: crypto.randomUUID(), speaker, text };
+    transcriptRef.current = [...transcriptRef.current, line];
+    setTranscript(transcriptRef.current);
   }, []);
 
-  // Auto scroll to bottom
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+  const sendToolResult = useCallback((toolCall: any, result: unknown) => {
+    vapiRef.current?.send({ type: 'add-message', message: {
+      role: 'tool', name: toolCall.function?.name, tool_call_id: toolCall.id, content: JSON.stringify(result),
+    } } as any);
+  }, []);
 
-  // Initialize chat session when opened
+  const handleToolCall = useCallback(async (toolCall: any) => {
+    const name = toolCall.function?.name;
+    if (name === 'get_patient_context' || name === 'get_person_details') {
+      addLine('SYSTEM', 'Syncing your medical history…');
+      try {
+        const response = await apiClient('/dmk/me');
+        const payload = response.ok ? await response.json() : null;
+        const dmk = payload?.success ? payload.data : null;
+        sendToolResult(toolCall, {
+          patientName: user?.fullName || 'Patient', firstName: user?.fullName?.split(' ')[0] || 'Patient',
+          activeConditions: (dmk?.conditions ?? []).map((item: any) => item.name),
+          activeMedications: (dmk?.medications ?? []).map((item: any) => [item.name, item.dosage, item.frequency].filter(Boolean).join(' ')),
+          knownAllergies: (dmk?.allergies ?? []).map((item: any) => `${item.allergen} (${item.severity}${item.reaction ? ` — ${item.reaction}` : ''})`),
+          dmkCompleteness: dmk ? 'available' : 'not_initialized',
+        });
+      } catch {
+        sendToolResult(toolCall, { error: 'Failed to retrieve patient details.' });
+      }
+      return;
+    }
+    if (name === 'flag_red_flag') addLine('SYSTEM', 'Urgent symptoms were flagged for clinical review.');
+    if (name === 'finish_intake') addLine('SYSTEM', 'Intake complete. Your triage is being prepared.');
+    sendToolResult(toolCall, { success: true, message: name === 'finish_intake' ? 'Intake finished.' : name === 'flag_red_flag' ? 'Red flag recorded.' : `Unsupported client tool: ${name || 'unknown'}` });
+  }, [addLine, sendToolResult, user]);
+
+  const endSession = useCallback(async (closeAfter: boolean) => {
+    if (endedRef.current) return;
+    endedRef.current = true;
+    const id = sessionIdRef.current;
+    if (isBackendSession(id)) {
+      const summary = transcriptRef.current.filter((line) => line.speaker !== 'SYSTEM').map((line) => `${line.speaker}: ${line.text}`).join('\n');
+      try {
+        await apiClient(`/echo-ai/sessions/${id}/end`, { method: 'POST', body: JSON.stringify({
+          durationSeconds: Math.max(1, Math.round((Date.now() - (startedAtRef.current ?? Date.now())) / 1000)),
+          rawAnalysis: { summary, structuredData: { illnessTag } },
+        }) });
+      } catch { /* Preserve the locally visible transcript when offline. */ }
+    }
+    const vapi = vapiRef.current;
+    vapiRef.current = null;
+    try { vapi?.stop(); (vapi as any)?.destroy?.(); } catch { /* Connection already closed. */ }
+    if (closeAfter && mountedRef.current) onClose();
+  }, [illnessTag, onClose]);
+
+  useEffect(() => { transcriptEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [transcript]);
+
   useEffect(() => {
     if (!isOpen) return;
-    setMessages([]);
+    mountedRef.current = true;
+    endedRef.current = false;
+    startedAtRef.current = Date.now();
+    sessionIdRef.current = null;
+    transcriptRef.current = [];
+    pendingUserMessagesRef.current = [];
+    setTranscript([]);
     setSessionId(null);
-    setSessionInitialized(false);
-    initSession();
-  }, [isOpen, illnessTag]);
+    setStatus('connecting');
+    addLine('SYSTEM', `Connecting your ${illnessTitle.toLowerCase()} text intake…`);
 
-  // Focus input when opened
-  useEffect(() => {
-    if (isOpen && inputRef.current) {
-      setTimeout(() => inputRef.current?.focus(), 300);
-    }
-  }, [isOpen]);
-
-  const initSession = async () => {
-    let sid = `text-session-${Math.random().toString(36).substring(4)}`;
-
-    // Try to create a backend session
-    try {
-      const response = await apiClient('/echo-ai/sessions', {
-        method: 'POST',
-        body: JSON.stringify({
-          language: 'en',
-          isSOS: false,
-          sessionType: 'TEXT_CHAT',
-          illnessTag,
-        })
-      });
-      if (response.ok) {
-        const json = await response.json();
-        if (json.success && json.data?.id) sid = json.data.id;
+    let cancelled = false;
+    const start = async () => {
+      let createdId = `clinician-${crypto.randomUUID()}`;
+      if (user?.role === 'PATIENT') {
+        try {
+          const response = await apiClient('/echo-ai/sessions', { method: 'POST', body: JSON.stringify({ language: 'en', isSOS: false }) });
+          const payload = await response.json();
+          if (!response.ok || !payload?.success || !payload?.data?.id) throw new Error('Session creation failed');
+          createdId = payload.data.id;
+        } catch {
+          createdId = `mock-${crypto.randomUUID()}`;
+          addLine('SYSTEM', 'Backend is unavailable; continuing in local session mode.');
+        }
       }
-    } catch {
-      // offline – use generated ID
-    }
+      if (cancelled) {
+        if (isBackendSession(createdId)) {
+          void apiClient(`/echo-ai/sessions/${createdId}/end`, { method: 'POST', body: JSON.stringify({ durationSeconds: 1, rawAnalysis: { summary: '' } }) });
+        }
+        return;
+      }
+      sessionIdRef.current = createdId;
+      setSessionId(createdId);
+      const vapi = new Vapi(VAPI_PUBLIC_KEY);
+      vapiRef.current = vapi;
+      vapi.on('error', () => { if (mountedRef.current) setStatus('error'); });
+      vapi.on('call-start', async () => {
+        if (cancelled || !mountedRef.current) return;
+        setStatus('active');
+        
+        // Force Vapi into a text-only mode by muting the microphone
+        try { vapi.setMuted(true); } catch (e) {}
+        
+        // Mute AI audio output to make it purely text-based
+        const muteAudio = () => {
+          document.querySelectorAll('audio').forEach(audio => {
+            audio.muted = true;
+            audio.volume = 0;
+          });
+        };
+        muteAudio();
+        
+        // Vapi might inject the audio element slightly after start, so we observe
+        const observer = new MutationObserver((mutations) => {
+          mutations.forEach((mutation) => {
+            if (mutation.addedNodes) {
+              muteAudio();
+            }
+          });
+        });
+        observer.observe(document.body, { childList: true, subtree: true });
+        
+        // Clean up observer when call ends
+        vapi.on('call-end', () => observer.disconnect());
 
-    if (!isMountedRef.current) return;
-    setSessionId(sid);
-    setSessionInitialized(true);
-
-    // Greeting from Echo AI
-    const greeting = `Hello! I'm **Echo**, your clinical AI assistant. I'm here to help you with questions about **${illnessTitle}**.\n\nPlease remember: I provide general health information only. Always consult a qualified doctor for diagnosis and treatment.\n\nHow can I help you today?`;
-    appendMessage('ai', greeting);
-  };
-
-  const appendMessage = (role: 'user' | 'ai' | 'system', text: string) => {
-    const msg: ChatMessage = {
-      id: `msg-${Date.now()}-${Math.random().toString(36).substring(4)}`,
-      role,
-      text,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        if (isBackendSession(createdId)) {
+          try { await apiClient(`/echo-ai/sessions/${createdId}/start`, { method: 'POST', body: JSON.stringify({ vapiCallId: 'web-client-call' }) }); }
+          catch { addLine('SYSTEM', 'The session started, but could not be synced to the backend.'); }
+        }
+      });
+      vapi.on('call-end', () => { void endSession(false); });
+      vapi.on('message', (message: any) => {
+        if (cancelled || !mountedRef.current) return;
+        if (message.type === 'transcript' && message.transcriptType === 'final' && message.transcript) {
+          if (message.role !== 'assistant') {
+            const duplicateIndex = pendingUserMessagesRef.current.indexOf(message.transcript);
+            if (duplicateIndex >= 0) {
+              pendingUserMessagesRef.current.splice(duplicateIndex, 1);
+              return;
+            }
+          }
+          addLine(message.role === 'assistant' ? 'AI' : 'USER', message.transcript);
+        }
+        if (message.type === 'tool-calls') for (const toolCall of message.toolCallList || []) void handleToolCall(toolCall);
+      });
+      try {
+        await vapi.start(VAPI_ASSISTANT_ID, { metadata: { sessionId: createdId, patientId: user?.id || '' }, variableValues: {
+          personIdentifier: user?.phone || user?.email || user?.id || 'unknown',
+          identifierType: user?.phone ? 'phone' : user?.email ? 'email' : user?.id ? 'customer_id' : 'unknown',
+          patientName: user?.fullName || 'Patient', illnessTag, illnessTitle,
+        } });
+      } catch {
+        if (!cancelled && mountedRef.current) { setStatus('error'); addLine('SYSTEM', 'Unable to connect to Echo AI. Please try again.'); }
+      }
     };
-    setMessages(prev => [...prev, msg]);
-  };
+    void start();
+    return () => { cancelled = true; mountedRef.current = false; void endSession(false); };
+  }, [addLine, endSession, handleToolCall, illnessTag, illnessTitle, isOpen, user]);
 
-  const sendMessage = useCallback(async () => {
-    const text = inputText.trim();
-    if (!text || isLoading || !sessionInitialized) return;
-
-    setInputText('');
-    appendMessage('user', text);
-    setIsLoading(true);
-
-    const systemPrompt = ILLNESS_SYSTEM_PROMPTS[illnessTag] || ILLNESS_SYSTEM_PROMPTS.general;
-
-    try {
-      // Attempt Vapi text endpoint
-      const response = await apiClient('/echo-ai/chat', {
-        method: 'POST',
-        body: JSON.stringify({
-          sessionId,
-          message: text,
-          illnessTag,
-          systemPrompt,
-        })
-      });
-
-      if (response.ok) {
-        const json = await response.json();
-        const aiText = json.data?.message || json.data?.response || json.message || 'I understand. Could you tell me more?';
-        if (isMountedRef.current) appendMessage('ai', aiText);
-      } else {
-        throw new Error('API returned non-ok status');
-      }
-    } catch {
-      // Smart offline fallback responses
-      const fallback = generateFallbackResponse(illnessTag, text);
-      if (isMountedRef.current) appendMessage('ai', fallback);
-    } finally {
-      if (isMountedRef.current) setIsLoading(false);
-    }
-  }, [inputText, isLoading, sessionInitialized, sessionId, illnessTag]);
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
-    }
+  const sendMessage = (event: FormEvent) => {
+    event.preventDefault();
+    const text = input.trim();
+    if (!text || status !== 'active' || !vapiRef.current) return;
+    vapiRef.current.send({ type: 'add-message', message: { role: 'user', content: text } } as any);
+    pendingUserMessagesRef.current.push(text);
+    addLine('USER', text);
+    setInput('');
   };
 
   if (!isOpen) return null;
-
-  return (
-    <div style={overlayStyle} onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
-      <div style={chatModalStyle} className="glass-panel text-chat-modal">
-        {/* Header */}
-        <div style={chatHeaderStyle}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <div style={{ ...iconCircleStyle, background: illnessColor + '22', border: `1.5px solid ${illnessColor}44`, color: illnessColor }}>
-              {illnessIcon}
-            </div>
-            <div>
-              <div style={chatTitleStyle}>Echo AI — {illnessTitle}</div>
-              <div style={chatSubtitleStyle}>
-                <span style={{ ...onlineDotStyle, background: sessionInitialized ? '#22c55e' : '#f59e0b' }} />
-                {sessionInitialized ? 'Connected · Clinical AI' : 'Connecting...'}
-              </div>
-            </div>
-          </div>
-          <button onClick={onClose} style={closeButtonStyle} title="Close chat">✕</button>
-        </div>
-
-        {/* Disclaimer Banner */}
-        <div style={disclaimerBannerStyle}>
-          ⚠️ For informational purposes only. Not a substitute for professional medical advice.
-        </div>
-
-        {/* Messages */}
-        <div style={messagesContainerStyle}>
-          {messages.map(msg => (
-            <div key={msg.id} style={messageRowStyle(msg.role)}>
-              {msg.role === 'ai' && (
-                <div style={aiBubbleAvatarStyle}>E</div>
-              )}
-              <div style={bubbleWrapStyle(msg.role)}>
-                <div style={bubbleStyle(msg.role, illnessColor)}>
-                  {renderMessageText(msg.text)}
-                </div>
-                <div style={timestampStyle(msg.role)}>{msg.timestamp}</div>
-              </div>
-              {msg.role === 'user' && (
-                <div style={userBubbleAvatarStyle}>
-                  {user?.fullName?.charAt(0) || 'P'}
-                </div>
-              )}
-            </div>
-          ))}
-
-          {/* Typing indicator */}
-          {isLoading && (
-            <div style={messageRowStyle('ai')}>
-              <div style={aiBubbleAvatarStyle}>E</div>
-              <div style={{ ...bubbleStyle('ai', illnessColor), padding: '0.75rem 1.1rem' }}>
-                <div style={typingDotsStyle}>
-                  <span style={dotStyle(0)} />
-                  <span style={dotStyle(1)} />
-                  <span style={dotStyle(2)} />
-                </div>
-              </div>
-            </div>
-          )}
-          <div ref={messagesEndRef} />
-        </div>
-
-        {/* Input Area */}
-        <div style={inputAreaStyle}>
-          <textarea
-            ref={inputRef}
-            value={inputText}
-            onChange={e => setInputText(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder={`Ask about ${illnessTitle}... (Enter to send)`}
-            style={textInputStyle}
-            rows={1}
-            disabled={!sessionInitialized || isLoading}
-          />
-          <button
-            onClick={sendMessage}
-            disabled={!inputText.trim() || isLoading || !sessionInitialized}
-            style={sendButtonStyle(illnessColor, !inputText.trim() || isLoading || !sessionInitialized)}
-            title="Send message"
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="22" y1="2" x2="11" y2="13" />
-              <polygon points="22 2 15 22 11 13 2 9 22 2" />
-            </svg>
-          </button>
-        </div>
-      </div>
-    </div>
-  );
+  return <div style={overlayStyle} role="dialog" aria-modal="true" aria-label={`${illnessTitle} text chat`}>
+    <section style={modalStyle}>
+      <header style={headerStyle}><div><div style={{ color: illnessColor, fontSize: 13, fontWeight: 700 }}>{illnessIcon} ECHO AI · TEXT INTAKE</div><h2 style={{ margin: '5px 0 0', fontSize: 20 }}>{illnessTitle}</h2></div><button type="button" onClick={() => void endSession(true)} style={closeStyle} aria-label="End text intake">×</button></header>
+      <div style={{ ...statusStyle, color: status === 'error' ? '#fca5a5' : illnessColor }}>{status === 'active' ? 'Connected' : status === 'error' ? 'Connection problem' : 'Connecting securely…'}{sessionId && ' · Session active'}</div>
+      <main style={messagesStyle} aria-live="polite">{transcript.map((line) => <div key={line.id} style={messageStyle(line.speaker, illnessColor)}>{line.speaker !== 'SYSTEM' && <span style={speakerStyle}>{line.speaker === 'AI' ? 'Echo AI' : 'You'}</span>}{line.text}</div>)}<div ref={transcriptEndRef} /></main>
+      <form onSubmit={sendMessage} style={composerStyle}><input value={input} onChange={(event) => setInput(event.target.value)} disabled={status !== 'active'} placeholder={status === 'active' ? 'Describe how you feel…' : 'Waiting for a secure connection…'} style={inputStyle} /><button type="submit" disabled={!input.trim() || status !== 'active'} style={{ ...sendStyle, background: illnessColor }}>Send</button></form>
+    </section>
+  </div>;
 }
 
-function renderMessageText(text: string) {
-  // Simple markdown-like bold renderer
-  const parts = text.split(/\*\*(.*?)\*\*/g);
-  return (
-    <span>
-      {parts.map((part, i) =>
-        i % 2 === 1 ? <strong key={i}>{part}</strong> : <span key={i}>{part}</span>
-      )}
-    </span>
-  );
-}
-
-function generateFallbackResponse(tag: string, userMessage: string): string {
-  const lower = userMessage.toLowerCase();
-
-  if (lower.includes('symptom') || lower.includes('feel') || lower.includes('pain')) {
-    return `Based on what you've described, these are common concerns related to **${tag}**. While I can provide general information, it's important to consult a licensed physician for a proper evaluation.\n\nCan you describe your symptoms in more detail? For example, how long have you been experiencing this, and how severe would you rate it on a scale of 1–10?`;
-  }
-  if (lower.includes('treatment') || lower.includes('medicine') || lower.includes('drug')) {
-    return `Treatment options vary based on individual patient profiles. For **${tag}**, common approaches may include lifestyle modifications, medications prescribed by a doctor, and regular monitoring.\n\n**Important:** Never self-medicate. Always consult your doctor before starting any treatment.`;
-  }
-  if (lower.includes('emergency') || lower.includes('urgent') || lower.includes('help')) {
-    return `🚨 If this is a medical emergency, please **call emergency services immediately** or use the SOS button on your dashboard.\n\nFor urgent but non-life-threatening concerns, visit your nearest clinic or hospital as soon as possible.`;
-  }
-  return `Thank you for your message. Regarding **${tag}**, this is an area where getting personalized advice from a healthcare professional is very important.\n\nI can help you understand general information, common symptoms, or how to prepare for a doctor's visit. What specific aspect would you like to know more about?`;
-}
-
-// Styles
-const overlayStyle: React.CSSProperties = {
-  position: 'fixed',
-  inset: 0,
-  background: 'rgba(5, 10, 20, 0.75)',
-  backdropFilter: 'blur(8px)',
-  zIndex: 1000,
-  display: 'flex',
-  alignItems: 'flex-end',
-  justifyContent: 'center',
-  padding: 0,
-  animation: 'fadeIn 0.2s ease',
-};
-
-const chatModalStyle: React.CSSProperties = {
-  width: '100%',
-  maxWidth: '620px',
-  height: '88vh',
-  maxHeight: '720px',
-  display: 'flex',
-  flexDirection: 'column',
-  overflow: 'hidden',
-  borderRadius: '20px 20px 0 0',
-  border: '1px solid rgba(255,255,255,0.08)',
-  borderBottom: 'none',
-  background: 'rgba(10, 15, 28, 0.98)',
-  animation: 'slideUp 0.25s ease',
-};
-
-const chatHeaderStyle: React.CSSProperties = {
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  padding: '1rem 1.25rem',
-  borderBottom: '1px solid rgba(255,255,255,0.06)',
-  flexShrink: 0,
-  gap: '0.5rem',
-};
-
-const iconCircleStyle: React.CSSProperties = {
-  width: '42px',
-  height: '42px',
-  borderRadius: '50%',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  fontSize: '1.3rem',
-  flexShrink: 0,
-};
-
-const chatTitleStyle: React.CSSProperties = {
-  fontSize: '1rem',
-  fontWeight: 700,
-  color: 'var(--text-primary)',
-};
-
-const chatSubtitleStyle: React.CSSProperties = {
-  fontSize: '0.72rem',
-  color: 'var(--text-muted)',
-  display: 'flex',
-  alignItems: 'center',
-  gap: '0.4rem',
-  marginTop: '2px',
-};
-
-const onlineDotStyle: React.CSSProperties = {
-  width: '6px',
-  height: '6px',
-  borderRadius: '50%',
-  display: 'inline-block',
-};
-
-const closeButtonStyle: React.CSSProperties = {
-  background: 'rgba(255,255,255,0.05)',
-  border: '1px solid rgba(255,255,255,0.08)',
-  borderRadius: '8px',
-  color: 'var(--text-muted)',
-  width: '32px',
-  height: '32px',
-  cursor: 'pointer',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  fontSize: '0.85rem',
-  flexShrink: 0,
-  transition: 'background 0.2s',
-};
-
-const disclaimerBannerStyle: React.CSSProperties = {
-  background: 'rgba(245, 158, 11, 0.08)',
-  borderBottom: '1px solid rgba(245, 158, 11, 0.12)',
-  padding: '0.5rem 1.5rem',
-  fontSize: '0.68rem',
-  color: '#f59e0b',
-  fontWeight: 500,
-  flexShrink: 0,
-};
-
-const messagesContainerStyle: React.CSSProperties = {
-  flex: 1,
-  overflowY: 'auto',
-  padding: '1.25rem',
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '1rem',
-  scrollbarWidth: 'thin',
-  scrollbarColor: 'rgba(255,255,255,0.08) transparent',
-};
-
-const messageRowStyle = (role: string): React.CSSProperties => ({
-  display: 'flex',
-  alignItems: 'flex-end',
-  gap: '0.65rem',
-  flexDirection: role === 'user' ? 'row-reverse' : 'row',
-  animation: 'fadeIn 0.2s ease',
-});
-
-const bubbleWrapStyle = (role: string): React.CSSProperties => ({
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: role === 'user' ? 'flex-end' : 'flex-start',
-  maxWidth: '75%',
-});
-
-const bubbleStyle = (role: string, color: string): React.CSSProperties => ({
-  padding: '0.75rem 1.1rem',
-  borderRadius: role === 'ai' ? '4px 16px 16px 16px' : '16px 4px 16px 16px',
-  background: role === 'user'
-    ? `linear-gradient(135deg, ${color}cc, ${color}88)`
-    : 'rgba(255,255,255,0.06)',
-  border: role === 'ai' ? '1px solid rgba(255,255,255,0.07)' : 'none',
-  color: role === 'user' ? '#0a0f1c' : 'var(--text-primary)',
-  fontSize: '0.86rem',
-  lineHeight: 1.55,
-  wordBreak: 'break-word',
-});
-
-const timestampStyle = (role: string): React.CSSProperties => ({
-  fontSize: '0.62rem',
-  color: 'var(--text-muted)',
-  marginTop: '4px',
-  paddingRight: role === 'ai' ? '0' : '0.25rem',
-});
-
-const aiBubbleAvatarStyle: React.CSSProperties = {
-  width: '30px',
-  height: '30px',
-  borderRadius: '50%',
-  background: 'linear-gradient(135deg, #00f5d4, #6366f1)',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  fontSize: '0.72rem',
-  fontWeight: 800,
-  color: '#080c14',
-  flexShrink: 0,
-};
-
-const userBubbleAvatarStyle: React.CSSProperties = {
-  width: '30px',
-  height: '30px',
-  borderRadius: '50%',
-  background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  fontSize: '0.72rem',
-  fontWeight: 800,
-  color: '#fff',
-  flexShrink: 0,
-};
-
-const typingDotsStyle: React.CSSProperties = {
-  display: 'flex',
-  gap: '4px',
-  alignItems: 'center',
-  height: '16px',
-};
-
-const dotStyle = (i: number): React.CSSProperties => ({
-  width: '6px',
-  height: '6px',
-  borderRadius: '50%',
-  background: 'var(--text-muted)',
-  animation: `typingBounce 1.2s ${i * 0.2}s infinite ease-in-out`,
-});
-
-const inputAreaStyle: React.CSSProperties = {
-  display: 'flex',
-  gap: '0.75rem',
-  padding: '1rem 1.25rem',
-  borderTop: '1px solid rgba(255,255,255,0.06)',
-  alignItems: 'flex-end',
-  background: 'rgba(5,10,20,0.5)',
-  flexShrink: 0,
-};
-
-const textInputStyle: React.CSSProperties = {
-  flex: 1,
-  background: 'rgba(255,255,255,0.05)',
-  border: '1px solid rgba(255,255,255,0.1)',
-  borderRadius: '12px',
-  padding: '0.65rem 0.9rem',
-  color: 'var(--text-primary)',
-  fontSize: '1rem',   /* 16px+ prevents iOS auto-zoom */
-  outline: 'none',
-  resize: 'none',
-  fontFamily: 'inherit',
-  lineHeight: 1.5,
-  maxHeight: '120px',
-  transition: 'border-color 0.2s',
-};
-
-const sendButtonStyle = (color: string, disabled: boolean): React.CSSProperties => ({
-  width: '42px',
-  height: '42px',
-  borderRadius: '12px',
-  background: disabled ? 'rgba(255,255,255,0.05)' : `linear-gradient(135deg, ${color}, ${color}aa)`,
-  border: 'none',
-  color: disabled ? 'var(--text-muted)' : '#080c14',
-  cursor: disabled ? 'not-allowed' : 'pointer',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  transition: 'all 0.2s',
-  flexShrink: 0,
-});
+const overlayStyle: React.CSSProperties = { position: 'fixed', inset: 0, zIndex: 1000, display: 'grid', placeItems: 'center', padding: 20, background: 'rgba(5, 14, 28, .72)', backdropFilter: 'blur(8px)' };
+const modalStyle: React.CSSProperties = { width: 'min(680px, 100%)', height: 'min(720px, calc(100vh - 40px))', display: 'flex', flexDirection: 'column', overflow: 'hidden', color: '#eff6ff', background: '#0b1628', border: '1px solid rgba(147, 197, 253, .24)', borderRadius: 20, boxShadow: '0 28px 80px rgba(0,0,0,.45)' };
+const headerStyle: React.CSSProperties = { display: 'flex', alignItems: 'start', justifyContent: 'space-between', padding: '22px 24px 16px', borderBottom: '1px solid rgba(147, 197, 253, .14)' };
+const closeStyle: React.CSSProperties = { border: 0, color: '#cbd5e1', background: 'transparent', cursor: 'pointer', fontSize: 28, lineHeight: 1 };
+const statusStyle: React.CSSProperties = { padding: '9px 24px', fontSize: 12, background: 'rgba(15, 23, 42, .7)' };
+const messagesStyle: React.CSSProperties = { flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 12, padding: 24 };
+const messageStyle = (speaker: TranscriptLine['speaker'], color: string): React.CSSProperties => ({ alignSelf: speaker === 'USER' ? 'flex-end' : 'flex-start', maxWidth: speaker === 'SYSTEM' ? '100%' : '82%', padding: speaker === 'SYSTEM' ? '2px 4px' : '12px 14px', color: speaker === 'SYSTEM' ? '#94a3b8' : '#f8fafc', background: speaker === 'USER' ? color : speaker === 'AI' ? '#17243a' : 'transparent', borderRadius: speaker === 'USER' ? '16px 16px 4px 16px' : '16px 16px 16px 4px', fontSize: 14, lineHeight: 1.5 });
+const speakerStyle: React.CSSProperties = { display: 'block', marginBottom: 4, color: '#93c5fd', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.05em' };
+const composerStyle: React.CSSProperties = { display: 'flex', gap: 10, padding: 18, borderTop: '1px solid rgba(147, 197, 253, .14)' };
+const inputStyle: React.CSSProperties = { minWidth: 0, flex: 1, padding: '12px 14px', color: '#f8fafc', background: '#101d31', border: '1px solid #31425c', borderRadius: 10, outline: 'none' };
+const sendStyle: React.CSSProperties = { padding: '0 18px', color: '#fff', border: 0, borderRadius: 10, cursor: 'pointer', fontWeight: 700 };

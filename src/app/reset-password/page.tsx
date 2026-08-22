@@ -7,8 +7,9 @@ import Link from 'next/navigation';
 function ResetPasswordForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const token = searchParams?.get('token') || '';
+  const urlToken = searchParams?.get('token') || '';
 
+  const [token, setToken] = useState(urlToken);
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -17,7 +18,7 @@ function ResetPasswordForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newPassword || !confirmPassword) return;
+    if (!token || !newPassword || !confirmPassword) return;
 
     if (newPassword !== confirmPassword) {
       setErrorMessage('Passwords do not match.');
@@ -28,7 +29,7 @@ function ResetPasswordForm() {
     setErrorMessage('');
 
     try {
-      const response = await fetch('https://api.novacoresbank.com/api/v1/auth/reset-password', {
+      const response = await fetch('http://localhost:4000/api/v1/auth/reset-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token, newPassword }),
@@ -76,6 +77,18 @@ function ResetPasswordForm() {
       ) : (
         <form onSubmit={handleSubmit} style={formStyle}>
           {errorMessage && <div style={errorStyle}>{errorMessage}</div>}
+
+          <div style={formGroupStyle}>
+            <label style={labelStyle}>Reset Code (6-digit)</label>
+            <input
+              type="text"
+              placeholder="Enter 6-digit code from email"
+              value={token}
+              onChange={(e) => setToken(e.target.value)}
+              style={inputStyle}
+              required
+            />
+          </div>
 
           <div style={formGroupStyle}>
             <label style={labelStyle}>New Password</label>
