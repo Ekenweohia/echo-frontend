@@ -25,14 +25,48 @@ interface BankAccount {
 type Tab = 'balance' | 'deposit' | 'withdraw' | 'banks' | 'promo' | 'history';
 
 const NIGERIAN_BANKS = [
-  'Access Bank', 'Zenith Bank', 'GTBank', 'First Bank', 'UBA',
-  'Fidelity Bank', 'Union Bank', 'Sterling Bank', 'Wema Bank', 'Keystone Bank',
-  'Polaris Bank', 'Providus Bank', 'Stanbic IBTC', 'Standard Chartered', 'Ecobank',
+  'Access Bank',
+  'Guaranty Trust Bank (GTBank)',
+  'Zenith Bank',
+  'United Bank for Africa (UBA)',
+  'First Bank of Nigeria',
+  'OPay (PayCom)',
+  'PalmPay',
+  'Kuda Microfinance Bank',
+  'Moniepoint Microfinance Bank',
+  'Wema Bank (ALAT)',
+  'Stanbic IBTC Bank',
+  'Fidelity Bank',
+  'Union Bank of Nigeria',
+  'Sterling Bank',
+  'Polaris Bank',
+  'Ecobank Nigeria',
+  'First City Monument Bank (FCMB)',
+  'Heritage Bank',
+  'Keystone Bank',
+  'VFD Microfinance Bank (VBank)',
+  'Jaiz Bank',
+  'Taj Bank',
+  'Lotus Bank',
+  'Providus Bank',
+  'SunTrust Bank',
+  'PremiumTrust Bank',
+  'Parallex Bank',
+  'Globus Bank',
+  'Titan Trust Bank'
 ];
 
 const BANK_CODES: Record<string, string> = {
-  'Access Bank': '044', 'Zenith Bank': '057', 'GTBank': '058',
-  'First Bank': '011', 'UBA': '033', 'Fidelity Bank': '070',
+  'Access Bank': '044',
+  'Zenith Bank': '057',
+  'Guaranty Trust Bank (GTBank)': '058',
+  'First Bank of Nigeria': '011',
+  'United Bank for Africa (UBA)': '033',
+  'Fidelity Bank': '070',
+  'OPay (PayCom)': '100004',
+  'PalmPay': '100033',
+  'Kuda Microfinance Bank': '090267',
+  'Moniepoint Microfinance Bank': '090405',
 };
 
 export default function BillingPanel() {
@@ -80,7 +114,6 @@ export default function BillingPanel() {
   const fetchWalletData = async () => {
     setLoading(true);
     try {
-      // 1. Get Balance
       const balRes = await apiClient('/billing/wallet');
       if (balRes.ok) {
         const json = await balRes.json();
@@ -88,7 +121,6 @@ export default function BillingPanel() {
         setCurrency(json.data?.currency || 'NGN');
       }
 
-      // 2. Get Bank Accounts (for doctors/nurses only, but we fetch anyway for display)
       const bankRes = await apiClient('/billing/wallet/bank-accounts');
       if (bankRes.ok) {
         const json = await bankRes.json();
@@ -97,14 +129,12 @@ export default function BillingPanel() {
         if (accounts.length > 0 && !selectedBankId) setSelectedBankId(accounts[0].id);
       }
 
-      // 3. Get Transactions
       const txRes = await apiClient('/billing/transactions');
       if (txRes.ok) {
         const json = await txRes.json();
         setTransactions(json.data?.transactions || json.data || []);
       }
     } catch {
-      // Offline mock
       setBalance(12500);
       setTransactions([
         { id: 't-1', referenceId: 'FUND-001', type: 'WALLET_FUNDING', amount: 10000, status: 'COMPLETED', description: 'Wallet Funding via Paystack', createdAt: new Date().toLocaleDateString() },
@@ -121,7 +151,6 @@ export default function BillingPanel() {
     }
   };
 
-  // Deposit – Step 1: Initialize
   const handleInitializeDeposit = async (e: React.FormEvent) => {
     e.preventDefault();
     const amt = parseFloat(depositAmount);
@@ -136,7 +165,6 @@ export default function BillingPanel() {
         showToast('Paystack window opened. Complete payment then click Verify.', 'info');
       } else { throw new Error(); }
     } catch {
-      // Offline mock – simulate instant credit
       setBalance(prev => prev + amt);
       setTransactions(prev => [{ id: `t-m-${Date.now()}`, referenceId: `FUND-mock-${Date.now()}`, type: 'WALLET_FUNDING', amount: amt, status: 'COMPLETED', description: 'Mock Deposit (Offline Mode)', createdAt: new Date().toLocaleDateString() }, ...prev]);
       showToast(`₦${amt.toLocaleString()} added to wallet (offline mode).`);
@@ -146,7 +174,6 @@ export default function BillingPanel() {
     }
   };
 
-  // Deposit – Step 2: Verify
   const handleVerifyDeposit = async () => {
     if (!fundingRef) return;
     setIsVerifying(true);
@@ -169,7 +196,6 @@ export default function BillingPanel() {
     }
   };
 
-  // Withdrawal (doctors/nurses only)
   const handleWithdrawal = async (e: React.FormEvent) => {
     e.preventDefault();
     const amt = parseFloat(withdrawAmount);
@@ -193,7 +219,6 @@ export default function BillingPanel() {
     }
   };
 
-  // Add Bank Account (doctors/nurses only)
   const handleAddBank = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!accountNumber || !accountName) return;
@@ -219,7 +244,6 @@ export default function BillingPanel() {
     }
   };
 
-  // Promo Code
   const handleApplyPromo = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!promoCode.trim()) return;
@@ -243,7 +267,6 @@ export default function BillingPanel() {
     }
   };
 
-  // Compute which tabs to show
   const allTabs: { id: Tab; label: string; icon: string }[] = [
     { id: 'balance', label: 'Balance', icon: '💳' },
     { id: 'deposit', label: 'Fund Wallet', icon: '⬇️' },
@@ -264,14 +287,12 @@ export default function BillingPanel() {
 
   return (
     <div style={panelStyle} className="glass-panel">
-      {/* Toast */}
       {toast && (
         <div style={toastStyle(toast.type)}>
           {toast.msg}
         </div>
       )}
 
-      {/* Panel Header */}
       <div style={panelHeaderStyle}>
         <div>
           <h2 style={panelTitleStyle}>Wallet & Billing</h2>
@@ -285,7 +306,6 @@ export default function BillingPanel() {
         </div>
       </div>
 
-      {/* Tab Navigation */}
       <div style={tabNavStyle} className="billing-tab-nav">
         {allTabs.map(tab => (
           <button
@@ -300,10 +320,7 @@ export default function BillingPanel() {
         ))}
       </div>
 
-      {/* Tab Content */}
       <div style={tabContentStyle}>
-
-        {/* BALANCE TAB */}
         {activeTab === 'balance' && (
           <div style={cardSectionStyle}>
             <div style={bigBalanceStyle}>
@@ -334,30 +351,9 @@ export default function BillingPanel() {
                 <span>History</span>
               </button>
             </div>
-
-            {/* Summary stats */}
-            <div style={statRowStyle}>
-              <div style={statCardStyle}>
-                <span style={statLabelStyle}>TOTAL FUNDED</span>
-                <span style={statValStyle}>
-                  ₦{transactions.filter(t => t.type === 'WALLET_FUNDING').reduce((s, t) => s + t.amount, 0).toLocaleString()}
-                </span>
-              </div>
-              <div style={statCardStyle}>
-                <span style={statLabelStyle}>TRANSACTIONS</span>
-                <span style={statValStyle}>{transactions.length}</span>
-              </div>
-              {!isPatient && (
-                <div style={statCardStyle}>
-                  <span style={statLabelStyle}>LINKED BANKS</span>
-                  <span style={statValStyle}>{bankAccounts.length}</span>
-                </div>
-              )}
-            </div>
           </div>
         )}
 
-        {/* DEPOSIT TAB */}
         {activeTab === 'deposit' && (
           <div style={cardSectionStyle}>
             <div style={sectionTitleBarStyle}>
@@ -386,14 +382,6 @@ export default function BillingPanel() {
                 </div>
               </div>
 
-              <div style={presetRowStyle}>
-                {[1000, 2000, 5000, 10000, 20000].map(p => (
-                  <button key={p} type="button" onClick={() => setDepositAmount(String(p))} style={presetBtnStyle(depositAmount === String(p))} disabled={!!fundingRef}>
-                    ₦{p.toLocaleString()}
-                  </button>
-                ))}
-              </div>
-
               {!fundingRef ? (
                 <button type="submit" disabled={isDepositing} style={primaryActionBtnStyle('#00f5d4')}>
                   {isDepositing ? <><Spinner /> Processing...</> : '⬇️ Initialize Payment'}
@@ -417,7 +405,6 @@ export default function BillingPanel() {
           </div>
         )}
 
-        {/* WITHDRAW TAB (doctors/nurses only) */}
         {activeTab === 'withdraw' && !isPatient && (
           <div style={cardSectionStyle}>
             <div style={sectionTitleBarStyle}>
@@ -440,7 +427,9 @@ export default function BillingPanel() {
                   <label style={labelStyle}>Select Bank Account</label>
                   <select value={selectedBankId} onChange={e => setSelectedBankId(e.target.value)} style={selectStyle}>
                     {bankAccounts.map(b => (
-                      <option key={b.id} value={b.id}>{b.bankName} — ••••{b.accountNumber.slice(-4)} ({b.accountName})</option>
+                      <option key={b.id} value={b.id} style={{ background: '#ffffff', color: '#0f172a' }}>
+                        {b.bankName} — ••••{b.accountNumber.slice(-4)} ({b.accountName})
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -460,7 +449,6 @@ export default function BillingPanel() {
                       required
                     />
                   </div>
-                  <span style={hintStyle}>Available: ₦{balance.toLocaleString()}</span>
                 </div>
 
                 <button type="submit" disabled={isWithdrawing || !withdrawAmount || parseFloat(withdrawAmount) > balance} style={primaryActionBtnStyle('#6366f1')}>
@@ -471,7 +459,6 @@ export default function BillingPanel() {
           </div>
         )}
 
-        {/* BANK ACCOUNTS TAB (doctors/nurses only) */}
         {activeTab === 'banks' && !isPatient && (
           <div style={cardSectionStyle}>
             <div style={sectionTitleBarStyle}>
@@ -482,32 +469,11 @@ export default function BillingPanel() {
               </div>
             </div>
 
-            {/* Existing accounts */}
-            {bankAccounts.length > 0 && (
-              <div style={bankListStyle}>
-                {bankAccounts.map(b => (
-                  <div key={b.id} style={bankItemStyle}>
-                    <div style={bankIconStyle}>🏦</div>
-                    <div style={{ flex: 1 }}>
-                      <div style={bankNameStyle}>{b.bankName}</div>
-                      <div style={bankNumStyle}>{b.accountName} • ••••{b.accountNumber.slice(-4)}</div>
-                    </div>
-                    {b.isPrimary && <span style={primaryBadgeStyle}>Primary</span>}
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Add new bank form */}
-            <form onSubmit={handleAddBank} style={{ ...formStyle, marginTop: bankAccounts.length ? '1.5rem' : '0' }}>
-              <div style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                + Link New Account
-              </div>
-
+            <form onSubmit={handleAddBank} style={formStyle}>
               <div style={formGroupStyle}>
-                <label style={labelStyle}>Bank Name</label>
+                <label style={labelStyle}>Select Bank (Nigerian Banks)</label>
                 <select value={bankName} onChange={e => setBankName(e.target.value)} style={selectStyle}>
-                  {NIGERIAN_BANKS.map(b => <option key={b} value={b}>{b}</option>)}
+                  {NIGERIAN_BANKS.map(b => <option key={b} value={b} style={{ background: '#ffffff', color: '#0f172a' }}>{b}</option>)}
                 </select>
               </div>
 
@@ -542,84 +508,6 @@ export default function BillingPanel() {
             </form>
           </div>
         )}
-
-        {/* PROMO CODE TAB */}
-        {activeTab === 'promo' && (
-          <div style={cardSectionStyle}>
-            <div style={sectionTitleBarStyle}>
-              <span style={stbIconStyle}>🎁</span>
-              <div>
-                <div style={stbTitleStyle}>Apply Promo Code</div>
-                <div style={stbSubStyle}>Redeem discounts & bonus credits</div>
-              </div>
-            </div>
-
-            <form onSubmit={handleApplyPromo} style={formStyle}>
-              <div style={promoBoxStyle}>
-                <div style={promoIconStyle}>🏷️</div>
-                <div style={{ flex: 1 }}>
-                  <label style={labelStyle}>Enter Promo Code</label>
-                  <input
-                    type="text"
-                    value={promoCode}
-                    onChange={e => setPromoCode(e.target.value.toUpperCase())}
-                    placeholder="e.g. HEALTH50"
-                    style={{ ...inputStyle, letterSpacing: '0.1em', fontWeight: 700 }}
-                    required
-                  />
-                </div>
-              </div>
-
-              <button type="submit" disabled={isApplyingPromo || !promoCode.trim()} style={primaryActionBtnStyle('#f59e0b')}>
-                {isApplyingPromo ? <><Spinner /> Applying...</> : '🎁 Apply Code'}
-              </button>
-
-              <div style={promoHintStyle}>
-                Promo codes are case-insensitive and can only be used once per account.
-              </div>
-            </form>
-          </div>
-        )}
-
-        {/* TRANSACTION HISTORY TAB */}
-        {activeTab === 'history' && (
-          <div style={cardSectionStyle}>
-            <div style={sectionTitleBarStyle}>
-              <span style={stbIconStyle}>📋</span>
-              <div>
-                <div style={stbTitleStyle}>Transaction History</div>
-                <div style={stbSubStyle}>{transactions.length} transactions</div>
-              </div>
-            </div>
-
-            {transactions.length === 0 ? (
-              <div style={emptyStateStyle}>
-                <span style={{ fontSize: '2.5rem' }}>📭</span>
-                <p>No transactions yet.</p>
-              </div>
-            ) : (
-              <div style={txListStyle}>
-                {transactions.map(t => (
-                  <div key={t.id} style={txItemStyle}>
-                    <div style={txIconStyle(t.type)}>
-                      {t.type === 'WALLET_FUNDING' ? '↓' : '↑'}
-                    </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={txDescStyle}>{t.description}</div>
-                      <div style={txRefStyle}>Ref: {t.referenceId} · {t.createdAt}</div>
-                    </div>
-                    <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                      <div style={txAmtStyle(t.type)}>
-                        {t.type === 'WALLET_FUNDING' ? '+' : '-'}₦{Math.abs(t.amount).toLocaleString()}
-                      </div>
-                      <div style={txStatusStyle(t.status)}>{t.status}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
       </div>
     </div>
   );
@@ -632,486 +520,59 @@ function Spinner() {
 }
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
-const panelStyle: React.CSSProperties = {
-  width: '100%',
-  minHeight: '500px',
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 0,
-  overflow: 'hidden',
-  borderRadius: '16px',
-};
-
-const panelHeaderStyle: React.CSSProperties = {
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  padding: 'clamp(1rem, 3vw, 1.5rem) clamp(1rem, 3vw, 1.75rem) 0.85rem',
-  borderBottom: '1px solid rgba(255,255,255,0.06)',
-  flexWrap: 'wrap',
-  gap: '0.75rem',
-};
-
-const panelTitleStyle: React.CSSProperties = {
-  fontSize: '1.1rem',
-  fontWeight: 800,
-  margin: 0,
-  color: 'var(--text-primary)',
-};
-
-const panelSubStyle: React.CSSProperties = {
-  fontSize: '0.74rem',
-  color: 'var(--text-muted)',
-  marginTop: '2px',
-};
-
-const balancePillStyle: React.CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'flex-end',
-  gap: '2px',
-  background: 'rgba(0,245,212,0.06)',
-  border: '1px solid rgba(0,245,212,0.15)',
-  padding: '0.5rem 0.9rem',
-  borderRadius: '12px',
-};
-
-const tabNavStyle: React.CSSProperties = {
-  display: 'flex',
-  gap: '0.25rem',
-  padding: '0.65rem 1rem',
-  overflowX: 'auto',
-  borderBottom: '1px solid rgba(255,255,255,0.05)',
-  scrollbarWidth: 'none',
-  WebkitOverflowScrolling: 'touch',
-  msOverflowStyle: 'none',
-};
-
-const tabBtnStyle = (active: boolean): React.CSSProperties => ({
-  display: 'flex',
-  alignItems: 'center',
-  gap: '0.4rem',
-  padding: '0.5rem 0.9rem',
-  borderRadius: '8px',
-  border: 'none',
-  background: active ? 'rgba(0,245,212,0.1)' : 'transparent',
-  color: active ? 'var(--primary)' : 'var(--text-muted)',
-  fontWeight: active ? 700 : 500,
-  fontSize: '0.78rem',
-  cursor: 'pointer',
-  whiteSpace: 'nowrap',
-  transition: 'all 0.18s',
-  outline: active ? '1px solid rgba(0,245,212,0.2)' : 'none',
-  flexShrink: 0,
-});
-
-const tabContentStyle: React.CSSProperties = {
-  flex: 1,
-  overflowY: 'auto',
-  padding: 'clamp(1rem, 3vw, 1.5rem)',
-  scrollbarWidth: 'thin',
-  scrollbarColor: 'rgba(255,255,255,0.08) transparent',
-  minWidth: 0,
-};
-
-const cardSectionStyle: React.CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '1.25rem',
-};
-
-const sectionTitleBarStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  gap: '0.75rem',
-  marginBottom: '0.25rem',
-};
-
-const stbIconStyle: React.CSSProperties = {
-  fontSize: '1.75rem',
-  lineHeight: 1,
-};
-
-const stbTitleStyle: React.CSSProperties = {
-  fontSize: '1rem',
-  fontWeight: 700,
-  color: 'var(--text-primary)',
-};
-
-const stbSubStyle: React.CSSProperties = {
-  fontSize: '0.72rem',
-  color: 'var(--text-muted)',
-  marginTop: '1px',
-};
-
-const bigBalanceStyle: React.CSSProperties = {
-  background: 'linear-gradient(135deg, rgba(0,245,212,0.08) 0%, rgba(99,102,241,0.06) 100%)',
-  border: '1px solid rgba(0,245,212,0.12)',
-  borderRadius: '16px',
-  padding: '2rem',
-  textAlign: 'center',
-};
-
-const bigBalLabelStyle: React.CSSProperties = {
-  fontSize: '0.68rem',
-  fontWeight: 700,
-  letterSpacing: '0.08em',
-  color: 'var(--text-muted)',
-  marginBottom: '0.5rem',
-  textTransform: 'uppercase',
-};
-
-const bigBalValueStyle: React.CSSProperties = {
-  fontSize: 'clamp(1.8rem, 6vw, 2.8rem)',
-  fontWeight: 800,
-  color: 'var(--primary)',
-  letterSpacing: '-0.02em',
-  lineHeight: 1,
-};
-
-const bigBalCurrStyle: React.CSSProperties = {
-  fontSize: '0.74rem',
-  color: 'var(--text-muted)',
-  marginTop: '0.5rem',
-};
-
-const quickActionRowStyle: React.CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: 'repeat(auto-fit, minmax(90px, 1fr))',
-  gap: '0.75rem',
-};
-
-const qaButtonStyle = (color: string): React.CSSProperties => ({
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  gap: '0.4rem',
-  padding: '1rem 0.5rem',
-  borderRadius: '12px',
-  background: `${color}12`,
-  border: `1px solid ${color}22`,
-  color: color,
-  fontSize: '0.74rem',
-  fontWeight: 600,
-  cursor: 'pointer',
-  transition: 'all 0.2s',
-});
-
-const statRowStyle: React.CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))',
-  gap: '0.75rem',
-};
-
-const statCardStyle: React.CSSProperties = {
-  background: 'rgba(255,255,255,0.03)',
-  border: '1px solid rgba(255,255,255,0.06)',
-  borderRadius: '10px',
-  padding: '0.85rem 1rem',
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '0.3rem',
-};
-
-const statLabelStyle: React.CSSProperties = {
-  fontSize: '0.62rem',
-  fontWeight: 700,
-  color: 'var(--text-muted)',
-  letterSpacing: '0.07em',
-  textTransform: 'uppercase',
-};
-
-const statValStyle: React.CSSProperties = {
-  fontSize: '1.2rem',
-  fontWeight: 800,
-  color: 'var(--text-primary)',
-};
-
-const formStyle: React.CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '1rem',
-};
-
-const formGroupStyle: React.CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '0.45rem',
-};
-
-const labelStyle: React.CSSProperties = {
-  fontSize: '0.74rem',
-  fontWeight: 600,
-  color: 'var(--text-secondary)',
-  letterSpacing: '0.02em',
-};
-
-const inputWrapStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  background: 'rgba(255,255,255,0.04)',
-  border: '1px solid rgba(255,255,255,0.1)',
-  borderRadius: '10px',
-  overflow: 'hidden',
-};
-
-const inputPrefixStyle: React.CSSProperties = {
-  padding: '0 0.75rem',
-  fontSize: '0.9rem',
-  fontWeight: 700,
-  color: 'var(--text-muted)',
-  borderRight: '1px solid rgba(255,255,255,0.08)',
-};
-
-const inputStyle: React.CSSProperties = {
-  flex: 1,
-  background: 'transparent',
-  border: '1px solid rgba(255,255,255,0.1)',
-  borderRadius: '10px',
-  padding: '0.65rem 0.9rem',
-  color: 'var(--text-primary)',
-  fontSize: '1rem',    /* 16px prevents iOS auto-zoom */
-  outline: 'none',
-  fontFamily: 'inherit',
-  width: '100%',
-};
-
-const selectStyle: React.CSSProperties = {
-  background: 'rgba(255,255,255,0.04)',
-  border: '1px solid rgba(255,255,255,0.1)',
-  borderRadius: '10px',
-  padding: '0.65rem 1rem',
-  color: 'var(--text-primary)',
-  fontSize: '1rem',   /* 16px prevents iOS auto-zoom */
-  outline: 'none',
-  width: '100%',
-  fontFamily: 'inherit',
-  cursor: 'pointer',
-};
-
-const hintStyle: React.CSSProperties = {
-  fontSize: '0.68rem',
-  color: 'var(--text-muted)',
-};
-
-const presetRowStyle: React.CSSProperties = {
-  display: 'flex',
-  gap: '0.5rem',
-  flexWrap: 'wrap',
-};
-
-const presetBtnStyle = (active: boolean): React.CSSProperties => ({
-  padding: '0.4rem 0.75rem',
-  borderRadius: '8px',
-  background: active ? 'rgba(0,245,212,0.12)' : 'rgba(255,255,255,0.04)',
-  border: `1px solid ${active ? 'rgba(0,245,212,0.3)' : 'rgba(255,255,255,0.08)'}`,
-  color: active ? 'var(--primary)' : 'var(--text-muted)',
-  fontSize: '0.76rem',
-  fontWeight: 600,
-  cursor: 'pointer',
-  transition: 'all 0.18s',
-});
-
-const primaryActionBtnStyle = (color: string): React.CSSProperties => ({
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  gap: '0.4rem',
-  padding: '0.85rem 1.5rem',
-  borderRadius: '12px',
-  background: `linear-gradient(135deg, ${color}, ${color}aa)`,
-  border: 'none',
-  color: '#080c14',
-  fontSize: '0.88rem',
-  fontWeight: 700,
-  cursor: 'pointer',
-  transition: 'all 0.2s',
-  width: '100%',
-});
-
-const secondaryBtnStyle: React.CSSProperties = {
-  padding: '0.85rem 1.5rem',
-  borderRadius: '12px',
-  background: 'rgba(255,255,255,0.05)',
-  border: '1px solid rgba(255,255,255,0.1)',
-  color: 'var(--text-muted)',
-  fontSize: '0.85rem',
-  cursor: 'pointer',
-  flex: 1,
-};
-
-const verifyBoxStyle: React.CSSProperties = {
-  background: 'rgba(34,197,94,0.06)',
-  border: '1px solid rgba(34,197,94,0.15)',
-  borderRadius: '12px',
-  padding: '1.25rem',
-};
-
-const bankListStyle: React.CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '0.65rem',
-};
-
-const bankItemStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  gap: '0.85rem',
-  padding: '0.85rem 1rem',
-  background: 'rgba(255,255,255,0.03)',
-  border: '1px solid rgba(255,255,255,0.06)',
-  borderRadius: '10px',
-};
-
-const bankIconStyle: React.CSSProperties = {
-  fontSize: '1.4rem',
-  flexShrink: 0,
-};
-
-const bankNameStyle: React.CSSProperties = {
-  fontSize: '0.84rem',
-  fontWeight: 700,
-  color: 'var(--text-primary)',
-};
-
-const bankNumStyle: React.CSSProperties = {
-  fontSize: '0.72rem',
-  color: 'var(--text-muted)',
-  marginTop: '2px',
-};
-
-const primaryBadgeStyle: React.CSSProperties = {
-  fontSize: '0.62rem',
-  fontWeight: 700,
-  padding: '0.2rem 0.5rem',
-  borderRadius: '4px',
-  background: 'rgba(0,245,212,0.1)',
-  color: 'var(--primary)',
-  border: '1px solid rgba(0,245,212,0.2)',
-};
-
-const promoBoxStyle: React.CSSProperties = {
-  display: 'flex',
-  gap: '1rem',
-  alignItems: 'flex-end',
-};
-
-const promoIconStyle: React.CSSProperties = {
-  fontSize: '2rem',
-  flexShrink: 0,
-  paddingBottom: '0.5rem',
-};
-
-const promoHintStyle: React.CSSProperties = {
-  fontSize: '0.7rem',
-  color: 'var(--text-muted)',
-  textAlign: 'center',
-  padding: '0.5rem',
-  background: 'rgba(255,255,255,0.02)',
-  borderRadius: '8px',
-};
-
-const txListStyle: React.CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '0.6rem',
-};
-
-const txItemStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  gap: '0.85rem',
-  padding: '0.9rem 1rem',
-  background: 'rgba(255,255,255,0.02)',
-  border: '1px solid rgba(255,255,255,0.05)',
-  borderRadius: '10px',
-  transition: 'background 0.2s',
-};
-
-const txIconStyle = (type: string): React.CSSProperties => ({
-  width: '36px',
-  height: '36px',
-  borderRadius: '50%',
-  background: type === 'WALLET_FUNDING' ? 'rgba(34,197,94,0.12)' : 'rgba(239,68,68,0.12)',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  fontSize: '1rem',
-  color: type === 'WALLET_FUNDING' ? '#22c55e' : '#ef4444',
-  fontWeight: 700,
-  flexShrink: 0,
-});
-
-const txDescStyle: React.CSSProperties = {
-  fontSize: '0.82rem',
-  fontWeight: 600,
-  color: 'var(--text-primary)',
-  whiteSpace: 'nowrap',
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
-};
-
-const txRefStyle: React.CSSProperties = {
-  fontSize: '0.66rem',
-  color: 'var(--text-muted)',
-  marginTop: '2px',
-};
-
-const txAmtStyle = (type: string): React.CSSProperties => ({
-  fontSize: '0.88rem',
-  fontWeight: 700,
-  color: type === 'WALLET_FUNDING' ? '#22c55e' : '#ef4444',
-});
-
-const txStatusStyle = (status: string): React.CSSProperties => ({
-  fontSize: '0.62rem',
-  fontWeight: 600,
-  color: status === 'COMPLETED' ? '#22c55e' : status === 'PENDING' ? '#f59e0b' : '#ef4444',
-  marginTop: '2px',
-});
-
-const emptyStateStyle: React.CSSProperties = {
-  textAlign: 'center',
-  padding: '2.5rem 1rem',
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  gap: '0.75rem',
-  color: 'var(--text-muted)',
-  fontSize: '0.84rem',
-};
-
-const loadingStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  gap: '0.75rem',
-  padding: '3rem',
-  color: 'var(--text-muted)',
-  fontSize: '0.84rem',
-};
-
-const spinnerStyle: React.CSSProperties = {
-  width: '20px',
-  height: '20px',
-  border: '2px solid rgba(255,255,255,0.1)',
-  borderTopColor: 'var(--primary)',
-  borderRadius: '50%',
-  animation: 'spin 0.8s linear infinite',
-};
-
-const toastStyle = (type: 'success' | 'error' | 'info'): React.CSSProperties => ({
-  position: 'fixed',
-  top: '1.5rem',
-  right: '1.5rem',
-  zIndex: 2000,
-  padding: '0.85rem 1.25rem',
-  borderRadius: '12px',
-  background: type === 'success' ? 'rgba(34,197,94,0.92)' : type === 'error' ? 'rgba(239,68,68,0.92)' : 'rgba(59,130,246,0.92)',
-  color: '#fff',
-  fontSize: '0.84rem',
-  fontWeight: 600,
-  boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
-  animation: 'fadeIn 0.2s ease',
-  maxWidth: '320px',
-});
+const loadingStyle: React.CSSProperties = { display: 'flex', gap: '8px', alignItems: 'center', padding: '20px', color: 'var(--text-muted)' };
+const spinnerStyle: React.CSSProperties = { width: '16px', height: '16px', borderRadius: '50%', border: '2px solid #e9272a', borderTopColor: 'transparent', animation: 'pulse 0.8s infinite' };
+const panelStyle: React.CSSProperties = { width: '100%', minHeight: '500px', display: 'flex', flexDirection: 'column', borderRadius: '16px' };
+const panelHeaderStyle: React.CSSProperties = { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.5rem 1.75rem 0.85rem' };
+const panelTitleStyle: React.CSSProperties = { fontSize: '1.1rem', fontWeight: 800, margin: 0 };
+const panelSubStyle: React.CSSProperties = { fontSize: '0.74rem', color: 'var(--text-muted)' };
+const balancePillStyle: React.CSSProperties = { display: 'flex', flexDirection: 'column', alignItems: 'flex-end', background: 'rgba(233, 39, 42, 0.08)', padding: '0.5rem 0.9rem', borderRadius: '12px' };
+const tabNavStyle: React.CSSProperties = { display: 'flex', gap: '0.25rem', padding: '0.65rem 1rem', borderBottom: '1px solid rgba(255,255,255,0.05)' };
+const tabBtnStyle = (active: boolean): React.CSSProperties => ({ padding: '0.5rem 0.9rem', borderRadius: '8px', border: 'none', background: active ? 'rgba(233, 39, 42, 0.12)' : 'transparent', color: active ? '#e9272a' : 'var(--text-muted)', fontWeight: active ? 800 : 500, fontSize: '0.78rem', cursor: 'pointer' });
+const tabContentStyle: React.CSSProperties = { flex: 1, padding: '1.5rem' };
+const cardSectionStyle: React.CSSProperties = { display: 'flex', flexDirection: 'column', gap: '1.25rem' };
+const sectionTitleBarStyle: React.CSSProperties = { display: 'flex', alignItems: 'center', gap: '0.75rem' };
+const stbIconStyle: React.CSSProperties = { fontSize: '1.75rem' };
+const stbTitleStyle: React.CSSProperties = { fontSize: '1rem', fontWeight: 800 };
+const stbSubStyle: React.CSSProperties = { fontSize: '0.72rem', color: 'var(--text-muted)' };
+const bigBalanceStyle: React.CSSProperties = { background: 'linear-gradient(135deg, rgba(233, 39, 42, 0.08) 0%, rgba(225, 29, 72, 0.04) 100%)', border: '1px solid rgba(233, 39, 42, 0.15)', borderRadius: '16px', padding: '2rem', textAlign: 'center' };
+const bigBalLabelStyle: React.CSSProperties = { fontSize: '0.68rem', fontWeight: 800, color: 'var(--text-muted)' };
+const bigBalValueStyle: React.CSSProperties = { fontSize: '2.5rem', fontWeight: 850, color: '#e9272a' };
+const bigBalCurrStyle: React.CSSProperties = { fontSize: '0.74rem', color: 'var(--text-muted)' };
+const quickActionRowStyle: React.CSSProperties = { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(90px, 1fr))', gap: '0.75rem' };
+const qaButtonStyle = (color: string): React.CSSProperties => ({ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.4rem', padding: '1rem 0.5rem', borderRadius: '12px', background: 'rgba(233, 39, 42, 0.06)', border: '1px solid rgba(233, 39, 42, 0.15)', color: '#e9272a', fontSize: '0.74rem', fontWeight: 700, cursor: 'pointer' });
+const statRowStyle: React.CSSProperties = { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '1rem' };
+const statCardStyle: React.CSSProperties = { padding: '1rem', background: '#ffffff', borderRadius: '12px', border: '1px solid rgba(233, 39, 42, 0.12)' };
+const statLabelStyle: React.CSSProperties = { fontSize: '0.65rem', fontWeight: 800, color: '#8b2c3a' };
+const statValStyle: React.CSSProperties = { fontSize: '1.1rem', fontWeight: 800, color: '#1a080c' };
+const formStyle: React.CSSProperties = { display: 'flex', flexDirection: 'column', gap: '1rem' };
+const formGroupStyle: React.CSSProperties = { display: 'flex', flexDirection: 'column', gap: '0.4rem' };
+const labelStyle: React.CSSProperties = { fontSize: '0.75rem', fontWeight: 800, color: '#475569' };
+const inputWrapStyle: React.CSSProperties = { display: 'flex', alignItems: 'center', background: '#ffffff', borderRadius: '10px', border: '1.5px solid #cbd5e1', padding: '0 0.85rem' };
+const inputPrefixStyle: React.CSSProperties = { fontSize: '1rem', fontWeight: 700, color: '#475569', marginRight: '4px' };
+const inputStyle: React.CSSProperties = { width: '100%', padding: '0.75rem 0.25rem', border: 'none', background: 'transparent', color: '#0f172a', fontSize: '0.9rem', fontWeight: 600, outline: 'none' };
+const selectStyle: React.CSSProperties = { width: '100%', padding: '0.75rem 1rem', borderRadius: '10px', background: '#ffffff', border: '1.5px solid #cbd5e1', color: '#0f172a', fontSize: '0.9rem', fontWeight: 600, outline: 'none' };
+const presetRowStyle: React.CSSProperties = { display: 'flex', gap: '0.5rem', flexWrap: 'wrap' };
+const presetBtnStyle = (active: boolean): React.CSSProperties => ({ padding: '0.4rem 0.8rem', borderRadius: '8px', border: active ? '1.5px solid #e9272a' : '1px solid #cbd5e1', background: active ? '#ffe4e4' : '#ffffff', color: active ? '#e9272a' : '#475569', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer' });
+const primaryActionBtnStyle = (color: string): React.CSSProperties => ({ padding: '0.85rem', borderRadius: '10px', background: 'linear-gradient(135deg, #ef292b, #d71417)', color: '#ffffff', border: 'none', fontSize: '0.85rem', fontWeight: 800, cursor: 'pointer', boxShadow: '0 4px 16px rgba(233, 39, 42, 0.3)' });
+const secondaryBtnStyle: React.CSSProperties = { padding: '0.85rem 1.25rem', borderRadius: '10px', background: 'transparent', border: '1.5px solid #cbd5e1', color: '#475569', fontSize: '0.85rem', fontWeight: 700, cursor: 'pointer' };
+const verifyBoxStyle: React.CSSProperties = { display: 'flex', flexDirection: 'column', gap: '0.5rem', background: '#fff1f2', padding: '1rem', borderRadius: '12px', border: '1px solid #fecdd3' };
+const emptyStateStyle: React.CSSProperties = { textAlign: 'center', padding: '2rem', color: '#8b2c3a' };
+const bankListStyle: React.CSSProperties = { display: 'flex', flexDirection: 'column', gap: '0.75rem' };
+const bankItemStyle: React.CSSProperties = { display: 'flex', alignItems: 'center', gap: '0.85rem', padding: '0.85rem 1rem', background: '#ffffff', borderRadius: '12px', border: '1.5px solid rgba(233, 39, 42, 0.12)' };
+const bankIconStyle: React.CSSProperties = { fontSize: '1.5rem' };
+const bankNameStyle: React.CSSProperties = { fontSize: '0.88rem', fontWeight: 800, color: '#1a080c' };
+const bankNumStyle: React.CSSProperties = { fontSize: '0.74rem', color: '#64748b' };
+const primaryBadgeStyle: React.CSSProperties = { fontSize: '0.64rem', padding: '0.2rem 0.5rem', borderRadius: '6px', background: '#ffe4e4', color: '#e9272a', fontWeight: 800 };
+const promoBoxStyle: React.CSSProperties = { display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem', background: '#ffffff', borderRadius: '12px', border: '1.5px solid rgba(233, 39, 42, 0.12)' };
+const promoIconStyle: React.CSSProperties = { fontSize: '2rem' };
+const promoHintStyle: React.CSSProperties = { fontSize: '0.74rem', color: '#64748b', textAlign: 'center' };
+const txListStyle: React.CSSProperties = { display: 'flex', flexDirection: 'column', gap: '0.75rem' };
+const txItemStyle: React.CSSProperties = { display: 'flex', alignItems: 'center', gap: '0.85rem', padding: '0.85rem 1rem', background: '#ffffff', borderRadius: '12px', border: '1.5px solid rgba(233, 39, 42, 0.12)' };
+const txIconStyle = (type: string): React.CSSProperties => ({ width: '36px', height: '36px', borderRadius: '50%', background: type === 'WALLET_FUNDING' ? '#dcfce7' : '#ffe4e4', color: type === 'WALLET_FUNDING' ? '#15803d' : '#dc2626', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '1.1rem', fontWeight: 800 });
+const txDescStyle: React.CSSProperties = { fontSize: '0.85rem', fontWeight: 800, color: '#1a080c' };
+const txRefStyle: React.CSSProperties = { fontSize: '0.7rem', color: '#64748b' };
+const txAmtStyle = (type: string): React.CSSProperties => ({ fontSize: '0.95rem', fontWeight: 850, color: type === 'WALLET_FUNDING' ? '#15803d' : '#dc2626' });
+const txStatusStyle = (status: string): React.CSSProperties => ({ fontSize: '0.64rem', fontWeight: 800, color: status === 'COMPLETED' ? '#15803d' : status === 'PENDING' ? '#d97706' : '#dc2626' });
+const toastStyle = (type: string): React.CSSProperties => ({ position: 'fixed', top: '20px', right: '20px', zIndex: 10010, padding: '0.85rem 1.25rem', borderRadius: '12px', background: type === 'error' ? '#ef4444' : '#10b981', color: '#ffffff', fontSize: '0.85rem', fontWeight: 800, boxShadow: '0 10px 30px rgba(0,0,0,0.2)' });
+const hintStyle: React.CSSProperties = { fontSize: '0.72rem', color: '#64748b', fontWeight: 600 };

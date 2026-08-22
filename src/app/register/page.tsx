@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
+import styles from '../components/AuthSplit.module.css';
 
 type RoleType = 'PATIENT' | 'DOCTOR' | 'NURSE' | 'PARTNER';
 
@@ -20,6 +21,18 @@ export default function RegisterPage() {
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('auth-theme') as 'light' | 'dark' | null;
+    if (savedTheme) setTheme(savedTheme);
+  }, []);
+
+  const toggleTheme = () => {
+    const nextTheme = theme === 'light' ? 'dark' : 'light';
+    setTheme(nextTheme);
+    localStorage.setItem('auth-theme', nextTheme);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,7 +71,18 @@ export default function RegisterPage() {
   };
 
   return (
-    <div style={containerStyle}>
+    <div className={`${styles.page} ${theme === 'dark' ? styles.dark : ''}`}>
+      <aside className={styles.brandPane}>
+        <div className={styles.brand}><img src="/assets/emergencyecho.png" alt="" /><span>EmergencyEcho</span></div>
+        <div className={styles.message}><h1>Care that starts with you.</h1><p>Create your secure profile, choose your role, and be ready for the moments that matter.</p><ul><li>Secure medical information</li><li>Verified clinician network</li><li>Care for patients and professionals</li></ul></div>
+        <p className={styles.copyright}>© 2026 EmergencyEcho · A Yenak Technology product</p>
+      </aside>
+      <div className={styles.formPane}>
+        <Link className={styles.homeLink} href="/">&lt; Back to home</Link>
+        <button className={styles.themeButton} onClick={toggleTheme} type="button" aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`} title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}>
+          {theme === 'light' ? <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3 6.7 6.7 0 0 0 21 12.8Z" /></svg> : <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" /></svg>}
+        </button>
+        <div style={containerStyle}>
       {/* Background ambient orbs */}
       <div className="glow-orb glow-orb-primary" />
       <div className="glow-orb glow-orb-secondary" />
@@ -192,6 +216,8 @@ export default function RegisterPage() {
         </div>
 
       </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -199,14 +225,15 @@ export default function RegisterPage() {
 // Styles
 const containerStyle: React.CSSProperties = {
   minHeight: '100vh',
-  width: '100vw',
-  backgroundColor: 'var(--bg-base)',
+  width: '100%',
+  backgroundColor: 'transparent',
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center',
   padding: '2rem 1.5rem',
   position: 'relative',
-  overflow: 'hidden',
+  overflowX: 'hidden',
+  overflowY: 'auto',
 };
 
 const cardStyle: React.CSSProperties = {
@@ -304,8 +331,8 @@ const inputStyle: React.CSSProperties = {
   width: '100%',
   padding: '0.75rem 1rem',
   borderRadius: 'var(--border-radius-sm)',
-  background: 'rgba(0, 0, 0, 0.25)',
-  border: '1px solid rgba(255, 255, 255, 0.08)',
+  background: 'rgba(255, 255, 255, 0.96)',
+  border: '1px solid #dfe3ea',
   color: 'var(--text-primary)',
   fontSize: '0.85rem',
   outline: 'none',

@@ -4,6 +4,25 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { apiClient, setAccessToken, setRefreshTokenCallback } from '@/services/apiClient';
 
+const LOCAL_AUTH_SESSION_KEY = 'emergencyEchoLocalAuth';
+const LOCAL_ACCESS_TOKEN = 'local-development-access-token';
+
+const LOCAL_USERS: Array<UserProfile & { password: string }> = [
+  {
+    id: 'local-patient-jane', fullName: 'Jane Doe', username: 'jane', phone: '+2348000000001',
+    email: 'jane@example.com', password: 'Password1234!', role: 'PATIENT', isVerified: true, isApproved: true,
+  },
+  {
+    id: 'local-doctor-smith', fullName: 'Dr. Smith', username: 'smith', phone: '+2348000000002',
+    email: 'smith@example.com', password: 'Password1234!', role: 'DOCTOR', isVerified: true, isApproved: true, accountStatus: 'ACTIVE',
+  },
+];
+
+function localAuthEnabled() {
+  if (typeof window === 'undefined') return false;
+  return ['localhost', '127.0.0.1'].includes(window.location.hostname) || process.env.NEXT_PUBLIC_ENABLE_LOCAL_AUTH === 'true';
+}
+
 export interface UserProfile {
   id: string;
   fullName: string;
@@ -39,6 +58,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // 1. JWT Silent Refresh Call
   const performSilentRefresh = async (): Promise<string | null> => {
+    if (localAuthEnabled() && localStorage.getItem(LOCAL_AUTH_SESSION_KEY) === 'true') {
+      setAccessToken(LOCAL_ACCESS_TOKEN);
+      return LOCAL_ACCESS_TOKEN;
+    }
+
     const refreshToken = localStorage.getItem('refreshToken');
     if (!refreshToken) return null;
 
@@ -68,6 +92,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // 2. Fetch User Profile
   const fetchProfile = async (token: string): Promise<UserProfile | null> => {
+    if (token === LOCAL_ACCESS_TOKEN && localAuthEnabled() && localStorage.getItem(LOCAL_AUTH_SESSION_KEY) === 'true') {
+      const localUser = localStorage.getItem('userSession');
+      return localUser ? JSON.parse(localUser) : null;
+    }
+
     try {
       setAccessToken(token);
       const response = await apiClient('/me');
@@ -75,7 +104,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (response.ok) {
         const json = await response.json();
         if (json.success && json.data) {
-          const serverUser = json.data.user;
+          const serverUser = json.data.user ?? json.data;
 
           // Dynamically query clinician licensing status from verification endpoint
           if (serverUser.role === 'DOCTOR' || serverUser.role === 'NURSE') {
@@ -110,14 +139,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       }
     } catch (err) {
-      console.warn('[Auth] Could not fetch profile from server. Falling back to cached user state.');
+      console.warn('[Auth] Could not fetch profile from server.');
     }
 
-    // Fallback Mock profile if backend is offline but local storage has user session
-    const localUser = localStorage.getItem('userSession');
-    if (localUser) {
-      return JSON.parse(localUser);
-    }
     return null;
   };
 
@@ -137,23 +161,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       return { success: true };
     } catch (err) {
-      console.warn('[Auth] Server offline. Registering in offline mockup mode...');
-
-      // Offline mockup registration
-      const mockUser: UserProfile = {
-        id: `mock-usr-${Math.random().toString(36).substring(4)}`,
-        fullName: data.fullName,
-        username: data.username,
-        phone: data.phone,
-        email: data.email,
-        role: data.role || 'PATIENT',
-        isVerified: false,
-        isApproved: false,
-      };
-
-      // Save mock session details
-      localStorage.setItem('userSession', JSON.stringify(mockUser));
-      return { success: true };
+      console.warn('[Auth] Registration request failed.', err);
+      return { success: false, error: 'Unable to reach the authentication service. Please try again.' };
     }
   };
 
@@ -171,7 +180,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return { success: false, error: json.message || 'Invalid credentials.' };
       }
 
-      const { accessToken, refreshToken, user: serverUser } = json.data;
+      const serverUser = json.data?.user;
+      const tokens = json.data?.tokens ?? json.data;
+      const { accessToken, refreshToken } = tokens || {};
+
+      if (!serverUser || !accessToken || !refreshToken) {
+        return { success: false, error: 'The authentication service returned an incomplete session. Please try again.' };
+      }
       setAccessToken(accessToken);
       localStorage.setItem('refreshToken', refreshToken);
 
@@ -216,32 +231,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       return { success: true };
     } catch (err) {
-      console.warn('[Auth] Server is offline. Logging in with Mock Session...');
+      console.warn('[Auth] Login request failed.', err);
+      if (localAuthEnabled()) {
+        const normalisedIdentifier = identifier.trim().toLowerCase();
+        const localUser = LOCAL_USERS.find((candidate) =>
+          (candidate.email === normalisedIdentifier || candidate.username === normalisedIdentifier) && candidate.password === password
+        );
 
-      // Try to load simulated session, or create one on the fly
-      let cached = localStorage.getItem('userSession');
-      let mockUser: UserProfile;
-
-      if (cached) {
-        mockUser = JSON.parse(cached);
-      } else {
-        mockUser = {
-          id: 'mock-patient-id',
-          fullName: 'John Doe',
-          username: 'johndoe',
-          phone: '+15550100',
-          email: identifier.includes('@') ? identifier : 'johndoe@example.com',
-          role: 'PATIENT',
-          isVerified: false,
-          isApproved: false,
-        };
-        localStorage.setItem('userSession', JSON.stringify(mockUser));
+        if (localUser) {
+          const { password: _password, ...profile } = localUser;
+          setAccessToken(LOCAL_ACCESS_TOKEN);
+          localStorage.setItem('refreshToken', 'local-development-refresh-token');
+          localStorage.setItem(LOCAL_AUTH_SESSION_KEY, 'true');
+          localStorage.setItem('userSession', JSON.stringify(profile));
+          setUser(profile);
+          return { success: true };
+        }
       }
-
-      setAccessToken('mock-access-token');
-      localStorage.setItem('refreshToken', 'mock-refresh-token');
-      setUser(mockUser);
-      return { success: true };
+      return { success: false, error: 'Unable to reach the authentication service. Please check your connection and try again.' };
     }
   };
 
@@ -316,13 +323,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // 7. Log out User
   const logout = async () => {
     try {
-      await apiClient('/auth/logout', { method: 'POST' });
+      const refreshToken = localStorage.getItem('refreshToken');
+      await apiClient('/auth/logout', { method: 'POST', body: JSON.stringify({ refreshToken }) });
     } catch (e) {
       // Ignore network errors on logout
     }
     setAccessToken(null);
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('userSession');
+    localStorage.removeItem(LOCAL_AUTH_SESSION_KEY);
     setUser(null);
     router.push('/login');
   };
@@ -356,13 +365,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setUser(null);
         }
       } else {
-        // Check if there is a mock session from a previous reload
-        const cachedSession = localStorage.getItem('userSession');
-        if (cachedSession) {
-          setUser(JSON.parse(cachedSession));
-        } else {
-          setUser(null);
-        }
+        // A UI cache is not proof of an authenticated session. Authentication
+        // is restored only through a valid refresh token and /me response.
+        localStorage.removeItem('userSession');
+        setUser(null);
       }
       setLoading(false);
     }

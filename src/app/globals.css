@@ -218,13 +218,13 @@ button { min-height: 36px; }
   width: 100vw;
   overflow: hidden;
   position: relative;
-  background-color: var(--bg-base);
+  background: radial-gradient(circle at 82% 5%, rgba(233, 39, 42, 0.13), transparent 27rem), radial-gradient(circle at 12% 88%, rgba(90, 113, 168, 0.14), transparent 25rem), var(--bg-base);
 }
 
 .app-sidebar {
   width: 260px;
-  background: var(--bg-surface);
-  border-right: 1px solid var(--border-color);
+  background: var(--glass-bg);
+  border-right: 1px solid var(--glass-border);
   display: flex;
   flex-direction: column;
   transition: transform 0.3s ease;
@@ -250,18 +250,20 @@ button { min-height: 36px; }
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  border-left: 3px solid transparent;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  margin: 0 0.65rem;
 }
 
 .sidebar-nav-item:hover {
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(233, 39, 42, 0.05);
   color: var(--text-primary);
 }
 
 .sidebar-nav-item.active {
-  background: rgba(255, 255, 255, 0.04);
-  color: var(--text-primary);
-  border-left-color: var(--primary);
+  background: rgba(233, 39, 42, 0.1);
+  color: var(--primary);
+  border-color: rgba(233, 39, 42, 0.15);
 }
 
 .mobile-menu-toggle {
