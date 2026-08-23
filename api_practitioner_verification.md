@@ -5,7 +5,7 @@ This document specifies the dashboard data feeds and account verification status
 ---
 
 ## 1. Authentication & Base Settings
-- **Base URL**: `http://localhost:4000/api/v1`
+- **Base URL**: `https://api.novacoresbank.com/api/v1`
 - **Headers Required**:
   ```http
   Authorization: Bearer <your_jwt_token>
