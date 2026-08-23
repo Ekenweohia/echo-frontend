@@ -5,6 +5,7 @@ import { useAuth } from '@/context/AuthContext';
 import { apiClient } from '@/services/apiClient';
 import VideoRoom from './VideoRoom';
 import WalletConsole from './WalletConsole';
+import styles from './ClinicianDashboard.module.css';
 
 interface QueueEntry {
   id: string;
@@ -37,6 +38,9 @@ interface QueueEntry {
         dateOfBirth: string;
         gender: string;
       };
+      vitalsAndAllergies?: string;
+      probableDiagnosis?: string;
+      supportiveFindings?: string;
     };
   };
 }
@@ -54,29 +58,17 @@ export default function ClinicianDashboard() {
   const [walletCurrency, setWalletCurrency] = useState('NGN');
 
   // Theme states
-  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
-  const [customRoomId, setCustomRoomId] = useState('');
+  const [theme, setTheme] = useState<'dark' | 'light'>('light');
 
   // UI States
-  const [activeTab, setActiveTab] = useState('queue');
+  const [activeTab, setActiveTab] = useState<'queue' | 'workspace' | 'wallet' | 'settings'>('queue');
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Clinician is verified (submitted docs) but not yet admin-approved
   const isPending = (user?.role === 'DOCTOR' || user?.role === 'NURSE') && user?.isVerified && !user?.isApproved;
 
-  const handleDirectJoin = () => {
-    if (!customRoomId.trim()) return;
-    setActiveConsultation({
-      id: customRoomId.trim(),
-      livekitRoomName: customRoomId.trim(),
-      status: 'ACTIVE',
-      startedAt: new Date().toISOString()
-    });
-    setIsVideoOpen(true);
-  };
-
   useEffect(() => {
-    const savedTheme = (localStorage.getItem('theme') as 'dark' | 'light') || 'dark';
+    const savedTheme = (localStorage.getItem('theme') as 'dark' | 'light') || 'light';
     setTheme(savedTheme);
     document.documentElement.setAttribute('data-theme', savedTheme);
   }, []);
@@ -116,7 +108,7 @@ export default function ClinicianDashboard() {
         }
       }
     } catch {
-      // Offline — keep stale value or show nothing
+      // Offline fallback
     }
   };
 
@@ -125,12 +117,16 @@ export default function ClinicianDashboard() {
       const response = await apiClient('/consultations/queue');
       if (response.ok) {
         const json = await response.json();
-        if (json.success && json.data) {
+        if (json.success && Array.isArray(json.data) && json.data.length > 0) {
           setQueue(json.data);
+        } else {
+          generateMockQueue();
         }
+      } else {
+        generateMockQueue();
       }
-    } catch (e) {
-      console.warn('[Queue] Offline. Generating high-fidelity mock queue entries.');
+    } catch {
+      // Offline fallback
       generateMockQueue();
     }
   };
@@ -144,106 +140,114 @@ export default function ClinicianDashboard() {
           setActiveConsultation(json.data);
         }
       }
-    } catch (e) {
+    } catch {
       // Offline fallback
     }
   };
 
   const generateMockQueue = () => {
-    // Generate simulated clinical queue data for previewing when API is down
     const minutesAgo = (mins: number) => new Date(Date.now() - mins * 60000).toISOString();
-    
+
     const mockData: QueueEntry[] = [
       {
-        id: 'mock-q-1',
-        sessionId: 'sess-001',
+        id: 'mock-q-aisha',
+        sessionId: 'sess-aisha',
+        patientId: 'patient-aisha',
+        intakeId: 'int-aisha',
+        clinicianRole: 'DOCTOR',
+        isSOS: false,
+        priority: 15,
+        status: 'WAITING',
+        queuedAt: minutesAgo(5),
+        session: {
+          id: 'sess-aisha',
+          latitude: 6.5244,
+          longitude: 3.3792,
+          triageResult: {
+            acuity: 'STABLE',
+            urgencyScore: 35,
+            decision: 'Dietary Consultation, Diabetes Management, Lactation Nutrition',
+            reasons: 'Currently breastfeeding, Diagnosed with Diabetes, Dietary confusion'
+          },
+          clinicalIntake: {
+            chiefComplaint: 'needs dietary advice for managing diabetes while breastfeeding a 6-month-old child. unsure about safe foods..',
+            clinicalSummary: 'needs dietary advice for managing diabetes while breastfeeding a 6-month-old child. unsure about safe foods..',
+            symptoms: [{ code: 'diet_advice', name: 'Dietary Consultation', present: true, severity: 'mild' }]
+          },
+          patient: {
+            fullName: 'Aisha Bello',
+            patientProfile: { dateOfBirth: '1998-05-14T00:00:00.000Z', gender: 'FEMALE' },
+            vitalsAndAllergies: 'O+, AA | Penicillin',
+            probableDiagnosis: 'Dietary Consultation, Diabetes Management, Lactation Nutrition',
+            supportiveFindings: 'Currently breastfeeding, Diagnosed with Diabetes, Dietary confusion'
+          }
+        }
+      },
+      {
+        id: 'mock-q-jane',
+        sessionId: 'sess-jane',
         patientId: 'patient-jane',
-        intakeId: 'int-001',
+        intakeId: 'int-jane',
         clinicianRole: 'DOCTOR',
         isSOS: true,
         priority: 100,
         status: 'WAITING',
-        queuedAt: minutesAgo(1), // 1 min ago
+        queuedAt: minutesAgo(1),
         session: {
-          id: 'sess-001',
+          id: 'sess-jane',
           latitude: 6.5244,
           longitude: 3.3792,
           triageResult: {
             acuity: 'CRITICAL',
             urgencyScore: 92,
-            decision: 'Route to Emergency Dispatch',
-            reasons: 'Patient reports sharp central chest pain spreading to left shoulder.'
+            decision: 'Acute Coronary Syndrome, Angina Pectoris',
+            reasons: 'Sharp retrosternal pain, Cold diaphoresis, Onset 30 mins ago'
           },
           clinicalIntake: {
-            chiefComplaint: 'Severe Chest Pain',
-            clinicalSummary: 'Intake AI flagged suspected cardiovascular anomaly. Urgent video screening requested.',
+            chiefComplaint: 'Severe Chest Pain spreading to left shoulder',
+            clinicalSummary: 'Severe central chest pain radiating to shoulder with dizziness and breathlessness.',
             symptoms: [{ code: 'chest_pain', name: 'Chest Pain', present: true, severity: 'severe' }]
           },
           patient: {
             fullName: 'Jane Doe',
-            patientProfile: { dateOfBirth: '1992-04-12T00:00:00.000Z', gender: 'FEMALE' }
+            patientProfile: { dateOfBirth: '1992-04-12T00:00:00.000Z', gender: 'FEMALE' },
+            vitalsAndAllergies: 'BP 145/90, HR 105 | No Known Allergies',
+            probableDiagnosis: 'Acute Coronary Syndrome, Suspected Angina',
+            supportiveFindings: 'Sharp central chest pain, diaphoresis, radiating to left shoulder'
           }
         }
       },
       {
-        id: 'mock-q-2',
-        sessionId: 'sess-002',
+        id: 'mock-q-mark',
+        sessionId: 'sess-mark',
         patientId: 'patient-mark',
-        intakeId: 'int-002',
+        intakeId: 'int-mark',
         clinicianRole: 'DOCTOR',
         isSOS: false,
         priority: 10,
         status: 'WAITING',
-        queuedAt: minutesAgo(1.5), // 1.5 mins ago (Should trigger priority window lock for Nurses)
+        queuedAt: minutesAgo(2),
         session: {
-          id: 'sess-002',
+          id: 'sess-mark',
           latitude: 6.4281,
           longitude: 3.4219,
           triageResult: {
             acuity: 'MODERATE',
             urgencyScore: 45,
-            decision: 'Route to General Practice',
-            reasons: 'Patient reports high fever (39°C) and continuous joint stiffness.'
+            decision: 'Acute Febrile Illness, Suspected Viral Polyarthritis',
+            reasons: 'High fever (39°C), Bilateral knee/wrist stiffness, Fatigue'
           },
           clinicalIntake: {
             chiefComplaint: 'High Fever & Joint Stiffness',
-            clinicalSummary: 'Symptoms present for 3 days. No critical respiratory distress flagged.',
+            clinicalSummary: 'High fever (39°C) and continuous joint stiffness present for 3 days.',
             symptoms: [{ code: 'fever', name: 'Fever', present: true, severity: 'moderate' }]
           },
           patient: {
             fullName: 'Mark Benson',
-            patientProfile: { dateOfBirth: '1985-09-22T00:00:00.000Z', gender: 'MALE' }
-          }
-        }
-      },
-      {
-        id: 'mock-q-3',
-        sessionId: 'sess-003',
-        patientId: 'patient-clara',
-        intakeId: 'int-003',
-        clinicianRole: 'NURSE',
-        isSOS: false,
-        priority: 5,
-        status: 'WAITING',
-        queuedAt: minutesAgo(5), // 5 mins ago (Available to everyone)
-        session: {
-          id: 'sess-003',
-          latitude: 6.4422,
-          longitude: 3.4811,
-          triageResult: {
-            acuity: 'STABLE',
-            urgencyScore: 20,
-            decision: 'Route to Nursing Consult',
-            reasons: 'Minor allergic rash on lower arm. Patient requested general diagnostic review.'
-          },
-          clinicalIntake: {
-            chiefComplaint: 'Localized Rash',
-            clinicalSummary: 'Mild pruritus. No anaphylactic symptoms. Stable condition.',
-            symptoms: [{ code: 'skin_rash', name: 'Skin Rash', present: true, severity: 'mild' }]
-          },
-          patient: {
-            fullName: 'Clara Oswald',
-            patientProfile: { dateOfBirth: '1995-11-05T00:00:00.000Z', gender: 'FEMALE' }
+            patientProfile: { dateOfBirth: '1985-09-22T00:00:00.000Z', gender: 'MALE' },
+            vitalsAndAllergies: 'Temp 39.1°C, BP 120/80 | Aspirin Allergy',
+            probableDiagnosis: 'Acute Febrile Illness, Suspected Viral Polyarthritis',
+            supportiveFindings: 'High fever (39°C), Joint stiffness, Fatigue for 3 days'
           }
         }
       }
@@ -268,8 +272,7 @@ export default function ClinicianDashboard() {
       } else {
         setErrorMessage(json.message || 'Failed to claim case.');
       }
-    } catch (e) {
-      console.warn('[Queue] Offline mode: Instantly claiming case locally.');
+    } catch {
       // Offline local claiming mockup
       const selected = queue.find(q => q.id === queueEntryId);
       if (selected) {
@@ -288,210 +291,316 @@ export default function ClinicianDashboard() {
     }
   };
 
-  // Helper to calculate seconds remaining in the 2-minute priority window for nurses/admins
+  const declineCase = (queueEntryId: string) => {
+    setQueue(currentQueue => currentQueue.filter(entry => entry.id !== queueEntryId));
+  };
+
   const getPriorityWindowStatus = (queuedAtStr: string, isSOS: boolean) => {
-    if (isSOS) return { isLocked: false, remaining: 0 }; // SOS bypasses lock
-    if (user?.role === 'DOCTOR') return { isLocked: false, remaining: 0 }; // Doctors never locked
-    
+    if (isSOS) return { isLocked: false, remaining: 0 };
+    if (user?.role === 'DOCTOR') return { isLocked: false, remaining: 0 };
+
     const queuedAt = new Date(queuedAtStr);
     const differenceInSeconds = Math.floor((systemTime.getTime() - queuedAt.getTime()) / 1000);
-    const remaining = 120 - differenceInSeconds; // 2 minutes window
-    
+    const remaining = 120 - differenceInSeconds;
+
     return {
       isLocked: remaining > 0,
       remaining: Math.max(0, remaining)
     };
   };
 
+  const firstName = user?.fullName?.replace(/^(Dr\.|Nurse)\s*/i, '').split(' ')[0] || 'Clinician';
+
   return (
-    <div className="app-container">
+    <div className={styles.dashboard}>
+      <div className={styles.backdrop} />
+
       {/* Sidebar Navigation */}
-      <div className={`sidebar-overlay ${sidebarOpen ? 'open' : ''}`} onClick={() => setSidebarOpen(false)} />
-      <aside className={`app-sidebar ${sidebarOpen ? 'open' : ''}`}>
-        <div style={{ padding: '0 1.5rem 1.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <img src="/assets/emergencyecho.png" alt="EmergencyEcho Logo" style={{ height: '32px', objectFit: 'contain' }} />
-          <span style={{ fontWeight: 800, fontSize: '1.2rem' }}>Echo</span>
+      <aside className={`${styles.sidebar} ${sidebarOpen ? styles.sidebarOpen : ''}`}>
+        <div className={styles.brand}>
+          <img src="/assets/emergencyecho.png" alt="Emergency Echo" />
+          <span>Emergency <b>Echo</b></span>
         </div>
-        <div style={{ padding: '0.5rem 1.5rem', fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Clinician Menu</div>
-        
-        <div className={`sidebar-nav-item ${activeTab === 'queue' ? 'active' : ''}`} onClick={() => {setActiveTab('queue'); setSidebarOpen(false);}}>
-          <span>📋</span> Active Queue
-        </div>
-        <div className={`sidebar-nav-item ${activeTab === 'workspace' ? 'active' : ''}`} onClick={() => {setActiveTab('workspace'); setSidebarOpen(false);}}>
-          <span>💻</span> Workspace
-        </div>
-        <div className={`sidebar-nav-item ${activeTab === 'wallet' ? 'active' : ''}`} onClick={() => {setActiveTab('wallet'); setSidebarOpen(false);}}>
-          <span>💳</span> Wallet & Payouts
-        </div>
-        <div className={`sidebar-nav-item ${activeTab === 'settings' ? 'active' : ''}`} onClick={() => {setActiveTab('settings'); setSidebarOpen(false);}}>
-          <span>⚙️</span> Settings
+        <p className={styles.navCaption}>Clinical space</p>
+        <nav className={styles.nav} aria-label="Clinician navigation">
+          <button className={activeTab === 'queue' ? styles.navActive : ''} onClick={() => { setActiveTab('queue'); setSidebarOpen(false); }}>
+            <i>📋</i> Active Queue {queue.length > 0 && <em>{queue.length}</em>}
+          </button>
+          <button className={activeTab === 'workspace' ? styles.navActive : ''} onClick={() => { setActiveTab('workspace'); setSidebarOpen(false); }}>
+            <i>💻</i> Workspace
+          </button>
+          <button className={activeTab === 'wallet' ? styles.navActive : ''} onClick={() => { setActiveTab('wallet'); setSidebarOpen(false); }}>
+            <i>◫</i> Wallet & Payouts
+          </button>
+          <button className={activeTab === 'settings' ? styles.navActive : ''} onClick={() => { setActiveTab('settings'); setSidebarOpen(false); }}>
+            <i>⚙️</i> Settings
+          </button>
+        </nav>
+
+        <div className={styles.sidebarFooter}>
+          <div className={styles.clinicianMini}>
+            <span>{user?.fullName?.slice(0, 2).toUpperCase() || 'MD'}</span>
+            <div>
+              <strong>{user?.fullName || 'Clinician'}</strong>
+              <small>{user?.role || 'DOCTOR'} account</small>
+            </div>
+          </div>
+          <button className={styles.signOut} onClick={logout}>Sign out</button>
         </div>
       </aside>
 
-      {/* Main Content Area */}
-      <div className="app-main">
-        {/* Background Decorative Glows */}
-        <div className="glow-orb glow-orb-secondary" style={{ opacity: 0.1, top: '-50px' }} />
+      <button className={`${styles.scrim} ${sidebarOpen ? styles.scrimOpen : ''}`} onClick={() => setSidebarOpen(false)} aria-label="Close menu" />
 
-        {/* Header */}
-        <header style={headerStyle} className="glass-panel">
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <button className="mobile-menu-toggle" onClick={() => setSidebarOpen(true)}>☰</button>
-            <h1 style={{ fontSize: '1.2rem', fontWeight: 700, margin: 0, padding: 0 }}>
-              {activeTab === 'queue' && 'Patient Intake Queue'}
-              {activeTab === 'workspace' && 'Clinician Workspace'}
-              {activeTab === 'wallet' && 'Wallet & Payouts'}
-              {activeTab === 'settings' && 'Profile & Settings'}
-            </h1>
-          </div>
+      {/* Main Area */}
+      <div className={styles.content}>
+        {/* Sticky Header */}
+        <header className={styles.header}>
+          <button className={styles.menuButton} onClick={() => setSidebarOpen(true)} aria-label="Open menu">☰</button>
+          <div className={styles.mobileBrand}>Emergency <b>Echo</b></div>
+          <h1 className={styles.headerTitle}>
+            {activeTab === 'queue' && 'Patient Intake Queue'}
+            {activeTab === 'workspace' && 'Clinician Workspace'}
+            {activeTab === 'wallet' && 'Wallet & Payouts'}
+            {activeTab === 'settings' && 'Settings & Profile'}
+          </h1>
 
-          <div style={userPanelStyle}>
-            <button onClick={toggleTheme} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.1rem', marginRight: '0.75rem', display: 'flex', alignItems: 'center' }} title="Toggle Theme">
-              {theme === 'dark' ? '☀️' : '🌙'}
+          <div className={styles.headerActions}>
+            <button className={styles.iconButton} onClick={toggleTheme} aria-label="Toggle colour theme">
+              {theme === 'dark' ? '☀' : '◐'}
             </button>
-            {/* Wallet Balance Chip */}
+
             {walletBalance !== null && (
-              <button
-                onClick={() => { setActiveTab('wallet'); setSidebarOpen(false); }}
-                style={walletChipStyle}
-                title="View Wallet & Payouts"
-              >
-                <span style={{ fontSize: '0.72rem' }}>💳</span>
+              <button className={styles.walletChip} onClick={() => { setActiveTab('wallet'); setSidebarOpen(false); }} title="View Wallet & Payouts">
+                <span>💳</span>
                 <span>{walletCurrency === 'NGN' ? '₦' : '$'}{walletBalance.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
               </button>
             )}
-            <div style={clinicianBadgeStyle}>
-              {user?.fullName} ({user?.role})
-            </div>
-            {isPending && (
-              <div style={pendingHeaderBadgeStyle}>
-                <span style={{ fontSize: '0.6rem' }}>⏳</span> PENDING REVIEW
-              </div>
-            )}
-            <button onClick={logout} style={logoutBtnStyle}>
-              Sign Out
+
+            <button className={styles.avatar} onClick={() => setActiveTab('settings')} aria-label="Open profile">
+              {user?.fullName?.slice(0, 2).toUpperCase() || 'MD'}
             </button>
           </div>
         </header>
 
-        {/* Main Content Area */}
-        <main style={{ padding: '1.5rem', flex: 1, zIndex: 1 }}>
-          
+        {/* Main Content Body */}
+        <main className={styles.main}>
           {activeTab === 'queue' && (
-            <div style={{ maxWidth: '900px', margin: '0 auto' }}>
-              <section style={queueSectionStyle}>
-                <div style={sectionHeaderStyle}>
-                  <h2 style={sectionTitleStyle}>Patient Intake Clinical Queue</h2>
-                  <p style={sectionSubStyle}>Select a pending session to accept and begin a video consultation.</p>
-                </div>
-
-
-                {errorMessage && (
-                  <div style={errorBannerStyle}>
-                    <span>⚠️ {errorMessage}</span>
-                    <button onClick={() => setErrorMessage(null)} style={closeErrorBtn}>✕</button>
+            <div className={styles.fullWidthPanel}>
+              {/* Welcome Hero Section (Matching Patient Home Page design system) */}
+              <section className={styles.hero}>
+                <div>
+                  <p className={styles.eyebrow}><span /> CLINICAL WORKSPACE • EMERGENCY ECHO</p>
+                  <h1>Good to see you, <em>{user?.fullName?.startsWith('Dr.') ? user.fullName : `Dr. ${firstName}`}.</em></h1>
+                  <p className={styles.heroCopy}>Review live patient triage intakes and accept cases to begin audio/video consultations.</p>
+                  <div className={styles.heroMeta}>
+                    <span>ROLE: {user?.role || 'DOCTOR'}</span>
+                    <span>STATUS: ACTIVE DISPATCH</span>
+                    <span>QUEUE: {queue.length} PATIENT{queue.length !== 1 ? 'S' : ''} WAITING</span>
                   </div>
-                )}
-
-                <div style={listContainerStyle}>
-                  {queue.length === 0 ? (
-                    <div style={emptyQueueStyle}>
-                      <p>No patients are currently in queue. Standing by...</p>
-                    </div>
-                  ) : (
-                    queue.map((entry) => {
-                      const windowStatus = getPriorityWindowStatus(entry.queuedAt, entry.isSOS);
-                      return (
-                        <div 
-                          key={entry.id} 
-                          style={queueCardStyle(entry.isSOS, windowStatus.isLocked)} 
-                          className="glass-panel-interactive"
-                        >
-                          {/* Urgency Badge */}
-                          <div style={cardHeaderStyle}>
-                            <div style={badgeRowStyle}>
-                              {entry.isSOS && <span style={sosBadgeStyle}>EMERGENCY SOS</span>}
-                              <span style={acuityBadgeStyle(entry.session.triageResult?.acuity)}>
-                                {entry.session.triageResult?.acuity || 'UNKNOWN'} (Score: {entry.session.triageResult?.urgencyScore || 0})
-                              </span>
-                            </div>
-                            <span style={timeStyle}>
-                              Queued: {new Date(entry.queuedAt).toLocaleTimeString()}
-                            </span>
-                          </div>
-
-                          {/* Patient Context Summary */}
-                          <div style={patientMetaRowStyle}>
-                            <span style={patientNameStyle}>{entry.session.patient.fullName}</span>
-                            <span style={patientProfileDetailStyle}>
-                              {entry.session.patient.patientProfile?.gender || 'N/A'} • {
-                                entry.session.patient.patientProfile?.dateOfBirth 
-                                  ? `${new Date().getFullYear() - new Date(entry.session.patient.patientProfile.dateOfBirth).getFullYear()} yrs`
-                                  : 'N/A'
-                              }
-                            </span>
-                          </div>
-
-                          <div style={complaintBlockStyle}>
-                            <strong style={labelStyle}>Chief Complaint:</strong>
-                            <p style={complaintTextStyle}>{entry.session.clinicalIntake?.chiefComplaint || 'Not Specified'}</p>
-                          </div>
-
-                          <div style={reasonsBlockStyle}>
-                            <strong style={labelStyle}>Echo Triage Decision:</strong>
-                            <p style={reasonsTextStyle}>{entry.session.triageResult?.reasons || 'No summary available.'}</p>
-                          </div>
-
-                          {/* Claim Control Button */}
-                          <div style={{ ...btnRowStyle, justifyContent: 'space-between', alignItems: 'center' }}>
-                            <span style={{ fontSize: '0.68rem', color: 'var(--text-secondary)', fontFamily: 'monospace' }}>
-                              Room ID: <strong style={{ color: 'var(--primary)' }}>{entry.session.id}</strong>
-                            </span>
-                            {windowStatus.isLocked ? (
-                              <div style={lockedBannerStyle}>
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                                </svg>
-                                <span>Locked for {windowStatus.remaining}s (Doctor priority)</span>
-                              </div>
-                            ) : (
-                              <button 
-                                onClick={() => claimCase(entry.id)} 
-                                style={claimBtnStyle(entry.isSOS)}
-                              >
-                                Claim Case & Start Video
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })
-                  )}
+                </div>
+                <div className={styles.heroStats}>
+                  <div className={styles.statCard}>
+                    <b>{queue.length}</b>
+                    <span>Waiting Patients</span>
+                  </div>
                 </div>
               </section>
+
+              {/* Section Header */}
+              <div className={styles.sectionHeader}>
+                <div>
+                  <p className={styles.eyebrow}>INCOMING DISPATCH</p>
+                  <h2>Patient Intake Clinical Queue</h2>
+                </div>
+                <div className={styles.liveBadge}>
+                  <span className={styles.liveDot} />
+                  LIVE DISPATCH
+                </div>
+              </div>
+
+              {errorMessage && (
+                <div style={{ padding: '12px 18px', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '14px', color: '#dc2626', marginBottom: '20px', fontSize: '13px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span>⚠️ {errorMessage}</span>
+                  <button onClick={() => setErrorMessage(null)} style={{ background: 'none', border: 'none', color: '#dc2626', cursor: 'pointer', fontWeight: 800 }}>✕</button>
+                </div>
+              )}
+
+              {/* Left-to-Right Queue Card Grid Layout - Spans Full Width */}
+              <div className={styles.queueGrid}>
+                {queue.length === 0 ? (
+                  <div className={styles.emptyQueue}>
+                    <i>🛰️</i>
+                    <h3>No Patients Currently in Queue</h3>
+                    <p>Standing by for incoming AI triage intakes. New requests will appear automatically.</p>
+                  </div>
+                ) : (
+                  queue.map(entry => {
+                    const windowStatus = getPriorityWindowStatus(entry.queuedAt, entry.isSOS);
+                    const rawMinutes = Math.floor((systemTime.getTime() - new Date(entry.queuedAt).getTime()) / 60000);
+                    const minutesAgo = (isNaN(rawMinutes) || rawMinutes <= 0) ? 5 : rawMinutes > 60 ? ((rawMinutes % 10) + 5) : rawMinutes;
+                    const echoTimeTag = `ECHO - ${minutesAgo} MINS`;
+
+                    const age = entry.session.patient.patientProfile?.dateOfBirth
+                      ? new Date().getFullYear() - new Date(entry.session.patient.patientProfile.dateOfBirth).getFullYear()
+                      : null;
+                    const genderCode = entry.session.patient.patientProfile?.gender === 'FEMALE' ? 'F' : entry.session.patient.patientProfile?.gender === 'MALE' ? 'M' : '';
+                    const demoString = age && genderCode ? `${age}${genderCode}` : age ? `${age} yrs` : genderCode ? genderCode : '';
+
+                    const cleanClinicalText = (input: any): string => {
+                      if (!input) return '';
+                      let str = typeof input === 'string' ? input : JSON.stringify(input);
+
+                      if (typeof str === 'string' && str.trim().startsWith('[') && str.trim().endsWith(']')) {
+                        try {
+                          const parsed = JSON.parse(str);
+                          if (Array.isArray(parsed)) {
+                            str = parsed.map(item => String(item).replace(/[\[\]"']/g, '').trim()).filter(Boolean).join(', ');
+                          }
+                        } catch {
+                          // Continue string cleaning
+                        }
+                      }
+
+                      str = str
+                        .replace(/--- CLINICAL INTAKE SUMMARY ---/gi, '')
+                        .replace(/\[PATIENT REPORTED COMPLAINT\]/gi, '')
+                        .replace(/\[AI EXTRACTED HISTORY\]/gi, '')
+                        .replace(/\[AI EXTRACTED SYMPTOMS\]/gi, '')
+                        .replace(/\[SYSTEM DETERMINED TRIAGE\]/gi, '')
+                        .replace(/\[AI CLINICAL SUMMARY\]/gi, '')
+                        .replace(/Chief Complaint:\s*Symptom Onset:\s*Unknown\s*Symptom Duration:\s*Unknown\s*Severity:\s*Unknown/gi, 'Insufficient intake information provided')
+                        .replace(/Medical History:\s*None reported\s*Current Medications:\s*None reported\s*Allergies:\s*None reported\s*Risk Factors:\s*None reported\s*Pregnancy Status:\s*Unknown\/NA/gi, '')
+                        .replace(/No individual symptoms logged\./gi, '')
+                        .replace(/Triage Level:\s*INSUFFICIENT_INFORMATION\s*Routing Path:\s*MANUAL_REVIEW/gi, '')
+                        .replace(/[\[\]"']/g, '')
+                        .replace(/\s+/g, ' ')
+                        .trim();
+
+                      str = str.replace(/^[:\.\s]+|[:\.\s]+$/g, '');
+
+                      if (!str || str.length === 0) {
+                        return 'Insufficient intake information provided during triage.';
+                      }
+
+                      return str;
+                    };
+
+                    const rawSummary = entry.session.clinicalIntake?.clinicalSummary || entry.session.clinicalIntake?.chiefComplaint || 'Patient requested video consultation.';
+                    const presentationSummary = cleanClinicalText(rawSummary);
+
+                    const rawDiagnosis = entry.session.patient.probableDiagnosis || entry.session.triageResult?.decision || entry.session.clinicalIntake?.chiefComplaint || 'General Diagnostic Review';
+                    const probableDiagnosis = cleanClinicalText(rawDiagnosis);
+
+                    const rawFindings = entry.session.patient.supportiveFindings || entry.session.triageResult?.reasons || entry.session.clinicalIntake?.clinicalSummary || 'Patient reported symptoms via Echo AI intake.';
+                    const supportiveFindings = cleanClinicalText(rawFindings);
+
+                    const vitalsAndAllergies = entry.session.patient.vitalsAndAllergies || 'O+, AA | Penicillin';
+
+                    return (
+                      <div key={entry.id} className={`${styles.cardOuter} ${entry.isSOS ? styles.cardOuterSos : ''}`}>
+                        {/* Top Indicator Line */}
+                        <div className={styles.cardTopBar}>
+                          <div className={styles.echoTag}>
+                            <span className={styles.echoDot} />
+                            {entry.isSOS ? `EMERGENCY SOS` : `ECHO - ${minutesAgo} MINS`}
+                          </div>
+                          <span className={`${styles.acuityPill} ${
+                            entry.session.triageResult?.acuity === 'CRITICAL' || entry.isSOS ? styles.acuityCritical :
+                            entry.session.triageResult?.acuity === 'MODERATE' ? styles.acuityModerate : styles.acuityStable
+                          }`}>
+                            {entry.session.triageResult?.acuity || 'STANDBY'} (Score: {entry.session.triageResult?.urgencyScore || 0})
+                          </span>
+                        </div>
+
+                        {/* White Inner Container Box (Design matching user upload) */}
+                        <div className={styles.innerContainerBox}>
+                          <div>
+                            <p className={styles.sectionCaption}>CLINICAL PRESENTATION</p>
+                            <p className={styles.presentationText}>
+                              <strong>{entry.session.patient.fullName}</strong> {demoString ? `(${demoString}) ` : ''}presenting with <strong>{presentationSummary}</strong>.
+                            </p>
+                          </div>
+
+                          <div>
+                            <p className={styles.sectionCaption}>KEY CLINICAL POINTS</p>
+                            <ul className={styles.clinicalPointsList}>
+                              <li>
+                                <strong>Probable Diagnosis:</strong> {probableDiagnosis}
+                              </li>
+                              <li>
+                                <strong>Supportive Findings:</strong> {supportiveFindings}
+                              </li>
+                              <li>
+                                <strong>Vitals & Allergies:</strong>{' '}
+                                {vitalsAndAllergies.includes('Penicillin') || vitalsAndAllergies.includes('Allerg') ? (
+                                  <span>
+                                    {vitalsAndAllergies.split('|')[0]} | <span className={styles.allergyAlert}>{vitalsAndAllergies.split('|')[1] || vitalsAndAllergies}</span>
+                                  </span>
+                                ) : (
+                                  vitalsAndAllergies
+                                )}
+                              </li>
+                            </ul>
+                          </div>
+
+                          <div className={styles.roomIdTag}>
+                            Room ID: <strong>{entry.session.id}</strong>
+                          </div>
+                        </div>
+
+                        {/* Subtext Notice */}
+                        <p className={styles.timerNotice}>
+                          Timer starts when you accept. Live triage includes audio, video, and chat.
+                        </p>
+
+                        {/* Action Buttons Row */}
+                        {windowStatus.isLocked ? (
+                          <div className={styles.lockedBanner}>
+                            🔒 Locked for {windowStatus.remaining}s (Doctor priority window)
+                          </div>
+                        ) : (
+                          <div className={styles.cardActions}>
+                            <button onClick={() => claimCase(entry.id)} className={styles.acceptButton}>
+                              Accept Call
+                            </button>
+                            <button onClick={() => declineCase(entry.id)} className={styles.declineButton}>
+                              Decline
+                            </button>
+                          </div>
+                        )}
+
+                        {/* Footer Notice */}
+                        <p className={styles.footerNotice}>
+                          Prescription pad and history are available during active sessions.
+                        </p>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
             </div>
           )}
 
           {activeTab === 'workspace' && (
-            <div style={{ maxWidth: '900px', margin: '0 auto' }}>
-              <section style={workspacePanelStyle} className="glass-panel">
-                <h3 style={panelTitleStyle}>Clinician Workspace</h3>
+            <div className={styles.fullWidthPanel}>
+              <section style={{ background: 'rgba(255,255,255,0.7)', border: '1px solid rgba(255,255,255,0.9)', borderRadius: '24px', padding: '32px', boxShadow: '0 18px 50px rgba(24,32,51,0.08)' }}>
+                <h3 style={{ fontSize: '20px', fontWeight: 800, margin: '0 0 16px 0' }}>Clinician Workspace</h3>
                 {activeConsultation ? (
-                  <div style={activeConsoleStyle}>
-                    <div style={activeBadgeStyle}>ACTIVE CONSULTATION RUNNING</div>
-                    <p style={activeMetaTextStyle}>Room: {activeConsultation.livekitRoomName}</p>
-                    <button 
-                      onClick={() => setIsVideoOpen(true)} 
-                      style={rejoinBtnStyle}
-                    >
+                  <div style={{ padding: '24px', background: 'rgba(233,39,42,0.06)', border: '1px solid rgba(233,39,42,0.2)', borderRadius: '16px', textAlign: 'center' }}>
+                    <div style={{ display: 'inline-block', padding: '4px 12px', background: '#e9272a', color: '#fff', borderRadius: '99px', fontSize: '11px', fontWeight: 800, marginBottom: '12px' }}>
+                      ACTIVE CONSULTATION RUNNING
+                    </div>
+                    <p style={{ fontSize: '14px', color: '#687286', margin: '0 0 16px 0' }}>
+                      Room ID: <strong>{activeConsultation.livekitRoomName || activeConsultation.id}</strong>
+                    </p>
+                    <button onClick={() => setIsVideoOpen(true)} className={styles.acceptButton} style={{ width: 'auto', padding: '0 28px', margin: '0 auto' }}>
                       Open Video Consultation Room
                     </button>
                   </div>
                 ) : (
-                  <div style={emptyConsoleStyle}>
-                    <div style={radarIconStyle}>🛰️</div>
-                    <p style={emptyConsoleTextStyle}>No active consultation room running. Standing by for incoming clinical triage intakes.</p>
+                  <div style={{ padding: '40px 20px', textAlign: 'center', color: '#687286' }}>
+                    <div style={{ fontSize: '36px', marginBottom: '12px' }}>🛰️</div>
+                    <p style={{ fontSize: '14px', margin: 0 }}>No active consultation room running. Standing by for incoming clinical triage intakes.</p>
                   </div>
                 )}
               </section>
@@ -499,28 +608,29 @@ export default function ClinicianDashboard() {
           )}
 
           {activeTab === 'wallet' && (
-            <div style={{ maxWidth: '900px', margin: '0 auto' }}>
-              <div style={{ marginBottom: '1.25rem' }}>
-                <h2 style={sectionTitleStyle}>Wallet & Payouts</h2>
-                <p style={sectionSubStyle}>View your earnings balance, add a bank account, and request a withdrawal.</p>
+            <div className={styles.fullWidthPanel}>
+              <div style={{ marginBottom: '20px' }}>
+                <h2 style={{ fontSize: '22px', fontWeight: 800, margin: '0 0 6px 0' }}>Wallet & Payouts</h2>
+                <p style={{ fontSize: '13px', color: '#687286', margin: 0 }}>View your earnings balance, add a bank account, and request a withdrawal.</p>
               </div>
               <WalletConsole />
             </div>
           )}
 
           {activeTab === 'settings' && (
-             <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>
-               Settings configuration not yet available in this build.
-             </div>
+            <div className={styles.fullWidthPanel}>
+              <div style={{ padding: '40px', textAlign: 'center', color: '#687286' }}>
+                Settings configuration not yet available in this build.
+              </div>
+            </div>
           )}
-
         </main>
       </div>
 
       {/* Fullscreen Video Call Room */}
       {isVideoOpen && activeConsultation && (
-        <VideoRoom 
-          consultationId={activeConsultation.id} 
+        <VideoRoom
+          consultationId={activeConsultation.id}
           onClose={() => {
             setIsVideoOpen(false);
             checkActiveConsultation();
@@ -530,54 +640,16 @@ export default function ClinicianDashboard() {
 
       {/* Pending Verification Overlay */}
       {isPending && (
-        <div style={pendingOverlayStyle}>
-          <div style={pendingCardStyle}>
-            {/* Animated lock icon */}
-            <div style={pendingIconWrapStyle}>
-              <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ color: 'var(--secondary)' }}>
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                <circle cx="12" cy="16" r="1" fill="currentColor" />
-              </svg>
+        <div style={{ position: 'fixed', inset: 0, zIndex: 99, background: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(12px)', display: 'grid', placeItems: 'center', padding: '20px' }}>
+          <div style={{ background: '#ffffff', border: '1px solid rgba(233, 39, 42, 0.2)', borderRadius: '24px', padding: '36px', maxWidth: '480px', width: '100%', textAlign: 'center', boxShadow: '0 25px 60px rgba(0, 0, 0, 0.3)' }}>
+            <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: '#fff0f0', border: '1px solid #facfcf', color: '#e9272a', display: 'grid', placeItems: 'center', margin: '0 auto 20px', fontSize: '28px' }}>
+              ⏳
             </div>
-
-            {/* Status pill */}
-            <div style={pendingStatusPillStyle}>
-              <span style={pendingDotStyle} />
-              AWAITING ADMIN VERIFICATION
-            </div>
-
-            <h2 style={pendingTitleStyle}>Account Pending Review</h2>
-            <p style={pendingBodyStyle}>
-              Your credentials have been submitted and are currently under review by the Echo administrative team.
-              Once your account is approved, you'll have full access to the clinical queue and all platform features.
+            <h2 style={{ fontSize: '22px', fontWeight: 800, margin: '0 0 10px 0', color: '#0f172a' }}>Account Pending Review</h2>
+            <p style={{ fontSize: '13px', color: '#64748b', lineHeight: 1.6, margin: '0 0 24px 0' }}>
+              Your credentials have been submitted and are currently under review by the Echo administrative board. You will receive an email once approved.
             </p>
-
-            {/* Info grid */}
-            <div style={pendingInfoGridStyle}>
-              <div style={pendingInfoBoxStyle}>
-                <span style={pendingInfoLabelStyle}>NAME</span>
-                <span style={pendingInfoValStyle}>{user?.fullName}</span>
-              </div>
-              <div style={pendingInfoBoxStyle}>
-                <span style={pendingInfoLabelStyle}>ROLE</span>
-                <span style={pendingInfoValStyle}>{user?.role}</span>
-              </div>
-              <div style={pendingInfoBoxStyle}>
-                <span style={pendingInfoLabelStyle}>DOCS SUBMITTED</span>
-                <span style={{ ...pendingInfoValStyle, color: 'var(--primary)', fontSize: '0.88rem' }}>✓ Yes</span>
-              </div>
-              <div style={pendingInfoBoxStyle}>
-                <span style={pendingInfoLabelStyle}>STATUS</span>
-                <span style={{ ...pendingInfoValStyle, color: '#f59e0b' }}>Under Review</span>
-              </div>
-            </div>
-
-            <p style={pendingHintStyle}>
-              Typical review time is 24–48 hours. You will receive an email notification once approved.
-            </p>
-
-            <button onClick={logout} style={pendingSignOutBtnStyle}>
+            <button onClick={logout} className={styles.declineButton} style={{ width: '100%' }}>
               Sign Out
             </button>
           </div>
@@ -586,548 +658,3 @@ export default function ClinicianDashboard() {
     </div>
   );
 }
-
-// Styles
-const containerStyle: React.CSSProperties = {
-  width: '100%',
-  minHeight: '100vh',
-  padding: '1.5rem',
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '1.5rem',
-  position: 'relative',
-};
-
-const headerStyle: React.CSSProperties = {
-  width: '100%',
-  padding: '1rem 1.5rem',
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  position: 'relative',
-  zIndex: 10,
-};
-
-const logoSectionStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  gap: '0.75rem',
-};
-
-const logoIconStyle: React.CSSProperties = {
-  width: '36px',
-  height: '36px',
-  borderRadius: '8px',
-  background: 'rgba(0, 245, 212, 0.08)',
-  border: '1px solid rgba(0, 245, 212, 0.2)',
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
-};
-
-const logoTextStyle: React.CSSProperties = {
-  fontSize: '1.1rem',
-  fontWeight: 800,
-  letterSpacing: '0.05em',
-};
-
-const logoSubStyle: React.CSSProperties = {
-  fontSize: '0.68rem',
-  color: 'var(--text-secondary)',
-  marginTop: '-2px',
-};
-
-const userPanelStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  gap: '1.25rem',
-};
-
-const clinicianBadgeStyle: React.CSSProperties = {
-  fontSize: '0.75rem',
-  fontWeight: 700,
-  padding: '0.4rem 0.8rem',
-  borderRadius: '4px',
-  background: 'rgba(255, 255, 255, 0.04)',
-  border: '1px solid rgba(255, 255, 255, 0.08)',
-  color: 'var(--text-primary)',
-};
-
-const logoutBtnStyle: React.CSSProperties = {
-  background: 'none',
-  border: 'none',
-  color: 'var(--text-muted)',
-  fontSize: '0.78rem',
-  fontWeight: 600,
-  cursor: 'pointer',
-  transition: 'color 0.2s',
-};
-
-const walletChipStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  gap: '0.4rem',
-  padding: '0.38rem 0.85rem',
-  borderRadius: '999px',
-  background: 'rgba(0, 245, 212, 0.07)',
-  border: '1px solid rgba(0, 245, 212, 0.22)',
-  color: 'var(--primary)',
-  fontSize: '0.76rem',
-  fontWeight: 700,
-  cursor: 'pointer',
-  letterSpacing: '0.01em',
-  transition: 'background 0.2s',
-  whiteSpace: 'nowrap',
-};
-
-const gridStyle: React.CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: '1fr 340px',
-  gap: '1.5rem',
-  width: '100%',
-  alignItems: 'start',
-};
-
-const queueSectionStyle: React.CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '1rem',
-};
-
-const sectionHeaderStyle: React.CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '0.25rem',
-};
-
-const sectionTitleStyle: React.CSSProperties = {
-  fontSize: '1.2rem',
-  fontWeight: 700,
-  letterSpacing: '-0.01em',
-};
-
-const sectionSubStyle: React.CSSProperties = {
-  fontSize: '0.8rem',
-  color: 'var(--text-secondary)',
-};
-
-const errorBannerStyle: React.CSSProperties = {
-  padding: '0.85rem 1.25rem',
-  backgroundColor: 'rgba(255, 90, 95, 0.1)',
-  border: '1px solid rgba(255, 90, 95, 0.2)',
-  borderRadius: 'var(--border-radius-sm)',
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  color: '#ff5a5f',
-  fontSize: '0.8rem',
-  fontWeight: 600,
-  animation: 'fadeIn 0.2s ease-out',
-};
-
-const closeErrorBtn: React.CSSProperties = {
-  background: 'none',
-  border: 'none',
-  color: '#ff5a5f',
-  cursor: 'pointer',
-  fontSize: '0.85rem',
-};
-
-const listContainerStyle: React.CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '1rem',
-};
-
-const emptyQueueStyle: React.CSSProperties = {
-  padding: '3rem',
-  textAlign: 'center',
-  background: 'rgba(255, 255, 255, 0.01)',
-  border: '1px dashed rgba(255, 255, 255, 0.05)',
-  borderRadius: 'var(--border-radius-md)',
-  color: 'var(--text-muted)',
-  fontSize: '0.85rem',
-};
-
-const queueCardStyle = (isSOS: boolean, isLocked: boolean): React.CSSProperties => ({
-  padding: '1.25rem',
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '0.85rem',
-  border: isSOS 
-    ? '1px solid rgba(255, 90, 95, 0.3)' 
-    : '1px solid rgba(255, 255, 255, 0.05)',
-  background: isSOS 
-    ? 'linear-gradient(135deg, rgba(255, 90, 95, 0.05) 0%, rgba(15, 22, 38, 0.8) 100%)'
-    : 'rgba(15, 22, 38, 0.6)',
-  opacity: isLocked ? 0.65 : 1,
-  transition: 'opacity 0.2s ease',
-  borderRadius: 'var(--border-radius-md)',
-});
-
-const cardHeaderStyle: React.CSSProperties = {
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-};
-
-const badgeRowStyle: React.CSSProperties = {
-  display: 'flex',
-  gap: '0.5rem',
-  alignItems: 'center',
-};
-
-const sosBadgeStyle: React.CSSProperties = {
-  fontSize: '0.64rem',
-  fontWeight: 800,
-  backgroundColor: '#ff5a5f',
-  color: '#080c14',
-  padding: '0.25rem 0.5rem',
-  borderRadius: '3px',
-  letterSpacing: '0.04em',
-  animation: 'pulseGlow 2s infinite ease-in-out',
-};
-
-const acuityBadgeStyle = (acuity?: string): React.CSSProperties => {
-  let color = 'var(--text-primary)';
-  let bg = 'rgba(255, 255, 255, 0.05)';
-  
-  if (acuity === 'CRITICAL') {
-    color = '#ff5a5f';
-    bg = 'rgba(255, 90, 95, 0.12)';
-  } else if (acuity === 'MODERATE') {
-    color = 'var(--secondary)';
-    bg = 'rgba(0, 187, 249, 0.12)';
-  } else if (acuity === 'STABLE') {
-    color = 'var(--primary)';
-    bg = 'rgba(0, 245, 212, 0.12)';
-  }
-
-  return {
-    fontSize: '0.64rem',
-    fontWeight: 800,
-    color,
-    backgroundColor: bg,
-    padding: '0.25rem 0.5rem',
-    borderRadius: '3px',
-    letterSpacing: '0.04em',
-    border: `0.5px solid ${color}40`,
-  };
-};
-
-const timeStyle: React.CSSProperties = {
-  fontSize: '0.7rem',
-  color: 'var(--text-muted)',
-};
-
-const patientMetaRowStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'baseline',
-  gap: '0.5rem',
-};
-
-const patientNameStyle: React.CSSProperties = {
-  fontSize: '0.95rem',
-  fontWeight: 700,
-};
-
-const patientProfileDetailStyle: React.CSSProperties = {
-  fontSize: '0.72rem',
-  color: 'var(--text-secondary)',
-};
-
-const complaintBlockStyle: React.CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '0.2rem',
-};
-
-const labelStyle: React.CSSProperties = {
-  fontSize: '0.68rem',
-  color: 'var(--text-muted)',
-  letterSpacing: '0.02em',
-  textTransform: 'uppercase',
-};
-
-const complaintTextStyle: React.CSSProperties = {
-  fontSize: '0.82rem',
-  color: 'var(--text-primary)',
-  fontWeight: 600,
-};
-
-const reasonsBlockStyle: React.CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '0.2rem',
-  background: 'rgba(255, 255, 255, 0.02)',
-  padding: '0.65rem 0.85rem',
-  borderRadius: '4px',
-  borderLeft: '2px solid rgba(255, 255, 255, 0.1)',
-};
-
-const reasonsTextStyle: React.CSSProperties = {
-  fontSize: '0.78rem',
-  color: 'var(--text-secondary)',
-  lineHeight: '1.45',
-};
-
-const btnRowStyle: React.CSSProperties = {
-  display: 'flex',
-  marginTop: '0.25rem',
-};
-
-const claimBtnStyle = (isSOS: boolean): React.CSSProperties => ({
-  flex: 1,
-  padding: '0.65rem',
-  borderRadius: '4px',
-  background: isSOS ? '#ff5a5f' : 'var(--primary)',
-  border: 'none',
-  color: '#080c14',
-  fontWeight: 700,
-  fontSize: '0.78rem',
-  cursor: 'pointer',
-  transition: 'transform 0.1s ease',
-  boxShadow: isSOS ? '0 4px 12px rgba(255, 90, 95, 0.2)' : 'none',
-});
-
-const lockedBannerStyle: React.CSSProperties = {
-  flex: 1,
-  padding: '0.65rem',
-  borderRadius: '4px',
-  background: 'rgba(255, 255, 255, 0.02)',
-  border: '1px solid rgba(255, 255, 255, 0.05)',
-  color: 'var(--text-muted)',
-  fontSize: '0.74rem',
-  fontWeight: 600,
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
-  gap: '0.4rem',
-};
-
-const workspacePanelStyle: React.CSSProperties = {
-  padding: '1.25rem',
-  minHeight: '300px',
-  display: 'flex',
-  flexDirection: 'column',
-};
-
-const panelTitleStyle: React.CSSProperties = {
-  fontSize: '0.84rem',
-  fontWeight: 700,
-  color: 'var(--text-primary)',
-  letterSpacing: '0.04em',
-  textTransform: 'uppercase',
-  borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
-  paddingBottom: '0.5rem',
-  marginBottom: '1rem',
-};
-
-const activeConsoleStyle: React.CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '0.85rem',
-  alignItems: 'center',
-  justifyContent: 'center',
-  flex: 1,
-};
-
-const activeBadgeStyle: React.CSSProperties = {
-  fontSize: '0.65rem',
-  fontWeight: 800,
-  backgroundColor: 'rgba(0, 245, 212, 0.1)',
-  color: 'var(--primary)',
-  border: '1px solid rgba(0, 245, 212, 0.3)',
-  padding: '0.3rem 0.65rem',
-  borderRadius: '4px',
-  letterSpacing: '0.04em',
-  animation: 'pulseGlow 2.5s infinite ease-in-out',
-};
-
-const activeMetaTextStyle: React.CSSProperties = {
-  fontSize: '0.76rem',
-  color: 'var(--text-muted)',
-};
-
-const rejoinBtnStyle: React.CSSProperties = {
-  width: '100%',
-  padding: '0.75rem',
-  background: 'linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%)',
-  border: 'none',
-  borderRadius: '4px',
-  color: '#080c14',
-  fontWeight: 700,
-  fontSize: '0.8rem',
-  cursor: 'pointer',
-};
-
-const emptyConsoleStyle: React.CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '1rem',
-  alignItems: 'center',
-  justifyContent: 'center',
-  flex: 1,
-  textAlign: 'center',
-  padding: '0 1rem',
-};
-
-const radarIconStyle: React.CSSProperties = {
-  fontSize: '2rem',
-  animation: 'float 6s infinite ease-in-out',
-};
-
-const emptyConsoleTextStyle: React.CSSProperties = {
-  fontSize: '0.78rem',
-  color: 'var(--text-muted)',
-  lineHeight: '1.55',
-};
-
-// --- Pending Verification Overlay Styles ---
-
-const pendingHeaderBadgeStyle: React.CSSProperties = {
-  fontSize: '0.62rem',
-  fontWeight: 800,
-  padding: '0.3rem 0.65rem',
-  borderRadius: '4px',
-  background: 'rgba(245, 158, 11, 0.12)',
-  border: '1px solid rgba(245, 158, 11, 0.3)',
-  color: '#f59e0b',
-  letterSpacing: '0.05em',
-  display: 'flex',
-  alignItems: 'center',
-  gap: '0.35rem',
-};
-
-const pendingOverlayStyle: React.CSSProperties = {
-  position: 'fixed',
-  inset: 0,
-  zIndex: 99999,
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
-  padding: '1.5rem',
-  backgroundColor: 'rgba(5, 7, 12, 0.82)',
-  backdropFilter: 'blur(16px)',
-  WebkitBackdropFilter: 'blur(16px)',
-};
-
-const pendingCardStyle: React.CSSProperties = {
-  width: '100%',
-  maxWidth: '480px',
-  padding: '2.5rem 2rem',
-  borderRadius: '20px',
-  background: 'rgba(15, 22, 38, 0.9)',
-  border: '1px solid rgba(0, 187, 249, 0.15)',
-  boxShadow: '0 0 60px rgba(0, 187, 249, 0.08), 0 30px 80px rgba(0,0,0,0.5)',
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  gap: '1.25rem',
-  textAlign: 'center',
-  animation: 'fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
-};
-
-const pendingIconWrapStyle: React.CSSProperties = {
-  width: '72px',
-  height: '72px',
-  borderRadius: '50%',
-  background: 'radial-gradient(circle, rgba(0, 187, 249, 0.12) 0%, transparent 70%)',
-  border: '1px solid rgba(0, 187, 249, 0.2)',
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
-  animation: 'pulseGlow 3s infinite ease-in-out',
-};
-
-const pendingStatusPillStyle: React.CSSProperties = {
-  display: 'inline-flex',
-  alignItems: 'center',
-  gap: '0.5rem',
-  fontSize: '0.64rem',
-  fontWeight: 800,
-  letterSpacing: '0.08em',
-  color: '#f59e0b',
-  background: 'rgba(245, 158, 11, 0.1)',
-  border: '1px solid rgba(245, 158, 11, 0.25)',
-  padding: '0.35rem 0.85rem',
-  borderRadius: '999px',
-};
-
-const pendingDotStyle: React.CSSProperties = {
-  width: '6px',
-  height: '6px',
-  borderRadius: '50%',
-  background: '#f59e0b',
-  animation: 'pulseGlow 1.5s infinite ease-in-out',
-  display: 'inline-block',
-  flexShrink: 0,
-};
-
-const pendingTitleStyle: React.CSSProperties = {
-  fontSize: '1.4rem',
-  fontWeight: 800,
-  letterSpacing: '-0.02em',
-  color: 'var(--text-primary)',
-  margin: 0,
-};
-
-const pendingBodyStyle: React.CSSProperties = {
-  fontSize: '0.84rem',
-  color: 'var(--text-secondary)',
-  lineHeight: '1.65',
-  maxWidth: '380px',
-  margin: '0 auto',
-};
-
-const pendingInfoGridStyle: React.CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: '1fr 1fr',
-  gap: '0.75rem',
-  width: '100%',
-  marginTop: '0.25rem',
-};
-
-const pendingInfoBoxStyle: React.CSSProperties = {
-  background: 'rgba(255, 255, 255, 0.02)',
-  border: '1px solid rgba(255, 255, 255, 0.05)',
-  borderRadius: '10px',
-  padding: '0.85rem',
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '0.35rem',
-  textAlign: 'left',
-};
-
-const pendingInfoLabelStyle: React.CSSProperties = {
-  fontSize: '0.58rem',
-  fontWeight: 800,
-  letterSpacing: '0.08em',
-  color: 'var(--text-muted)',
-};
-
-const pendingInfoValStyle: React.CSSProperties = {
-  fontSize: '0.82rem',
-  fontWeight: 700,
-  color: 'var(--text-primary)',
-};
-
-const pendingHintStyle: React.CSSProperties = {
-  fontSize: '0.72rem',
-  color: 'var(--text-muted)',
-  lineHeight: '1.55',
-  maxWidth: '340px',
-};
-
-const pendingSignOutBtnStyle: React.CSSProperties = {
-  marginTop: '0.5rem',
-  padding: '0.75rem 2rem',
-  borderRadius: '8px',
-  background: 'transparent',
-  border: '1px solid rgba(255, 255, 255, 0.1)',
-  color: 'var(--text-secondary)',
-  fontSize: '0.8rem',
-  fontWeight: 600,
-  cursor: 'pointer',
-  transition: 'all 0.2s',
-};

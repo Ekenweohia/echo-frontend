@@ -1,0 +1,235 @@
+
+> healthcare-frontend@0.1.0 dev
+> next dev
+
+▲ Next.js 16.3.1 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://10.120.93.170:3000
+✓ Ready in 8.3s
+✓ Running next.config.ts took 409ms
+Creating turbopack project { dir: 'C:\\Users\\user\\Downloads\\echo-frontend', testMode: true }
+
+✓ Generated AGENTS.md and CLAUDE.md for AI agents. Set `agentRules: false` in next.config to disable.
+○ Compiling / ...
+ GET / 200 in 8.8s (next.js: 8.3s, application-code: 497ms)
+ GET / 200 in 7.4s (next.js: 6.9s, application-code: 570ms)
+ GET / 200 in 102ms (next.js: 21ms, application-code: 81ms)
+ GET /login 200 in 689ms (next.js: 652ms, application-code: 37ms)
+ GET /register 200 in 327ms (next.js: 302ms, application-code: 25ms)
+ GET /register 200 in 320ms (next.js: 24ms, application-code: 297ms)
+ GET / 200 in 175ms (next.js: 50ms, application-code: 125ms)
+ GET / 200 in 155ms (next.js: 33ms, application-code: 121ms)
+✓ Compiled in 235ms
+✓ Compiled in 160ms
+✓ Compiled in 270ms
+ GET / 200 in 268ms (next.js: 43ms, application-code: 225ms)
+ GET / 200 in 122ms (next.js: 20ms, application-code: 102ms)
+ GET / 200 in 213ms (next.js: 20ms, application-code: 193ms)
+ GET /login 200 in 100ms (next.js: 16ms, application-code: 84ms)
+ GET /login 200 in 59ms (next.js: 13ms, application-code: 46ms)
+ GET /register 200 in 69ms (next.js: 23ms, application-code: 46ms)
+ GET / 200 in 250ms (next.js: 18ms, application-code: 232ms)
+ GET / 200 in 161ms (next.js: 27ms, application-code: 134ms)
+ GET / 200 in 199ms (next.js: 22ms, application-code: 177ms)
+ GET / 200 in 110ms (next.js: 27ms, application-code: 83ms)
+ GET /login 200 in 202ms (next.js: 88ms, application-code: 113ms)
+ GET /login 200 in 137ms (next.js: 13ms, application-code: 124ms)
+ GET /register 200 in 126ms (next.js: 38ms, application-code: 87ms)
+ GET / 200 in 76ms (next.js: 15ms, application-code: 61ms)
+ GET /register 200 in 90ms (next.js: 24ms, application-code: 66ms)
+✓ Compiled in 119ms
+ GET / 200 in 97ms (next.js: 24ms, application-code: 73ms)
+ GET / 200 in 83ms (next.js: 15ms, application-code: 67ms)
+✓ Compiled in 87ms
+ GET / 200 in 122ms (next.js: 15ms, application-code: 107ms)
+ GET / 200 in 88ms (next.js: 21ms, application-code: 66ms)
+ GET / 200 in 174ms (next.js: 18ms, application-code: 156ms)
+ GET / 200 in 106ms (next.js: 16ms, application-code: 90ms)
+ GET /login 200 in 83ms (next.js: 28ms, application-code: 55ms)
+ GET / 200 in 129ms (next.js: 15ms, application-code: 114ms)
+ GET /login 200 in 85ms (next.js: 21ms, application-code: 64ms)
+ GET /register 200 in 81ms (next.js: 29ms, application-code: 52ms)
+ GET / 200 in 61ms (next.js: 15ms, application-code: 46ms)
+✓ Compiled in 29ms
+✓ Compiled in 70ms
+ GET / 200 in 86ms (next.js: 18ms, application-code: 68ms)
+ GET / 200 in 78ms (next.js: 15ms, application-code: 63ms)
+ GET / 200 in 274ms (next.js: 110ms, application-code: 164ms)
+ GET / 200 in 98ms (next.js: 15ms, application-code: 83ms)
+ GET /login 200 in 87ms (next.js: 26ms, application-code: 61ms)
+ GET /register 200 in 177ms (next.js: 57ms, application-code: 120ms)
+ GET / 200 in 100ms (next.js: 14ms, application-code: 86ms)
+ GET /login 200 in 119ms (next.js: 14ms, application-code: 105ms)
+ GET /register 200 in 128ms (next.js: 15ms, application-code: 113ms)
+ GET / 200 in 126ms (next.js: 34ms, application-code: 92ms)
+ GET /register 200 in 69ms (next.js: 16ms, application-code: 53ms)
+ GET /login 200 in 100ms (next.js: 14ms, application-code: 86ms)
+✓ Compiled in 64ms
+ GET /login 200 in 331ms (next.js: 77ms, application-code: 254ms)
+ GET / 200 in 208ms (next.js: 16ms, application-code: 193ms)
+ GET /login 200 in 198ms (next.js: 45ms, application-code: 153ms)
+ GET / 200 in 84ms (next.js: 15ms, application-code: 68ms)
+ GET /register 200 in 111ms (next.js: 38ms, application-code: 72ms)
+ GET / 200 in 63ms (next.js: 15ms, application-code: 49ms)
+ GET /login 200 in 47ms (next.js: 12ms, application-code: 34ms)
+ GET /register 200 in 62ms (next.js: 18ms, application-code: 44ms)
+ GET /register 200 in 375ms (next.js: 13ms, application-code: 363ms)
+ GET /login 200 in 59ms (next.js: 13ms, application-code: 46ms)
+ GET /register 200 in 72ms (next.js: 14ms, application-code: 58ms)
+ GET / 200 in 55ms (next.js: 12ms, application-code: 42ms)
+ GET /login 200 in 65ms (next.js: 15ms, application-code: 51ms)
+ GET /verify-email?email=kadirinurudeen3%40gmail.com&sent=true 200 in 1673ms (next.js: 1610ms, application-code: 62ms)
+ GET /login 200 in 86ms (next.js: 21ms, application-code: 64ms)
+ GET /register 200 in 88ms (next.js: 28ms, application-code: 60ms)
+ GET / 200 in 252ms (next.js: 75ms, application-code: 177ms)
+ GET /login 200 in 78ms (next.js: 17ms, application-code: 60ms)
+ GET / 200 in 88ms (next.js: 21ms, application-code: 67ms)
+✓ Compiled in 216ms
+✓ Compiled in 149ms
+✓ Compiled in 188ms
+ GET / 200 in 265ms (next.js: 38ms, application-code: 227ms)
+ GET / 200 in 277ms (next.js: 98ms, application-code: 179ms)
+ GET /register 200 in 117ms (next.js: 29ms, application-code: 88ms)
+ GET / 200 in 248ms (next.js: 15ms, application-code: 233ms)
+ GET / 200 in 109ms (next.js: 15ms, application-code: 94ms)
+✓ Compiled in 418ms
+ GET / 200 in 134ms (next.js: 64ms, application-code: 71ms)
+ GET / 200 in 42ms (next.js: 7ms, application-code: 35ms)
+✓ Compiled in 438ms
+✓ Compiled in 329ms
+✓ Compiled in 277ms
+ GET / 200 in 64ms (next.js: 26ms, application-code: 37ms)
+✓ Compiled in 105ms
+ GET / 200 in 38ms (next.js: 17ms, application-code: 22ms)
+✓ Compiled in 32ms
+ GET / 200 in 56ms (next.js: 19ms, application-code: 37ms)
+✓ Compiled in 23ms
+✓ Compiled in 20ms
+ GET / 200 in 123ms (next.js: 9ms, application-code: 113ms)
+ GET /login 200 in 64ms (next.js: 13ms, application-code: 51ms)
+ GET / 200 in 39ms (next.js: 16ms, application-code: 23ms)
+✓ Compiled in 85ms
+ GET / 200 in 84ms (next.js: 25ms, application-code: 59ms)
+ GET / 200 in 58ms (next.js: 16ms, application-code: 41ms)
+✓ Compiled in 46ms
+ GET / 200 in 129ms (next.js: 24ms, application-code: 105ms)
+ GET / 200 in 58ms (next.js: 9ms, application-code: 48ms)
+✓ Compiled in 354ms
+ GET / 200 in 104ms (next.js: 21ms, application-code: 83ms)
+ GET / 200 in 49ms (next.js: 11ms, application-code: 38ms)
+✓ Compiled in 72ms
+ GET / 200 in 126ms (next.js: 32ms, application-code: 94ms)
+ GET / 200 in 126ms (next.js: 82ms, application-code: 43ms)
+✓ Compiled in 39ms
+✓ Compiled in 61ms
+ GET /login 200 in 32ms (next.js: 9ms, application-code: 23ms)
+ GET /login 200 in 46ms (next.js: 14ms, application-code: 32ms)
+ GET /login 200 in 53ms (next.js: 19ms, application-code: 34ms)
+ GET /login 200 in 27ms (next.js: 8ms, application-code: 19ms)
+ GET /login 200 in 45ms (next.js: 18ms, application-code: 28ms)
+ GET /login 200 in 32ms (next.js: 9ms, application-code: 23ms)
+ GET /login 200 in 43ms (next.js: 12ms, application-code: 31ms)
+ GET /login 200 in 39ms (next.js: 11ms, application-code: 27ms)
+ GET /login 200 in 42ms (next.js: 12ms, application-code: 30ms)
+ GET /login 200 in 38ms (next.js: 13ms, application-code: 26ms)
+ GET /login 200 in 40ms (next.js: 12ms, application-code: 28ms)
+ GET /login 200 in 35ms (next.js: 8ms, application-code: 27ms)
+ GET /login 200 in 39ms (next.js: 13ms, application-code: 27ms)
+ GET /login 200 in 43ms (next.js: 12ms, application-code: 31ms)
+ GET /login 200 in 34ms (next.js: 9ms, application-code: 24ms)
+ GET /login 200 in 42ms (next.js: 12ms, application-code: 29ms)
+ GET /login 200 in 43ms (next.js: 11ms, application-code: 32ms)
+ GET /login 200 in 40ms (next.js: 7ms, application-code: 32ms)
+ GET /login 200 in 36ms (next.js: 12ms, application-code: 24ms)
+ GET /login 200 in 26ms (next.js: 7ms, application-code: 19ms)
+ GET /login 200 in 28ms (next.js: 8ms, application-code: 20ms)
+ GET /login 200 in 29ms (next.js: 8ms, application-code: 20ms)
+ GET /login 200 in 40ms (next.js: 16ms, application-code: 24ms)
+ GET / 200 in 29ms (next.js: 9ms, application-code: 20ms)
+ GET / 200 in 63ms (next.js: 9ms, application-code: 54ms)
+ GET / 200 in 67ms (next.js: 14ms, application-code: 53ms)
+ GET /login 200 in 41ms (next.js: 14ms, application-code: 27ms)
+ GET /login 200 in 56ms (next.js: 15ms, application-code: 42ms)
+ GET /login 200 in 45ms (next.js: 15ms, application-code: 30ms)
+ GET /login 200 in 38ms (next.js: 10ms, application-code: 27ms)
+ GET / 200 in 75ms (next.js: 13ms, application-code: 62ms)
+ GET /register 200 in 68ms (next.js: 15ms, application-code: 53ms)
+ GET /login 200 in 39ms (next.js: 12ms, application-code: 27ms)
+ GET / 200 in 36ms (next.js: 15ms, application-code: 21ms)
+ GET /login 200 in 37ms (next.js: 11ms, application-code: 26ms)
+ GET / 200 in 35ms (next.js: 12ms, application-code: 23ms)
+✓ Compiled in 138ms
+ GET / 200 in 181ms (next.js: 30ms, application-code: 150ms)
+ GET / 200 in 104ms (next.js: 9ms, application-code: 95ms)
+✓ Compiled in 60ms
+ GET / 200 in 155ms (next.js: 21ms, application-code: 134ms)
+ GET / 200 in 96ms (next.js: 10ms, application-code: 86ms)
+ GET /login 200 in 78ms (next.js: 51ms, application-code: 26ms)
+✓ Compiled in 90ms
+ GET /login 200 in 206ms (next.js: 26ms, application-code: 180ms)
+ GET /login 200 in 133ms (next.js: 11ms, application-code: 121ms)
+ GET / 200 in 40ms (next.js: 18ms, application-code: 21ms)
+ GET /login 200 in 57ms (next.js: 34ms, application-code: 22ms)
+ GET / 200 in 38ms (next.js: 18ms, application-code: 21ms)
+ GET / 200 in 71ms (next.js: 24ms, application-code: 47ms)
+ GET / 200 in 63ms (next.js: 25ms, application-code: 38ms)
+ GET / 200 in 166ms (next.js: 9ms, application-code: 158ms)
+✓ Compiled in 53ms
+ GET / 200 in 66ms (next.js: 22ms, application-code: 44ms)
+✓ Compiled in 104ms
+ GET / 200 in 59ms (next.js: 18ms, application-code: 41ms)
+ GET / 200 in 90ms (next.js: 26ms, application-code: 63ms)
+✓ Compiled in 65ms
+✓ Compiled in 90ms
+ GET / 200 in 69ms (next.js: 19ms, application-code: 51ms)
+✓ Compiled in 190ms
+ GET / 200 in 75ms (next.js: 22ms, application-code: 53ms)
+✓ Compiled in 29ms
+ GET / 200 in 100ms (next.js: 13ms, application-code: 87ms)
+✓ Compiled in 92ms
+ GET / 200 in 53ms (next.js: 16ms, application-code: 37ms)
+ GET / 200 in 80ms (next.js: 12ms, application-code: 68ms)
+✓ Compiled in 34ms
+✓ Compiled in 62ms
+ GET / 200 in 54ms (next.js: 15ms, application-code: 40ms)
+✓ Compiled in 65ms
+✓ Compiled in 31ms
+ GET / 200 in 56ms (next.js: 9ms, application-code: 47ms)
+ GET /login 200 in 48ms (next.js: 23ms, application-code: 25ms)
+ GET / 200 in 39ms (next.js: 14ms, application-code: 24ms)
+✓ Compiled in 386ms
+ GET / 200 in 120ms (next.js: 32ms, application-code: 87ms)
+ GET / 200 in 119ms (next.js: 75ms, application-code: 45ms)
+✓ Compiled in 67ms
+ GET / 200 in 151ms (next.js: 42ms, application-code: 109ms)
+ GET / 200 in 152ms (next.js: 106ms, application-code: 46ms)
+✓ Compiled in 64ms
+ GET / 200 in 98ms (next.js: 25ms, application-code: 73ms)
+ GET / 200 in 98ms (next.js: 58ms, application-code: 39ms)
+ GET /? 200 in 60ms (next.js: 8ms, application-code: 52ms)
+✓ Compiled in 107ms
+ GET / 200 in 148ms (next.js: 45ms, application-code: 103ms)
+ GET / 200 in 148ms (next.js: 31ms, application-code: 117ms)
+ GET /login 200 in 46ms (next.js: 13ms, application-code: 33ms)
+ GET / 200 in 28ms (next.js: 9ms, application-code: 19ms)
+ GET / 200 in 39ms (next.js: 12ms, application-code: 26ms)
+✓ Compiled in 130ms
+ GET / 200 in 111ms (next.js: 31ms, application-code: 80ms)
+ GET / 200 in 113ms (next.js: 62ms, application-code: 51ms)
+ GET /login 200 in 46ms (next.js: 18ms, application-code: 29ms)
+ GET /login 200 in 149ms (next.js: 60ms, application-code: 89ms)
+ GET / 200 in 48ms (next.js: 21ms, application-code: 27ms)
+ GET /login 200 in 34ms (next.js: 8ms, application-code: 26ms)
+ GET / 200 in 46ms (next.js: 10ms, application-code: 35ms)
+ GET /forgot-password 200 in 857ms (next.js: 814ms, application-code: 43ms)
+ GET /register 200 in 70ms (next.js: 48ms, application-code: 23ms)
+ GET / 200 in 32ms (next.js: 9ms, application-code: 23ms)
+ GET /login 200 in 29ms (next.js: 7ms, application-code: 22ms)
+ GET /login 200 in 36ms (next.js: 9ms, application-code: 27ms)
+ GET / 200 in 32ms (next.js: 11ms, application-code: 21ms)
+ GET /login 200 in 64ms (next.js: 15ms, application-code: 49ms)
+ GET / 200 in 38ms (next.js: 10ms, application-code: 28ms)
+ GET / 200 in 100ms (next.js: 9ms, application-code: 91ms)
+ GET /login 200 in 31ms (next.js: 10ms, application-code: 21ms)
+ GET / 200 in 29ms (next.js: 7ms, application-code: 22ms)
+ GET / 200 in 45ms (next.js: 14ms, application-code: 31ms)

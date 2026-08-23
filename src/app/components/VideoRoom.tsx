@@ -173,8 +173,8 @@ export default function VideoRoom({ consultationId, onClose }: VideoRoomProps) {
       if (audioIns.length > 0) setSelectedAudio(audioIns[0].deviceId);
       if (videoIns.length > 0) setSelectedVideo(videoIns[0].deviceId);
 
-    } catch (err) {
-      console.error('[VideoRoom] LiveKit failed. Dropping to mock local capture.', err);
+    } catch (err: any) {
+      console.warn('[VideoRoom] LiveKit signal connection unavailable (Failed to fetch). Activating local camera preview mode.', err?.message || err);
       setupDevicesAndCapture();
     }
   };

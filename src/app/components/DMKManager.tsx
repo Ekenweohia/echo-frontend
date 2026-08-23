@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { apiClient } from '@/services/apiClient';
 
 // --- INTERFACES ---
@@ -62,7 +62,7 @@ interface Device {
   implantedDate?: string;
 }
 
-export default function DMKManager() {
+export default function DMKManager({ openQrOnMount = false }: { openQrOnMount?: boolean }) {
   // --- BASE VITALS & DEMOGRAPHICS ---
   const [bloodType, setBloodType] = useState('');
   const [height, setHeight] = useState<number | null>(null);
@@ -90,6 +90,7 @@ export default function DMKManager() {
   
   const [showQrModal, setShowQrModal] = useState(false);
   const [shareToken, setShareToken] = useState<string | null>(null);
+  const qrOpened = useRef(false);
 
   // Vitals Edit Inputs
   const [editBloodType, setEditBloodType] = useState('');
@@ -295,6 +296,13 @@ export default function DMKManager() {
     setShareToken(null);
     setShowQrModal(false);
   };
+
+  useEffect(() => {
+    if (openQrOnMount && !loading && !qrOpened.current) {
+      qrOpened.current = true;
+      handleGenerateShareToken();
+    }
+  }, [loading, openQrOnMount]);
 
   if (loading) return <div style={{ color: 'var(--text-muted)' }}>Syncing DMK...</div>;
 
