@@ -1,9 +1,11 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 export default function ForgotPasswordPage() {
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -17,17 +19,17 @@ export default function ForgotPasswordPage() {
     setErrorMessage('');
 
     try {
-      const response = await fetch('https://api.novacoresbank.com/api/v1/auth/forgot-password', {
+      const response = await fetch('http://localhost:4000/api/v1/auth/forgot-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
       });
 
-      // Show success regardless or verify response
-      setSuccess(true);
+      // Navigate to reset password page to enter the code
+      router.push(`/reset-password?email=${encodeURIComponent(email)}`);
     } catch (err) {
       // Offline fallback: simulate success to allow workflow validation
-      setSuccess(true);
+      router.push(`/reset-password?email=${encodeURIComponent(email)}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -51,22 +53,8 @@ export default function ForgotPasswordPage() {
           <p style={subtitleStyle}>Enter your registered email and we'll send you instructions to reset your password</p>
         </div>
 
-        {success ? (
-          <div style={successBoxStyle}>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2.5" style={{ marginBottom: '0.5rem' }}>
-              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-              <polyline points="22 4 12 14.01 9 11.01" />
-            </svg>
-            <h4 style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '0.2rem' }}>Reset Link Dispatched</h4>
-            <p style={{ fontSize: '0.74rem', color: 'var(--text-secondary)', lineHeight: '1.4' }}>
-              If an account is associated with <strong>{email}</strong>, you will receive an email shortly with reset instructions.
-            </p>
-            <Link href="/login" style={btnLinkStyle}>
-              Return to Login
-            </Link>
-          </div>
-        ) : (
-          <form onSubmit={handleSubmit} style={formStyle}>
+        {/* Always show form, redirect happens on success */}
+        <form onSubmit={handleSubmit} style={formStyle}>
 
             {errorMessage && <div style={errorStyle}>{errorMessage}</div>}
 
@@ -90,16 +78,13 @@ export default function ForgotPasswordPage() {
               {isSubmitting ? 'Sending...' : 'Send Reset Link'}
             </button>
           </form>
-        )}
 
-        {!success && (
-          <div style={footerStyle}>
-            Remember your credentials?{' '}
-            <Link href="/login" style={linkStyle}>
-              Sign in
-            </Link>
-          </div>
-        )}
+        <div style={footerStyle}>
+          Remember your credentials?{' '}
+          <Link href="/login" style={linkStyle}>
+            Sign in
+          </Link>
+        </div>
 
       </div>
     </div>
