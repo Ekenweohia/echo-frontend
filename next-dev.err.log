@@ -54541,3 +54541,153 @@ Import traces:
 } (<anonymous>)
 [browser] [VideoRoom] LiveKit failed. Dropping to mock local capture. ConnectionError: could not establish signal connection: Failed to fetch
     at Generator.next (<anonymous>) (src/app/components/VideoRoom.tsx:176:14)
+[browser] [Vapi] WebRTC connection error. Details: {"type":"start-method-error","stage":"unknown","error":{"message":{"statusCode":400,"message":"Couldn't get tool for hook. `toolId` b9b9d5a4-a8fa-4330-8aed-4009439a10a0 does not exist.","error":"Bad Request","subscriptionLimits":{"concurrencyBlocked":false,"concurrencyLimit":10,"remainingConcurrentCalls":9}},"data":null,"error":{"statusCode":400,"message":"Couldn't get tool for hook. `toolId` b9b9d5a4-a8fa-4330-8aed-4009439a10a0 does not exist.","error":"Bad Request","subscriptionLimits":{"concurrencyBlocked":false,"concurrencyLimit":10,"remainingConcurrentCalls":9}}},"totalDuration":1648,"timestamp":"2026-08-22T15:25:28.987Z","context":{"hasAssistant":true,"hasSquad":false,"hasWorkflow":false,"isMobile":false}} 
+    at Vapi.<anonymous> (src/app/components/JarvisVoiceChat.tsx:157:17)
+    at async handleStartCall (src/app/components/JarvisVoiceChat.tsx:164:9)
+  155 |         // Bind Vapi Error Listener FIRST
+  156 |         vapi.on('error', (err: any) => {
+> 157 |           const errMsg = err?.message || (typeof err === 'object' && Object.keys(err).length ? JSON.stringify(err) : String(err));
+      |                 ^
+  158 |           console.error('[Vapi] WebRTC connection error. Details:', errMsg);
+  159 |           if (isMountedRef.current) {
+  160 |             setStatusText('Echo AI Connection Failed'); (src/app/components/JarvisVoiceChat.tsx:157:17)
+[browser] [Vapi] WebRTC connection error. Details: {"type":"start-method-error","stage":"unknown","error":{"message":{"statusCode":400,"message":"Couldn't get tool for hook. `toolId` b9b9d5a4-a8fa-4330-8aed-4009439a10a0 does not exist.","error":"Bad Request","subscriptionLimits":{"concurrencyBlocked":false,"concurrencyLimit":10,"remainingConcurrentCalls":9}},"data":null,"error":{"statusCode":400,"message":"Couldn't get tool for hook. `toolId` b9b9d5a4-a8fa-4330-8aed-4009439a10a0 does not exist.","error":"Bad Request","subscriptionLimits":{"concurrencyBlocked":false,"concurrencyLimit":10,"remainingConcurrentCalls":9}}},"totalDuration":1215,"timestamp":"2026-08-22T15:27:21.635Z","context":{"hasAssistant":true,"hasSquad":false,"hasWorkflow":false,"isMobile":false}} 
+    at Vapi.<anonymous> (src/app/components/JarvisVoiceChat.tsx:157:17)
+    at async handleStartCall (src/app/components/JarvisVoiceChat.tsx:164:9)
+  155 |         // Bind Vapi Error Listener FIRST
+  156 |         vapi.on('error', (err: any) => {
+> 157 |           const errMsg = err?.message || (typeof err === 'object' && Object.keys(err).length ? JSON.stringify(err) : String(err));
+      |                 ^
+  158 |           console.error('[Vapi] WebRTC connection error. Details:', errMsg);
+  159 |           if (isMountedRef.current) {
+  160 |             setStatusText('Echo AI Connection Failed'); (src/app/components/JarvisVoiceChat.tsx:157:17)
+[browser] websocket closed {
+  code: [33m1006[39m,
+  participant: [90mundefined[39m,
+  participantID: [90mundefined[39m,
+  reason: [32m''[39m,
+  room: [90mundefined[39m,
+  roomID: [90mundefined[39m,
+  state: [33m4[39m,
+  wasClean: [33mfalse[39m
+}
+[browser] websocket closed {
+  code: [33m1006[39m,
+  participant: [90mundefined[39m,
+  participantID: [90mundefined[39m,
+  reason: [32m''[39m,
+  room: [90mundefined[39m,
+  roomID: [90mundefined[39m,
+  state: [33m4[39m,
+  wasClean: [33mfalse[39m
+}
+[browser] Couldn't connect to server, attempt 1 of 1 {
+  participant: [90mundefined[39m,
+  participantID: [90mundefined[39m,
+  room: [90mundefined[39m,
+  roomID: [90mundefined[39m
+} (<anonymous>)
+[browser] [VideoRoom] LiveKit signal connection unavailable (Failed to fetch). Activating local camera preview mode. could not establish signal connection: Failed to fetch (src/app/components/VideoRoom.tsx:177:15)
+[browser] Couldn't connect to server, attempt 1 of 1 {
+  participant: [90mundefined[39m,
+  participantID: [90mundefined[39m,
+  room: [90mundefined[39m,
+  roomID: [90mundefined[39m
+} (<anonymous>)
+[browser] [VideoRoom] LiveKit signal connection unavailable (Failed to fetch). Activating local camera preview mode. could not establish signal connection: Failed to fetch (src/app/components/VideoRoom.tsx:177:15)
+[browser] [Vapi] WebRTC connection error. Details: {"type":"start-method-error","stage":"unknown","error":{"message":{"statusCode":400,"message":"Couldn't get tool for hook. `toolId` b9b9d5a4-a8fa-4330-8aed-4009439a10a0 does not exist.","error":"Bad Request","subscriptionLimits":{"concurrencyBlocked":false,"concurrencyLimit":10,"remainingConcurrentCalls":9}},"data":null,"error":{"statusCode":400,"message":"Couldn't get tool for hook. `toolId` b9b9d5a4-a8fa-4330-8aed-4009439a10a0 does not exist.","error":"Bad Request","subscriptionLimits":{"concurrencyBlocked":false,"concurrencyLimit":10,"remainingConcurrentCalls":9}}},"totalDuration":3563,"timestamp":"2026-08-22T15:56:09.623Z","context":{"hasAssistant":true,"hasSquad":false,"hasWorkflow":false,"isMobile":false}} 
+    at Vapi.<anonymous> (src/app/components/JarvisVoiceChat.tsx:157:17)
+    at async handleStartCall (src/app/components/JarvisVoiceChat.tsx:164:9)
+  155 |         // Bind Vapi Error Listener FIRST
+  156 |         vapi.on('error', (err: any) => {
+> 157 |           const errMsg = err?.message || (typeof err === 'object' && Object.keys(err).length ? JSON.stringify(err) : String(err));
+      |                 ^
+  158 |           console.error('[Vapi] WebRTC connection error. Details:', errMsg);
+  159 |           if (isMountedRef.current) {
+  160 |             setStatusText('Echo AI Connection Failed'); (src/app/components/JarvisVoiceChat.tsx:157:17)
+[browser] websocket closed {
+  code: [33m1006[39m,
+  participant: [90mundefined[39m,
+  participantID: [90mundefined[39m,
+  reason: [32m''[39m,
+  room: [90mundefined[39m,
+  roomID: [90mundefined[39m,
+  state: [33m4[39m,
+  wasClean: [33mfalse[39m
+}
+[browser] websocket closed {
+  code: [33m1006[39m,
+  participant: [90mundefined[39m,
+  participantID: [90mundefined[39m,
+  reason: [32m''[39m,
+  room: [90mundefined[39m,
+  roomID: [90mundefined[39m,
+  state: [33m4[39m,
+  wasClean: [33mfalse[39m
+}
+[browser] Couldn't connect to server, attempt 1 of 1 {
+  participant: [90mundefined[39m,
+  participantID: [90mundefined[39m,
+  room: [90mundefined[39m,
+  roomID: [90mundefined[39m
+} (<anonymous>)
+[browser] [VideoRoom] LiveKit signal connection unavailable (Failed to fetch). Activating local camera preview mode. could not establish signal connection: Failed to fetch (src/app/components/VideoRoom.tsx:177:15)
+[browser] Couldn't connect to server, attempt 1 of 1 {
+  participant: [90mundefined[39m,
+  participantID: [90mundefined[39m,
+  room: [90mundefined[39m,
+  roomID: [90mundefined[39m
+} (<anonymous>)
+[browser] [VideoRoom] LiveKit signal connection unavailable (Failed to fetch). Activating local camera preview mode. could not establish signal connection: Failed to fetch (src/app/components/VideoRoom.tsx:177:15)
+[browser] websocket closed {
+  code: [33m1006[39m,
+  participant: [90mundefined[39m,
+  participantID: [90mundefined[39m,
+  reason: [32m''[39m,
+  room: [90mundefined[39m,
+  roomID: [90mundefined[39m,
+  state: [33m4[39m,
+  wasClean: [33mfalse[39m
+}
+[browser] websocket closed {
+  code: [33m1006[39m,
+  participant: [90mundefined[39m,
+  participantID: [90mundefined[39m,
+  reason: [32m''[39m,
+  room: [90mundefined[39m,
+  roomID: [90mundefined[39m,
+  state: [33m4[39m,
+  wasClean: [33mfalse[39m
+}
+[browser] Couldn't connect to server, attempt 1 of 1 {
+  participant: [90mundefined[39m,
+  participantID: [90mundefined[39m,
+  room: [90mundefined[39m,
+  roomID: [90mundefined[39m
+} (<anonymous>)
+[browser] [VideoRoom] LiveKit signal connection unavailable (Failed to fetch). Activating local camera preview mode. could not establish signal connection: Failed to fetch (src/app/components/VideoRoom.tsx:177:15)
+[browser] Couldn't connect to server, attempt 1 of 1 {
+  participant: [90mundefined[39m,
+  participantID: [90mundefined[39m,
+  room: [90mundefined[39m,
+  roomID: [90mundefined[39m
+} (<anonymous>)
+[browser] [VideoRoom] LiveKit signal connection unavailable (Failed to fetch). Activating local camera preview mode. could not establish signal connection: Failed to fetch (src/app/components/VideoRoom.tsx:177:15)
+[browser] [Auth] Failed to connect to refresh endpoint. Maintaining local session details. (src/context/AuthContext.tsx:88:15)
+[browser] [Auth] Failed to connect to refresh endpoint. Maintaining local session details. (src/context/AuthContext.tsx:88:15)
+[browser] [Auth] Failed to connect to refresh endpoint. Maintaining local session details. (src/context/AuthContext.tsx:88:15)
+[browser] [Auth] Failed to connect to refresh endpoint. Maintaining local session details. (src/context/AuthContext.tsx:88:15)
+[browser] [Auth] Failed to connect to refresh endpoint. Maintaining local session details. (src/context/AuthContext.tsx:88:15)
+[browser] [Auth] Failed to connect to refresh endpoint. Maintaining local session details. (src/context/AuthContext.tsx:88:15)
+[browser] [Auth] Failed to connect to refresh endpoint. Maintaining local session details. (src/context/AuthContext.tsx:88:15)
+[browser] [Auth] Failed to connect to refresh endpoint. Maintaining local session details. (src/context/AuthContext.tsx:88:15)
+[browser] [Auth] Failed to connect to refresh endpoint. Maintaining local session details. (src/context/AuthContext.tsx:88:15)
+[browser] [Auth] Failed to connect to refresh endpoint. Maintaining local session details. (src/context/AuthContext.tsx:88:15)
+[browser] [Auth] Failed to connect to refresh endpoint. Maintaining local session details. (src/context/AuthContext.tsx:88:15)
+[browser] [Auth] Failed to connect to refresh endpoint. Maintaining local session details. (src/context/AuthContext.tsx:88:15)
+[browser] [Auth] Failed to connect to refresh endpoint. Maintaining local session details. (src/context/AuthContext.tsx:88:15)
+[browser] [Auth] Failed to connect to refresh endpoint. Maintaining local session details. (src/context/AuthContext.tsx:88:15)
+[browser] [Auth] Failed to connect to refresh endpoint. Maintaining local session details. (src/context/AuthContext.tsx:88:15)
+[browser] [Auth] Failed to connect to refresh endpoint. Maintaining local session details. (src/context/AuthContext.tsx:88:15)
+[browser] [Auth] Failed to connect to refresh endpoint. Maintaining local session details. (src/context/AuthContext.tsx:88:15)
+[browser] [Auth] Failed to connect to refresh endpoint. Maintaining local session details. (src/context/AuthContext.tsx:88:15)
