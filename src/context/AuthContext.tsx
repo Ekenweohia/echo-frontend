@@ -18,6 +18,25 @@ const LOCAL_USERS: Array<UserProfile & { password: string }> = [
   },
 ];
 
+function makeLocalUserProfile(data: {
+  fullName: string;
+  username: string;
+  phone: string;
+  email: string;
+  role: UserProfile['role'];
+}) {
+  return {
+    id: `local-${data.role.toLowerCase()}-${data.username}-${Date.now()}`,
+    fullName: data.fullName,
+    username: data.username,
+    phone: data.phone,
+    email: data.email,
+    role: data.role,
+    isVerified: true,
+    isApproved: data.role === 'PATIENT' || data.role === 'PARTNER',
+  } satisfies UserProfile;
+}
+
 function localAuthEnabled() {
   if (typeof window === 'undefined') return false;
   return ['localhost', '127.0.0.1'].includes(window.location.hostname) || process.env.NEXT_PUBLIC_ENABLE_LOCAL_AUTH === 'true';
@@ -68,7 +87,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     try {
       console.log('[Auth] Attempting token refresh...');
-      const response = await fetch('http://localhost:4000/api/v1/auth/refresh', {
+      const response = await apiClient('/auth/refresh', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ refreshToken }),
@@ -148,7 +167,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // 3. Register User
   const register = async (data: any) => {
     try {
-      const response = await fetch('http://localhost:4000/api/v1/auth/register', {
+      const response = await apiClient('/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -162,6 +181,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return { success: true };
     } catch (err) {
       console.warn('[Auth] Registration request failed.', err);
+      if (localAuthEnabled()) {
+        const profile = makeLocalUserProfile({
+          fullName: data.fullName,
+          username: data.username,
+          phone: data.phone,
+          email: data.email,
+          role: data.role,
+        });
+
+        setAccessToken(LOCAL_ACCESS_TOKEN);
+        localStorage.setItem('refreshToken', 'local-development-refresh-token');
+        localStorage.setItem(LOCAL_AUTH_SESSION_KEY, 'true');
+        localStorage.setItem('userSession', JSON.stringify(profile));
+        setUser(profile);
+
+        return { success: true };
+      }
       return { success: false, error: 'Unable to reach the authentication service. Please try again.' };
     }
   };
@@ -169,7 +205,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // 4. Log in User
   const login = async (identifier: string, password: string) => {
     try {
-      const response = await fetch('http://localhost:4000/api/v1/auth/login', {
+      const response = await apiClient('/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ identifier, password }),

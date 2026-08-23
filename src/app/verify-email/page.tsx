@@ -3,6 +3,7 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { apiClient } from '@/services/apiClient';
 
 function VerifyEmailForm() {
   const router = useRouter();
@@ -30,7 +31,7 @@ function VerifyEmailForm() {
     setIsSubmitting(true);
     setErrorMessage('');
     try {
-      const response = await fetch('http://localhost:4000/api/v1/auth/verify-email', {
+      const response = await apiClient('/auth/verify-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token: verifyToken.trim() }),
@@ -73,7 +74,7 @@ function VerifyEmailForm() {
     setResendSuccess(false);
 
     try {
-      const response = await fetch('http://localhost:4000/api/v1/auth/resend-verification', {
+      const response = await apiClient('/auth/resend-verification', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: email.trim().toLowerCase() }),

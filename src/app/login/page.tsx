@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
+import { apiClient } from '@/services/apiClient';
 import styles from '../components/AuthSplit.module.css';
 
 export default function LoginPage() {
@@ -41,7 +42,7 @@ export default function LoginPage() {
       if (!res.success) {
         if (res.error === 'Please verify your email address before logging in') {
           try {
-            await fetch('http://localhost:4000/api/v1/auth/resend-verification', {
+            await apiClient('/auth/resend-verification', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ email: identifier.includes('@') ? identifier.trim().toLowerCase() : '' }),
