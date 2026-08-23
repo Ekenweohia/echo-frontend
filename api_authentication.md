@@ -5,7 +5,7 @@ This document specifies the authentication routes, request payloads, response sc
 ---
 
 ## 1. Base URL & Security Policy
-- **Base URL**: `http://localhost:4000/api/v1/auth`
+- **Base URL**: `https://api.novacoresbank.com/api/v1/auth`
 - **Headers Required (for authenticated endpoints)**:
   ```http
   Authorization: Bearer <access_token>

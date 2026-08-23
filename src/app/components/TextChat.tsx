@@ -26,7 +26,7 @@ const isBackendSession = (id: string | null) => Boolean(id && !id.startsWith('mo
 
 export default function TextChat({ isOpen, onClose, illnessTag, illnessTitle = 'Medical Chat', illnessColor = '#00f5d4', illnessIcon = '🩺' }: TextChatProps) {
   const { user } = useAuth();
-  const [status, setStatus] = useState<'connecting' | 'active' | 'error'>('connecting');
+  const [status, setStatus] = useState<'connecting' | 'active' | 'error' | 'idle'>('connecting');
   const [input, setInput] = useState('');
   const [transcript, setTranscript] = useState<TranscriptLine[]>([]);
   const [sessionId, setSessionId] = useState<string | null>(null);
@@ -91,7 +91,10 @@ export default function TextChat({ isOpen, onClose, illnessTag, illnessTitle = '
     }
     const vapi = vapiRef.current;
     vapiRef.current = null;
-    try { vapi?.stop(); (vapi as any)?.destroy?.(); } catch { /* Connection already closed. */ }
+    try { 
+      vapi?.stop().catch(() => {}); 
+      (vapi as any)?.destroy?.(); 
+    } catch { /* Connection already closed. */ }
     if (closeAfter && mountedRef.current) onClose();
   }, [illnessTag, onClose]);
 
@@ -110,16 +113,27 @@ export default function TextChat({ isOpen, onClose, illnessTag, illnessTitle = '
     setStatus('connecting');
     addLine('SYSTEM', `Connecting your ${illnessTitle.toLowerCase()} text intake…`);
 
+    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+      const message = event.reason?.message || event.reason;
+      if (typeof message === 'string' && (/meeting has ended|ended due to ejection/i.test(message) || /WASM_OR_WORKER_NOT_READY/i.test(message))) {
+        event.preventDefault(); // Suppress the console error from daily-js
+      }
+    };
+    window.addEventListener('unhandledrejection', handleUnhandledRejection);
+
     let cancelled = false;
     const start = async () => {
       let createdId = `clinician-${crypto.randomUUID()}`;
       if (user?.role === 'PATIENT') {
         try {
           const response = await apiClient('/echo-ai/sessions', { method: 'POST', body: JSON.stringify({ language: 'en', isSOS: false }) });
+          if (cancelled) return;
           const payload = await response.json();
+          if (cancelled) return;
           if (!response.ok || !payload?.success || !payload?.data?.id) throw new Error('Session creation failed');
           createdId = payload.data.id;
         } catch {
+          if (cancelled) return;
           createdId = `mock-${crypto.randomUUID()}`;
           addLine('SYSTEM', 'Backend is unavailable; continuing in local session mode.');
         }
@@ -132,9 +146,32 @@ export default function TextChat({ isOpen, onClose, illnessTag, illnessTitle = '
       }
       sessionIdRef.current = createdId;
       setSessionId(createdId);
-      const vapi = new Vapi(VAPI_PUBLIC_KEY);
+      let dummyAudioTrack;
+      try {
+        const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+        const oscillator = ctx.createOscillator();
+        const dst = oscillator.connect(ctx.createMediaStreamDestination());
+        oscillator.start();
+        dummyAudioTrack = (dst as any).stream.getAudioTracks()[0];
+        dummyAudioTrack.enabled = false;
+      } catch (e) {
+        console.warn('Could not create dummy audio track', e);
+      }
+      
+      const vapi = new Vapi(VAPI_PUBLIC_KEY, 'https://api.vapi.ai', undefined, { 
+        audioSource: dummyAudioTrack || false 
+      });
       vapiRef.current = vapi;
-      vapi.on('error', () => { if (mountedRef.current) setStatus('error'); });
+      vapi.on('error', (err: any) => { 
+        const message = err?.message ?? err?.errorMsg ?? (typeof err === 'string' ? err : JSON.stringify(err));
+        // Daily/Vapi can emit this while a call is closing naturally.
+        if (/meeting has ended|ended due to ejection/i.test(message)) {
+          if (mountedRef.current) setStatus('idle');
+          return;
+        }
+        console.error('[TextChat] Vapi error:', message, err);
+        if (mountedRef.current) setStatus('error'); 
+      });
       vapi.on('call-start', async () => {
         if (cancelled || !mountedRef.current) return;
         setStatus('active');
@@ -169,7 +206,11 @@ export default function TextChat({ isOpen, onClose, illnessTag, illnessTitle = '
           catch { addLine('SYSTEM', 'The session started, but could not be synced to the backend.'); }
         }
       });
-      vapi.on('call-end', () => { void endSession(false); });
+      vapi.on('call-end', () => { 
+        if (mountedRef.current) setStatus('idle');
+        vapiRef.current = null;
+        void endSession(false); 
+      });
       vapi.on('message', (message: any) => {
         if (cancelled || !mountedRef.current) return;
         if (message.type === 'transcript' && message.transcriptType === 'final' && message.transcript) {
@@ -185,17 +226,28 @@ export default function TextChat({ isOpen, onClose, illnessTag, illnessTitle = '
         if (message.type === 'tool-calls') for (const toolCall of message.toolCallList || []) void handleToolCall(toolCall);
       });
       try {
-        await vapi.start(VAPI_ASSISTANT_ID, { metadata: { sessionId: createdId, patientId: user?.id || '' }, variableValues: {
-          personIdentifier: user?.phone || user?.email || user?.id || 'unknown',
-          identifierType: user?.phone ? 'phone' : user?.email ? 'email' : user?.id ? 'customer_id' : 'unknown',
-          patientName: user?.fullName || 'Patient', illnessTag, illnessTitle,
-        } });
-      } catch {
+        await vapi.start(VAPI_ASSISTANT_ID, { 
+          metadata: { sessionId: createdId, patientId: user?.id || '' }, 
+          variableValues: {
+            personIdentifier: user?.phone || user?.email || user?.id || 'unknown',
+            identifierType: user?.phone ? 'phone' : user?.email ? 'email' : user?.id ? 'customer_id' : 'unknown',
+            patientName: user?.fullName || 'Patient'
+          } 
+        });
+      } catch (err) {
+        console.error('[TextChat] Vapi start error:', err);
         if (!cancelled && mountedRef.current) { setStatus('error'); addLine('SYSTEM', 'Unable to connect to Echo AI. Please try again.'); }
       }
     };
     void start();
-    return () => { cancelled = true; mountedRef.current = false; void endSession(false); };
+    return () => { 
+      window.removeEventListener('unhandledrejection', handleUnhandledRejection);
+      cancelled = true; 
+      mountedRef.current = false; 
+      vapiRef.current?.stop?.().catch(() => {});
+      vapiRef.current = null;
+      void endSession(false); 
+    };
   }, [addLine, endSession, handleToolCall, illnessTag, illnessTitle, isOpen, user]);
 
   const sendMessage = (event: FormEvent) => {

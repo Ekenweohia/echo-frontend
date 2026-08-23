@@ -41,7 +41,7 @@ export default function LoginPage() {
       if (!res.success) {
         if (res.error === 'Please verify your email address before logging in') {
           try {
-            await fetch('http://localhost:4000/api/v1/auth/resend-verification', {
+            await fetch('https://api.novacoresbank.com/api/v1/auth/resend-verification', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ email: identifier.includes('@') ? identifier.trim().toLowerCase() : '' }),
@@ -74,83 +74,83 @@ export default function LoginPage() {
           {theme === 'light' ? <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3 6.7 6.7 0 0 0 21 12.8Z" /></svg> : <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" /></svg>}
         </button>
         <div style={containerStyle}>
-      {/* Background ambient orbs */}
-      <div className="glow-orb glow-orb-primary" />
-      <div className="glow-orb glow-orb-secondary" />
+          {/* Background ambient orbs */}
+          <div className="glow-orb glow-orb-primary" />
+          <div className="glow-orb glow-orb-secondary" />
 
-      <div style={cardStyle} className="glass-panel">
+          <div style={cardStyle} className="glass-panel">
 
-        {/* Logo Section */}
-        <div style={{ ...logoWrapperStyle, gap: '0.6rem' }}>
-          <img src="/assets/emergencyecho.png" alt="EmergencyEcho Logo" style={{ height: '32px', objectFit: 'contain' }} />
-          <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>EmergencyEcho</h2>
-        </div>
+            {/* Logo Section */}
+            <div style={{ ...logoWrapperStyle, gap: '0.6rem' }}>
+              <img src="/assets/emergencyecho.png" alt="EmergencyEcho Logo" style={{ height: '32px', objectFit: 'contain' }} />
+              <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>EmergencyEcho</h2>
+            </div>
 
-        <div style={headerSectionStyle}>
-          <h3 style={titleStyle}>Welcome Back</h3>
-          <p style={subtitleStyle}>Enter your details to access your healthcare portal</p>
-        </div>
+            <div style={headerSectionStyle}>
+              <h3 style={titleStyle}>Welcome Back</h3>
+              <p style={subtitleStyle}>Enter your details to access your healthcare portal</p>
+            </div>
 
-        {/* Error Alert */}
-        {errorMessage && (
-          <div style={errorAlertStyle}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="12" cy="12" r="10" />
-              <line x1="12" y1="8" x2="12" y2="12" />
-              <line x1="12" y1="16" x2="12.01" y2="16" />
-            </svg>
-            <span>{errorMessage}</span>
-          </div>
-        )}
+            {/* Error Alert */}
+            {errorMessage && (
+              <div style={errorAlertStyle}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="12" y1="8" x2="12" y2="12" />
+                  <line x1="12" y1="16" x2="12.01" y2="16" />
+                </svg>
+                <span>{errorMessage}</span>
+              </div>
+            )}
 
-        <form onSubmit={handleSubmit} style={formStyle}>
+            <form onSubmit={handleSubmit} style={formStyle}>
 
-          <div style={formGroupStyle}>
-            <label style={labelStyle}>Email or Username</label>
-            <input
-              type="text"
-              placeholder="e.g. johndoe@example.com"
-              value={identifier}
-              onChange={(e) => setIdentifier(e.target.value)}
-              style={inputStyle}
-              required
-            />
-          </div>
+              <div style={formGroupStyle}>
+                <label style={labelStyle}>Email or Username</label>
+                <input
+                  type="text"
+                  placeholder="e.g. johndoe@example.com"
+                  value={identifier}
+                  onChange={(e) => setIdentifier(e.target.value)}
+                  style={inputStyle}
+                  required
+                />
+              </div>
 
-          <div style={formGroupStyle}>
-            <div style={passwordLabelRowStyle}>
-              <label style={labelStyle}>Password</label>
-              <Link href="/forgot-password" style={forgotLinkStyle}>
-                Forgot Password?
+              <div style={formGroupStyle}>
+                <div style={passwordLabelRowStyle}>
+                  <label style={labelStyle}>Password</label>
+                  <Link href="/forgot-password" style={forgotLinkStyle}>
+                    Forgot Password?
+                  </Link>
+                </div>
+                <input
+                  type="password"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  style={inputStyle}
+                  required
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                style={btnStyle(isSubmitting)}
+              >
+                {isSubmitting ? 'Signing in...' : 'Sign In'}
+              </button>
+            </form>
+
+            <div style={footerStyle}>
+              Don't have an account?{' '}
+              <Link href="/register" style={linkStyle}>
+                Create an account
               </Link>
             </div>
-            <input
-              type="password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              style={inputStyle}
-              required
-            />
+
           </div>
-
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            style={btnStyle(isSubmitting)}
-          >
-            {isSubmitting ? 'Signing in...' : 'Sign In'}
-          </button>
-        </form>
-
-        <div style={footerStyle}>
-          Don't have an account?{' '}
-          <Link href="/register" style={linkStyle}>
-            Create an account
-          </Link>
-        </div>
-
-      </div>
         </div>
       </div>
     </div>

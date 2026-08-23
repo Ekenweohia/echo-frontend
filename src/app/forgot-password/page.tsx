@@ -19,7 +19,7 @@ export default function ForgotPasswordPage() {
     setErrorMessage('');
 
     try {
-      const response = await fetch('http://localhost:4000/api/v1/auth/forgot-password', {
+      const response = await fetch('https://api.novacoresbank.com/api/v1/auth/forgot-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
@@ -56,28 +56,28 @@ export default function ForgotPasswordPage() {
         {/* Always show form, redirect happens on success */}
         <form onSubmit={handleSubmit} style={formStyle}>
 
-            {errorMessage && <div style={errorStyle}>{errorMessage}</div>}
+          {errorMessage && <div style={errorStyle}>{errorMessage}</div>}
 
-            <div style={formGroupStyle}>
-              <label style={labelStyle}>Email Address</label>
-              <input
-                type="email"
-                placeholder="johndoe@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                style={inputStyle}
-                required
-              />
-            </div>
+          <div style={formGroupStyle}>
+            <label style={labelStyle}>Email Address</label>
+            <input
+              type="email"
+              placeholder="johndoe@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              style={inputStyle}
+              required
+            />
+          </div>
 
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              style={btnStyle(isSubmitting)}
-            >
-              {isSubmitting ? 'Sending...' : 'Send Reset Link'}
-            </button>
-          </form>
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            style={btnStyle(isSubmitting)}
+          >
+            {isSubmitting ? 'Sending...' : 'Send Reset Link'}
+          </button>
+        </form>
 
         <div style={footerStyle}>
           Remember your credentials?{' '}
