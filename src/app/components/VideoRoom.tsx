@@ -92,32 +92,15 @@ export default function VideoRoom({ consultationId, onClose }: VideoRoomProps) {
           setRoomName(json.data.roomName);
           setContextData(json.data.contextData);
           
-          if (roomToken && roomToken !== 'mock-livekit-jwt-auth-token') {
-            connectLiveKit(roomToken);
-          } else {
-            setupDevicesAndCapture();
-          }
+          if (!roomToken) throw new Error('Missing LiveKit token');
+          connectLiveKit(roomToken);
         }
+      } else {
+        throw new Error('Unable to join consultation');
       }
     } catch (e) {
-      console.warn('[VideoRoom] Offline fallback. Mocking session credentials.');
-      // Offline fallback: load mock context data
-      setConnStatus('connected');
-      setRoomName(`consultation-mock-${consultationId.slice(0,6)}`);
-      setContextData({
-        dmk: {
-          id: 'dmk-001',
-          bloodType: 'O+',
-          allergies: [{ id: 'all-1', name: 'Penicillin' }, { id: 'all-2', name: 'Sulfa Drugs' }],
-          medications: [{ id: 'med-1', name: 'Metformin', dosage: '500mg' }]
-        },
-        echoSummary: {
-          id: 'sess-001',
-          triageResult: { acuity: 'CRITICAL', urgencyScore: 92 },
-          clinicalIntake: { chiefComplaint: 'Severe Chest Pain' }
-        }
-      });
-      setupDevicesAndCapture();
+      console.error('[VideoRoom] Failed to join consultation session.', e);
+      setConnStatus('disconnected');
     }
   };
 
@@ -174,8 +157,8 @@ export default function VideoRoom({ consultationId, onClose }: VideoRoomProps) {
       if (videoIns.length > 0) setSelectedVideo(videoIns[0].deviceId);
 
     } catch (err: any) {
-      console.warn('[VideoRoom] LiveKit signal connection unavailable (Failed to fetch). Activating local camera preview mode.', err?.message || err);
-      setupDevicesAndCapture();
+      console.error('[VideoRoom] LiveKit connection failed.', err?.message || err);
+      setConnStatus('disconnected');
     }
   };
 
@@ -203,20 +186,9 @@ export default function VideoRoom({ consultationId, onClose }: VideoRoomProps) {
       if (audioIns.length > 0) setSelectedAudio(audioIns[0].deviceId);
       if (videoIns.length > 0) setSelectedVideo(videoIns[0].deviceId);
 
-      // Simulate remote user joining after 2.5s
-      setTimeout(() => {
-        setChatMessages(prev => [...prev, {
-          sender: user?.role === 'PATIENT' ? 'Clinician' : 'Patient',
-          text: user?.role === 'PATIENT' 
-            ? 'Hello, I am Doctor Mark. I have reviewed your Echo intake. How can I help you?'
-            : 'Hello Doctor, the chest pain is starting to get worse.',
-          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-        }]);
-      }, 2500);
-
     } catch (err) {
-      console.warn('[VideoRoom] Media capture blocked or no devices found. Running simulated streams.', err);
-      setConnStatus('connected');
+      console.error('[VideoRoom] Media capture blocked or unavailable.', err);
+      setConnStatus('disconnected');
     }
   };
 
@@ -325,7 +297,7 @@ export default function VideoRoom({ consultationId, onClose }: VideoRoomProps) {
         }
       }
     } catch (e) {
-      // Offline fallback: keep local messages intact
+      console.error('[VideoRoom] Failed to fetch messages.', e);
     }
   };
 
@@ -353,17 +325,7 @@ export default function VideoRoom({ consultationId, onClose }: VideoRoomProps) {
         fetchChatMessages();
       }
     } catch (err) {
-      console.warn('[VideoRoom] Offline send fallback. Simulating reply.');
-      // Offline simulation fallback
-      setTimeout(() => {
-        setChatMessages(prev => [...prev, {
-          sender: user?.role === 'PATIENT' ? 'Clinician' : 'Patient',
-          text: user?.role === 'PATIENT' 
-            ? 'Let me run a clinical evaluation. Please keep your camera centered.'
-            : 'Okay Doctor, I am keeping still.',
-          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-        }]);
-      }, 2500);
+      console.error('[VideoRoom] Message send failed.', err);
     }
   };
 
@@ -428,7 +390,7 @@ export default function VideoRoom({ consultationId, onClose }: VideoRoomProps) {
         alert(`Error: ${json.message || 'Failed to submit clinical record.'}`);
       }
     } catch (e) {
-      console.warn('[VideoRoom] Offline mode: mock-submitting clinical record.');
+      console.error('[VideoRoom] Failed to submit clinical record.', e);
       onClose();
     } finally {
       setIsSubmittingRecord(false);
