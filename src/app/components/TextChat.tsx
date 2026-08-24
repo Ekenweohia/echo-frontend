@@ -91,7 +91,7 @@ export default function TextChat({ isOpen, onClose, illnessTag, illnessTitle = '
     }
     const vapi = vapiRef.current;
     vapiRef.current = null;
-    try { vapi?.stop(); (vapi as any)?.destroy?.(); } catch { /* Connection already closed. */ }
+    try { vapi?.stop?.(); (vapi as any)?.destroy?.(); } catch { /* Connection already closed. */ }
     if (closeAfter && mountedRef.current) onClose();
   }, [illnessTag, onClose]);
 
@@ -115,11 +115,14 @@ export default function TextChat({ isOpen, onClose, illnessTag, illnessTitle = '
       let createdId = `clinician-${crypto.randomUUID()}`;
       if (user?.role === 'PATIENT') {
         try {
-          const response = await apiClient('/echo-ai/sessions', { method: 'POST', body: JSON.stringify({ language: 'en', isSOS: false }) });
-          const payload = await response.json();
-          if (!response.ok || !payload?.success || !payload?.data?.id) throw new Error('Session creation failed');
+          const response = await apiClient('/echo-ai/sessions', {
+            method: 'POST',
+            body: JSON.stringify({ language: 'en', isSOS: false, patientId: user?.id }),
+          });
+          const payload = await response.json().catch(() => null);
+          if (!response.ok || !payload?.success || !payload?.data?.id) throw new Error(payload?.message || 'Session creation failed');
           createdId = payload.data.id;
-        } catch {
+        } catch (err) {
           createdId = `mock-${crypto.randomUUID()}`;
           addLine('SYSTEM', 'Backend is unavailable; continuing in local session mode.');
         }

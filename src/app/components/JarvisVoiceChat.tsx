@@ -77,8 +77,8 @@ export default function JarvisVoiceChat({ isOpen, onClose, isSOSMode = false }: 
   const cleanupVapi = () => {
     if (vapiInstanceRef.current) {
       try {
-        vapiInstanceRef.current.stop();
-        vapiInstanceRef.current.destroy();
+        vapiInstanceRef.current.stop?.();
+        vapiInstanceRef.current.destroy?.();
       } catch (e) {
         console.log('[Vapi] Cleanup error:', e);
       }
@@ -121,21 +121,23 @@ export default function JarvisVoiceChat({ isOpen, onClose, isSOSMode = false }: 
             language: 'en',
             isSOS: isSOSMode,
             latitude: location.latitude,
-            longitude: location.longitude
+            longitude: location.longitude,
+            patientId: user?.id
           })
         });
 
-        if (response.ok) {
-          const json = await response.json();
-          if (json.success) {
-            createdSessionId = json.data.id;
-            setSessionId(createdSessionId);
-          }
+        const json = await response.json().catch(() => null);
+        if (!response.ok || !json?.success || !json?.data?.id) {
+          throw new Error(json?.message || `Session creation failed (${response.status})`);
         }
+
+        createdSessionId = json.data.id;
+        setSessionId(createdSessionId);
       } catch (err) {
-        console.warn('[Vapi] Backend offline. Running mock session registration.');
+        console.warn('[Vapi] Backend session creation failed. Running mock session registration.', err);
         createdSessionId = `mock-session-${Math.random().toString(36).substring(4)}`;
         setSessionId(createdSessionId);
+        setStatusText('Backend unavailable, using local session mode');
       }
     } else {
       console.log('[Vapi] Non-patient user detected. Bypassing backend database session creation.');
