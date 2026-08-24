@@ -24,8 +24,15 @@ const VAPI_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPI_PUBLIC_KEY || 'c0c5baf7-ec9
 const VAPI_ASSISTANT_ID = process.env.NEXT_PUBLIC_VAPI_ASSISTANT_ID || 'cd66b0d9-3543-4417-9f12-e1f18b67f951';
 const isBackendSession = (id: string | null) => Boolean(id && !id.startsWith('mock-') && !id.startsWith('clinician-'));
 
+function isExpectedVapiEndError(err: any) {
+  const text = typeof err === 'string'
+    ? err
+    : JSON.stringify(err ?? {});
+  return /meeting has ended|ejected|no-room|local audio level observer|worklet/i.test(text);
+}
+
 export default function TextChat({ isOpen, onClose, illnessTag, illnessTitle = 'Medical Chat', illnessColor = '#00f5d4', illnessIcon = '🩺' }: TextChatProps) {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const [status, setStatus] = useState<'connecting' | 'active' | 'error'>('connecting');
   const [input, setInput] = useState('');
   const [transcript, setTranscript] = useState<TranscriptLine[]>([]);
@@ -98,7 +105,8 @@ export default function TextChat({ isOpen, onClose, illnessTag, illnessTitle = '
   useEffect(() => { transcriptEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [transcript]);
 
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen || loading) return;
+    if (!user) return;
     mountedRef.current = true;
     endedRef.current = false;
     startedAtRef.current = Date.now();
@@ -117,14 +125,15 @@ export default function TextChat({ isOpen, onClose, illnessTag, illnessTitle = '
         try {
           const response = await apiClient('/echo-ai/sessions', {
             method: 'POST',
-            body: JSON.stringify({ language: 'en', isSOS: false, patientId: user?.id }),
+            body: JSON.stringify({ language: 'en', isSOS: false }),
           });
           const payload = await response.json().catch(() => null);
           if (!response.ok || !payload?.success || !payload?.data?.id) throw new Error(payload?.message || 'Session creation failed');
           createdId = payload.data.id;
         } catch (err) {
-          createdId = `mock-${crypto.randomUUID()}`;
-          addLine('SYSTEM', 'Backend is unavailable; continuing in local session mode.');
+          addLine('SYSTEM', 'Unable to start Echo AI session. Please try again.');
+          setStatus('error');
+          return;
         }
       }
       if (cancelled) {
@@ -137,7 +146,17 @@ export default function TextChat({ isOpen, onClose, illnessTag, illnessTitle = '
       setSessionId(createdId);
       const vapi = new Vapi(VAPI_PUBLIC_KEY);
       vapiRef.current = vapi;
-      vapi.on('error', () => { if (mountedRef.current) setStatus('error'); });
+      vapi.on('error', (err: any) => {
+        if (isExpectedVapiEndError(err)) {
+          if (mountedRef.current) {
+            setStatus('connecting');
+            addLine('SYSTEM', 'Echo AI session ended.');
+          }
+          void endSession(true);
+          return;
+        }
+        if (mountedRef.current) setStatus('error');
+      });
       vapi.on('call-start', async () => {
         if (cancelled || !mountedRef.current) return;
         setStatus('active');
@@ -193,13 +212,17 @@ export default function TextChat({ isOpen, onClose, illnessTag, illnessTitle = '
           identifierType: user?.phone ? 'phone' : user?.email ? 'email' : user?.id ? 'customer_id' : 'unknown',
           patientName: user?.fullName || 'Patient', illnessTag, illnessTitle,
         } });
-      } catch {
+      } catch (err) {
+        if (isExpectedVapiEndError(err)) {
+          void endSession(false);
+          return;
+        }
         if (!cancelled && mountedRef.current) { setStatus('error'); addLine('SYSTEM', 'Unable to connect to Echo AI. Please try again.'); }
       }
     };
     void start();
     return () => { cancelled = true; mountedRef.current = false; void endSession(false); };
-  }, [addLine, endSession, handleToolCall, illnessTag, illnessTitle, isOpen, user]);
+  }, [addLine, endSession, handleToolCall, illnessTag, illnessTitle, isOpen, loading, user]);
 
   const sendMessage = (event: FormEvent) => {
     event.preventDefault();

@@ -20,8 +20,15 @@ interface TranscriptLine {
 const vapiPublicKey: string = 'c0c5baf7-ec97-4971-b7ac-a18e9bb8db2b';
 const vapiAssistantId: string = 'cd66b0d9-3543-4417-9f12-e1f18b67f951';
 
+function isExpectedVapiEndError(err: any) {
+  const text = typeof err === 'string'
+    ? err
+    : JSON.stringify(err ?? {});
+  return /meeting has ended|ejected|no-room|local audio level observer|worklet/i.test(text);
+}
+
 export default function JarvisVoiceChat({ isOpen, onClose, isSOSMode = false }: JarvisVoiceChatProps) {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   
   // Vapi and Call States
   const [callStatus, setCallStatus] = useState<'idle' | 'initializing' | 'active' | 'ending'>('idle');
@@ -63,7 +70,8 @@ export default function JarvisVoiceChat({ isOpen, onClose, isSOSMode = false }: 
 
   // Handle Call Lifecycle
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen || loading) return;
+    if (!user) return;
 
     handleStartCall();
 
@@ -71,7 +79,7 @@ export default function JarvisVoiceChat({ isOpen, onClose, isSOSMode = false }: 
       if (!isMountedRef.current) return;
       cleanupVapi();
     };
-  }, [isOpen]);
+  }, [isOpen, loading, user]);
 
   // Cleanup function for Vapi instance
   const cleanupVapi = () => {
@@ -121,8 +129,7 @@ export default function JarvisVoiceChat({ isOpen, onClose, isSOSMode = false }: 
             language: 'en',
             isSOS: isSOSMode,
             latitude: location.latitude,
-            longitude: location.longitude,
-            patientId: user?.id
+            longitude: location.longitude
           })
         });
 
@@ -134,10 +141,12 @@ export default function JarvisVoiceChat({ isOpen, onClose, isSOSMode = false }: 
         createdSessionId = json.data.id;
         setSessionId(createdSessionId);
       } catch (err) {
-        console.warn('[Vapi] Backend session creation failed. Running mock session registration.', err);
-        createdSessionId = `mock-session-${Math.random().toString(36).substring(4)}`;
-        setSessionId(createdSessionId);
-        setStatusText('Backend unavailable, using local session mode');
+        console.error('[Vapi] Backend session creation failed.', err);
+        if (isMountedRef.current) {
+          setCallStatus('ending');
+          setStatusText('Unable to start Echo AI session');
+        }
+        return;
       }
     } else {
       console.log('[Vapi] Non-patient user detected. Bypassing backend database session creation.');
@@ -158,6 +167,13 @@ export default function JarvisVoiceChat({ isOpen, onClose, isSOSMode = false }: 
         vapi.on('error', (err: any) => {
           const errMsg = err?.message || (typeof err === 'object' && Object.keys(err).length ? JSON.stringify(err) : String(err));
           console.error('[Vapi] WebRTC connection error. Details:', errMsg);
+          if (isExpectedVapiEndError(errMsg)) {
+            if (isMountedRef.current) {
+              setStatusText('Echo AI session ended');
+              void handleEndCall(true);
+            }
+            return;
+          }
           if (isMountedRef.current) {
             setStatusText('Echo AI Connection Failed');
           }
