@@ -415,7 +415,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (loading) return;
 
-    const publicPaths = ['/login', '/register', '/forgot-password', '/reset-password', '/lobby'];
+    const publicPaths = ['/login', '/register', '/verify-email', '/forgot-password', '/reset-password', '/lobby'];
     const isPublicPath = publicPaths.some(path => pathname?.startsWith(path));
 
     if (!user) {
