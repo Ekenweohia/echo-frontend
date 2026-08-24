@@ -89,6 +89,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.log('[Auth] Attempting token refresh...');
       const response = await apiClient('/auth/refresh', {
         method: 'POST',
+        skipAuth: true,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ refreshToken }),
       });
@@ -360,7 +361,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = async () => {
     try {
       const refreshToken = localStorage.getItem('refreshToken');
-      await apiClient('/auth/logout', { method: 'POST', body: JSON.stringify({ refreshToken }) });
+      await apiClient('/auth/logout', { method: 'POST', skipAuth: true, body: JSON.stringify({ refreshToken }) });
     } catch (e) {
       // Ignore network errors on logout
     }
