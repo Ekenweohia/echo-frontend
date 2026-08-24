@@ -31,6 +31,22 @@ function isExpectedVapiEndError(err: any) {
   return /meeting has ended|ejected|no-room|local audio level observer|worklet/i.test(text);
 }
 
+function getCurrentPosition(): Promise<{ latitude: number; longitude: number } | null> {
+  if (typeof navigator === 'undefined' || !navigator.geolocation) return Promise.resolve(null);
+
+  return new Promise((resolve) => {
+    navigator.geolocation.getCurrentPosition(
+      (position) =>
+        resolve({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        }),
+      () => resolve(null),
+      { enableHighAccuracy: true, timeout: 7000, maximumAge: 60_000 },
+    );
+  });
+}
+
 export default function TextChat({ isOpen, onClose, illnessTag, illnessTitle = 'Medical Chat', illnessColor = '#00f5d4', illnessIcon = '🩺' }: TextChatProps) {
   const { user, loading } = useAuth();
   const [status, setStatus] = useState<'connecting' | 'active' | 'error'>('connecting');
@@ -123,9 +139,14 @@ export default function TextChat({ isOpen, onClose, illnessTag, illnessTitle = '
       let createdId = `clinician-${crypto.randomUUID()}`;
       if (user?.role === 'PATIENT') {
         try {
+          const coords = await getCurrentPosition();
           const response = await apiClient('/echo-ai/sessions', {
             method: 'POST',
-            body: JSON.stringify({ language: 'en', isSOS: false }),
+            body: JSON.stringify({
+              language: 'en',
+              isSOS: false,
+              ...(coords ? { latitude: coords.latitude, longitude: coords.longitude } : {}),
+            }),
           });
           const payload = await response.json().catch(() => null);
           if (!response.ok || !payload?.success || !payload?.data?.id) throw new Error(payload?.message || 'Session creation failed');
@@ -186,10 +207,6 @@ export default function TextChat({ isOpen, onClose, illnessTag, illnessTitle = '
         // Clean up observer when call ends
         vapi.on('call-end', () => observer.disconnect());
 
-        if (isBackendSession(createdId)) {
-          try { await apiClient(`/echo-ai/sessions/${createdId}/start`, { method: 'POST', body: JSON.stringify({ vapiCallId: 'web-client-call' }) }); }
-          catch { addLine('SYSTEM', 'The session started, but could not be synced to the backend.'); }
-        }
       });
       vapi.on('call-end', () => { void endSession(false); });
       vapi.on('message', (message: any) => {
@@ -207,7 +224,7 @@ export default function TextChat({ isOpen, onClose, illnessTag, illnessTitle = '
         if (message.type === 'tool-calls') for (const toolCall of message.toolCallList || []) void handleToolCall(toolCall);
       });
       try {
-        await vapi.start(VAPI_ASSISTANT_ID, { metadata: { sessionId: createdId, patientId: user?.id || '' }, variableValues: {
+        await vapi.start(VAPI_ASSISTANT_ID, { metadata: { patientId: user?.id || '' }, variableValues: {
           personIdentifier: user?.phone || user?.email || user?.id || 'unknown',
           identifierType: user?.phone ? 'phone' : user?.email ? 'email' : user?.id ? 'customer_id' : 'unknown',
           patientName: user?.fullName || 'Patient', illnessTag, illnessTitle,

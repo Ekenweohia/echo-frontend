@@ -27,6 +27,22 @@ function isExpectedVapiEndError(err: any) {
   return /meeting has ended|ejected|no-room|local audio level observer|worklet/i.test(text);
 }
 
+function getCurrentPosition(): Promise<{ latitude: number; longitude: number } | null> {
+  if (typeof navigator === 'undefined' || !navigator.geolocation) return Promise.resolve(null);
+
+  return new Promise((resolve) => {
+    navigator.geolocation.getCurrentPosition(
+      (position) =>
+        resolve({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        }),
+      () => resolve(null),
+      { enableHighAccuracy: true, timeout: 7000, maximumAge: 60_000 },
+    );
+  });
+}
+
 export default function JarvisVoiceChat({ isOpen, onClose, isSOSMode = false }: JarvisVoiceChatProps) {
   const { user, loading } = useAuth();
   
@@ -115,21 +131,14 @@ export default function JarvisVoiceChat({ isOpen, onClose, isSOSMode = false }: 
     // 1. POST /echo-ai/sessions (Tell backend we are starting, only for PATIENTS)
     if (user?.role === 'PATIENT') {
       try {
-        const location = { latitude: 6.5244, longitude: 3.3792 };
-        if (isSOSMode && navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition((pos) => {
-            location.latitude = pos.coords.latitude;
-            location.longitude = pos.coords.longitude;
-          });
-        }
+        const coords = isSOSMode ? await getCurrentPosition() : null;
 
         const response = await apiClient('/echo-ai/sessions', {
           method: 'POST',
           body: JSON.stringify({
             language: 'en',
             isSOS: isSOSMode,
-            latitude: location.latitude,
-            longitude: location.longitude
+            ...(coords ? { latitude: coords.latitude, longitude: coords.longitude } : {})
           })
         });
 
@@ -182,8 +191,7 @@ export default function JarvisVoiceChat({ isOpen, onClose, isSOSMode = false }: 
         // Start Vapi - FIXED: Removed nested 'assistant' property
         await vapi.start(vapiAssistantId, {
           metadata: {
-            sessionId: createdSessionId,
-            patientId: user?.id || ''
+            patientId: user?.id || '',
           },
           variableValues: {
             personIdentifier: user?.phone || user?.email || user?.id || user?.fullName || 'unknown',
@@ -206,18 +214,6 @@ export default function JarvisVoiceChat({ isOpen, onClose, isSOSMode = false }: 
             timestamp: new Date().toLocaleTimeString()
           }]);
           setAiIsSpeaking(true);
-
-          // Inform Backend that session has started
-          if (createdSessionId && !createdSessionId.startsWith('mock') && !createdSessionId.startsWith('clinician')) {
-            try {
-              await apiClient(`/echo-ai/sessions/${createdSessionId}/start`, {
-                method: 'POST',
-                body: JSON.stringify({ vapiCallId: 'web-client-call' })
-              });
-            } catch (err) {
-              console.warn('[Vapi] Failed to notify backend of session start');
-            }
-          }
         });
 
         vapi.on('call-end', () => {

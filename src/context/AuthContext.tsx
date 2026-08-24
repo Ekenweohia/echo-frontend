@@ -117,50 +117,46 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return localUser ? JSON.parse(localUser) : null;
     }
 
-    const profilePaths = ['/me', '/auth/me'];
-
     try {
       setAccessToken(token);
-      for (const path of profilePaths) {
-        const response = await apiClient(path);
-        if (!response.ok) continue;
+      const response = await apiClient('/auth/me');
 
-        const json = await response.json().catch(() => null);
-        if (!json?.success || !json?.data) continue;
+      if (response.ok) {
+        const json = await response.json();
+        if (json.success && json.data) {
+          const serverUser = json.data.user ?? json.data;
 
-        const serverUser = json.data.user ?? json.data;
-
-        // Dynamically query clinician licensing status from verification endpoint
-        if (serverUser.role === 'DOCTOR' || serverUser.role === 'NURSE') {
-          const isActive = serverUser.accountStatus === 'ACTIVE' || serverUser.isActive === true;
-          if (isActive) {
-            serverUser.isVerified = true;
-            serverUser.isApproved = true;
-          } else {
-            try {
-              const url = serverUser.role === 'DOCTOR'
-                ? '/doctors/me/verification'
-                : '/nurses/me/verification';
-              const verifRes = await apiClient(url);
-              if (verifRes.ok) {
-                const verifJson = await verifRes.json();
-                if (verifJson.success && verifJson.data) {
-                  const { verificationStatus, onboardingStatus } = verifJson.data;
-                  serverUser.isVerified = (verificationStatus === 'VERIFIED' || verificationStatus === 'PENDING');
-                  serverUser.isApproved = (verificationStatus === 'VERIFIED' && onboardingStatus === 'COMPLETED');
+          // Dynamically query clinician licensing status from verification endpoint
+          if (serverUser.role === 'DOCTOR' || serverUser.role === 'NURSE') {
+            const isActive = serverUser.accountStatus === 'ACTIVE' || serverUser.isActive === true;
+            if (isActive) {
+              serverUser.isVerified = true;
+              serverUser.isApproved = true;
+            } else {
+              try {
+                const url = serverUser.role === 'DOCTOR'
+                  ? '/doctors/me/verification'
+                  : '/nurses/me/verification';
+                const verifRes = await apiClient(url);
+                if (verifRes.ok) {
+                  const verifJson = await verifRes.json();
+                  if (verifJson.success && verifJson.data) {
+                    const { verificationStatus, onboardingStatus } = verifJson.data;
+                    serverUser.isVerified = (verificationStatus === 'VERIFIED' || verificationStatus === 'PENDING');
+                    serverUser.isApproved = (verificationStatus === 'VERIFIED' && onboardingStatus === 'COMPLETED');
+                  }
+                } else {
+                  serverUser.isVerified = false;
+                  serverUser.isApproved = false;
                 }
-              } else {
+              } catch (e) {
                 serverUser.isVerified = false;
                 serverUser.isApproved = false;
               }
-            } catch (e) {
-              serverUser.isVerified = false;
-              serverUser.isApproved = false;
             }
           }
+          return serverUser;
         }
-
-        return serverUser;
       }
     } catch (err) {
       console.warn('[Auth] Could not fetch profile from server.');
