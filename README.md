@@ -29,7 +29,7 @@ copy .env.local.example .env.local
 Default API base:
 
 ```bash
-https://api.novacoresbank.com/api/v1
+http://localhost:4000/api/v1
 ```
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
