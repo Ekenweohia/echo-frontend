@@ -44,6 +44,7 @@ export default function VideoRoom({ consultationId, onClose }: VideoRoomProps) {
   const [referrals, setReferrals] = useState<Array<{ specialty: string; reason: string }>>([]);
   const [followUps, setFollowUps] = useState<Array<{ recommendedDate: string; instructions: string }>>([]);
   const [isSubmittingRecord, setIsSubmittingRecord] = useState(false);
+  const [recordError, setRecordError] = useState<string | null>(null);
   
   // Messenger states
   const [chatMessages, setChatMessages] = useState<Array<{ sender: string; text: string; time: string }>>([
@@ -360,8 +361,9 @@ export default function VideoRoom({ consultationId, onClose }: VideoRoomProps) {
   };
 
   const submitClinicalRecord = async () => {
+    setRecordError(null);
     if (!clinicalNotes.trim() || !publicSummary.trim()) {
-      alert('Please fill out both clinical notes and public summary before submitting.');
+      setRecordError('Clinical notes and public summary are required before submission.');
       return;
     }
 
@@ -386,12 +388,12 @@ export default function VideoRoom({ consultationId, onClose }: VideoRoomProps) {
       if (response.ok) {
         onClose();
       } else {
-        const json = await response.json();
-        alert(`Error: ${json.message || 'Failed to submit clinical record.'}`);
+        const json = await response.json().catch(() => null);
+        setRecordError(json?.message || 'Failed to submit clinical record.');
       }
     } catch (e) {
       console.error('[VideoRoom] Failed to submit clinical record.', e);
-      onClose();
+      setRecordError('The record could not be saved. Please try again.');
     } finally {
       setIsSubmittingRecord(false);
     }
@@ -426,6 +428,7 @@ export default function VideoRoom({ consultationId, onClose }: VideoRoomProps) {
           </div>
           
           <div style={chartBodyGridStyle}>
+            {recordError ? <div style={recordErrorStyle}>{recordError}</div> : null}
             {/* Form Fields */}
             <div style={chartFormScrollArea}>
               
@@ -455,7 +458,7 @@ export default function VideoRoom({ consultationId, onClose }: VideoRoomProps) {
               <div style={formCardStyle}>
                 <div style={flexHeaderRow}>
                   <h4 style={cardHeadingStyle}>Prescriptions (Rx Plan)</h4>
-                  <button onClick={addPrescriptionRow} style={addBtnStyle}>+ Add Medication</button>
+                  <button type="button" onClick={addPrescriptionRow} style={addBtnStyle}>+ Add Medication</button>
                 </div>
                 {prescriptions.length === 0 ? (
                   <p style={emptyRowLabelStyle}>No medications added.</p>
@@ -497,7 +500,7 @@ export default function VideoRoom({ consultationId, onClose }: VideoRoomProps) {
                         onChange={(e) => updatePrescription(idx, 'instructions', e.target.value)}
                         style={{ ...rowInputStyle, gridColumn: 'span 3' }}
                       />
-                      <button onClick={() => deletePrescriptionRow(idx)} style={deleteBtnStyle}>✕</button>
+                      <button type="button" onClick={() => deletePrescriptionRow(idx)} style={deleteBtnStyle}>×</button>
                     </div>
                   ))
                 )}
@@ -507,7 +510,7 @@ export default function VideoRoom({ consultationId, onClose }: VideoRoomProps) {
               <div style={formCardStyle}>
                 <div style={flexHeaderRow}>
                   <h4 style={cardHeadingStyle}>Specialist Referrals</h4>
-                  <button onClick={addReferralRow} style={addBtnStyle}>+ Add Referral</button>
+                  <button type="button" onClick={addReferralRow} style={addBtnStyle}>+ Add Referral</button>
                 </div>
                 {referrals.length === 0 ? (
                   <p style={emptyRowLabelStyle}>No specialist referrals added.</p>
@@ -528,7 +531,7 @@ export default function VideoRoom({ consultationId, onClose }: VideoRoomProps) {
                         onChange={(e) => updateReferral(idx, 'reason', e.target.value)}
                         style={{ ...rowInputStyle, gridColumn: 'span 2' }}
                       />
-                      <button onClick={() => deleteReferralRow(idx)} style={deleteBtnStyle}>✕</button>
+                      <button type="button" onClick={() => deleteReferralRow(idx)} style={deleteBtnStyle}>×</button>
                     </div>
                   ))
                 )}
@@ -538,7 +541,7 @@ export default function VideoRoom({ consultationId, onClose }: VideoRoomProps) {
               <div style={formCardStyle}>
                 <div style={flexHeaderRow}>
                   <h4 style={cardHeadingStyle}>Recommended Follow-Ups</h4>
-                  <button onClick={addFollowUpRow} style={addBtnStyle}>+ Add Follow-Up</button>
+                  <button type="button" onClick={addFollowUpRow} style={addBtnStyle}>+ Add Follow-Up</button>
                 </div>
                 {followUps.length === 0 ? (
                   <p style={emptyRowLabelStyle}>No follow-ups scheduled.</p>
@@ -558,7 +561,7 @@ export default function VideoRoom({ consultationId, onClose }: VideoRoomProps) {
                         onChange={(e) => updateFollowUp(idx, 'instructions', e.target.value)}
                         style={{ ...rowInputStyle, gridColumn: 'span 2' }}
                       />
-                      <button onClick={() => deleteFollowUpRow(idx)} style={deleteBtnStyle}>✕</button>
+                      <button type="button" onClick={() => deleteFollowUpRow(idx)} style={deleteBtnStyle}>×</button>
                     </div>
                   ))
                 )}
@@ -567,13 +570,15 @@ export default function VideoRoom({ consultationId, onClose }: VideoRoomProps) {
               {/* Form Action Controls */}
               <div style={formActionsStyle}>
                 <button 
+                  type="button"
                   onClick={submitClinicalRecord} 
-                  disabled={isSubmittingRecord}
+                  disabled={isSubmittingRecord || !clinicalNotes.trim() || !publicSummary.trim()}
                   style={btnSubmitChartStyle}
                 >
-                  {isSubmittingRecord ? 'Submitting Record...' : '✓ Submit Consultation Record & Exit'}
+                  {isSubmittingRecord ? 'Submitting Record...' : 'Submit Consultation Record & Exit'}
                 </button>
                 <button 
+                  type="button"
                   onClick={() => setShowChartForm(false)} 
                   style={btnCancelChartStyle}
                 >
@@ -1341,6 +1346,16 @@ const chartSubTitleStyle: React.CSSProperties = {
   fontSize: '0.76rem',
   color: 'var(--text-muted)',
   marginTop: '2px',
+};
+
+const recordErrorStyle: React.CSSProperties = {
+  padding: '0.9rem 1rem',
+  borderRadius: '14px',
+  background: 'rgba(239, 68, 68, 0.12)',
+  border: '1px solid rgba(239, 68, 68, 0.2)',
+  color: '#fecaca',
+  fontSize: '0.9rem',
+  fontWeight: 600,
 };
 
 const chartBodyGridStyle: React.CSSProperties = {

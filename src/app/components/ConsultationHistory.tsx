@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { apiClient } from '@/services/apiClient';
 
 interface ConsultationHistoryItem {
@@ -39,6 +40,7 @@ interface ConsultationHistoryItem {
 }
 
 export default function ConsultationHistory() {
+  const router = useRouter();
   const [items, setItems] = useState<ConsultationHistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -96,6 +98,14 @@ export default function ConsultationHistory() {
 
               <p style={summaryStyle}><strong>Summary:</strong> {item.publicSummary}</p>
 
+              <button
+                type="button"
+                onClick={() => router.push(`/consultations/${item.liveConsultation?.id || item.id}`)}
+                style={detailBtnStyle}
+              >
+                View consultation details
+              </button>
+
               {item.prescriptions?.length ? (
                 <div style={blockStyle}>
                   <strong style={blockTitleStyle}>Prescriptions</strong>
@@ -152,6 +162,19 @@ const doctorStyle: React.CSSProperties = { fontWeight: 700 };
 const metaStyle: React.CSSProperties = { fontSize: 12, color: 'var(--text-muted)' };
 const statusStyle: React.CSSProperties = { alignSelf: 'start', padding: '4px 10px', borderRadius: 999, fontSize: 11, fontWeight: 700, background: 'rgba(200,16,46,.12)', color: 'var(--primary-light)' };
 const summaryStyle: React.CSSProperties = { margin: '0 0 10px', lineHeight: 1.6 };
+const detailBtnStyle: React.CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  padding: '10px 14px',
+  marginBottom: 8,
+  borderRadius: 12,
+  border: '1px solid rgba(255,255,255,.1)',
+  background: 'rgba(200,16,46,.12)',
+  color: 'var(--text-primary)',
+  fontWeight: 700,
+  cursor: 'pointer',
+};
 const blockStyle: React.CSSProperties = { display: 'flex', flexDirection: 'column', gap: 8, marginTop: 10 };
 const blockTitleStyle: React.CSSProperties = { fontSize: 13 };
 const pillStyle: React.CSSProperties = { padding: 12, borderRadius: 12, background: 'rgba(255,255,255,.03)', lineHeight: 1.5 };
