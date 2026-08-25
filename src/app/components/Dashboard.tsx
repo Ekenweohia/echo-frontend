@@ -7,6 +7,7 @@ import JarvisVoiceChat from './JarvisVoiceChat';
 import DMKManager from './DMKManager';
 import BillingPanel from './BillingPanel';
 import ConsultationManager from './ConsultationManager';
+import ConsultationHistory from './ConsultationHistory';
 import NotificationHub from './NotificationHub';
 import TextChat from './TextChat';
 import IllnessCardGrid, { type IllnessItem } from './IllnessCardGrid';
@@ -75,7 +76,7 @@ export default function Dashboard() {
           <section className={styles.categories}><div className={styles.sectionHeading}><div><p className={styles.eyebrow}>Quick help</p><h2>Choose a health concern</h2></div><span>Echo AI</span></div><IllnessCardGrid onSelectIllness={(item) => { setSelectedIllness(item); setTextChatOpen(true); }} /></section>
         </section>}
         {activeTab === 'consultations' && <Workspace title="Your Echo care" onBack={() => openTab('overview')}><ConsultationManager /></Workspace>}
-        {activeTab === 'records' && <Workspace title="My health" onBack={() => openTab('overview')}><DMKManager /></Workspace>}
+        {activeTab === 'records' && <Workspace title="My health" onBack={() => openTab('overview')}><ConsultationHistory /><DMKManager /></Workspace>}
         {activeTab === 'wallet' && <Workspace title="Wallet & billing" onBack={() => openTab('overview')}><BillingPanel /></Workspace>}
         {activeTab === 'qr' && <Workspace title="Digital QR Code" onBack={() => openTab('overview')}><DMKManager openQrOnMount /></Workspace>}
         {activeTab === 'notifications' && <Workspace title="Care updates" onBack={() => openTab('overview')}><NotificationHub /></Workspace>}
