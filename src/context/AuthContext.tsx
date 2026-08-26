@@ -68,7 +68,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     try {
       console.log('[Auth] Attempting token refresh...');
-      const response = await fetch('https://api.novacoresbank.com/api/v1/auth/refresh', {
+      const response = await fetch('http://localhost:4000/api/v1/auth/refresh', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ refreshToken }),
@@ -148,7 +148,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // 3. Register User
   const register = async (data: any) => {
     try {
-      const response = await fetch('https://api.novacoresbank.com/api/v1/auth/register', {
+      const response = await fetch('http://localhost:4000/api/v1/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -169,7 +169,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // 4. Log in User
   const login = async (identifier: string, password: string) => {
     try {
-      const response = await fetch('https://api.novacoresbank.com/api/v1/auth/login', {
+      const response = await fetch('http://localhost:4000/api/v1/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ identifier, password }),

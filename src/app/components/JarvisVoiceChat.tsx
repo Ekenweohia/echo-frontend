@@ -170,6 +170,8 @@ export default function JarvisVoiceChat({ isOpen, onClose, isSOSMode = false }: 
             patientId: user?.id || ''
           },
           variableValues: {
+            sessionId: createdSessionId,
+            patientId: user?.id || '',
             personIdentifier: user?.phone || user?.email || user?.id || user?.fullName || 'unknown',
             identifierType: user?.phone ? 'phone' : (user?.email ? 'email' : (user?.id ? 'customer_id' : (user?.fullName ? 'full_name' : 'unknown'))),
             patientName: user?.fullName || 'Patient'

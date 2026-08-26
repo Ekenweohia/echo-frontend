@@ -4913,7 +4913,7 @@ https://nextjs.org/docs/messages/module-not-found
     at handleSubmit (src/app/login/page.tsx:40:25)
   141 |   const login = async (identifier: string, password: string) => {
   142 |     try {
-> 143 |       const response = await fetch('https://api.novacoresbank.com/api/v1/auth/login', {
+> 143 |       const response = await fetch('http://localhost:4000/api/v1/auth/login', {
       |                              ^
   144 |         method: 'POST',
   145 |         headers: { 'Content-Type': 'application/json' },
@@ -4923,7 +4923,7 @@ https://nextjs.org/docs/messages/module-not-found
     at handleSubmit (src/app/login/page.tsx:40:25)
   141 |   const login = async (identifier: string, password: string) => {
   142 |     try {
-> 143 |       const response = await fetch('https://api.novacoresbank.com/api/v1/auth/login', {
+> 143 |       const response = await fetch('http://localhost:4000/api/v1/auth/login', {
       |                              ^
   144 |         method: 'POST',
   145 |         headers: { 'Content-Type': 'application/json' },
@@ -4936,7 +4936,7 @@ https://nextjs.org/docs/messages/module-not-found
     at handleSubmit (src/app/login/page.tsx:40:25)
   170 |   const login = async (identifier: string, password: string) => {
   171 |     try {
-> 172 |       const response = await fetch('https://api.novacoresbank.com/api/v1/auth/login', {
+> 172 |       const response = await fetch('http://localhost:4000/api/v1/auth/login', {
       |                              ^
   173 |         method: 'POST',
   174 |         headers: { 'Content-Type': 'application/json' },
@@ -4946,7 +4946,7 @@ https://nextjs.org/docs/messages/module-not-found
     at handleSubmit (src/app/login/page.tsx:40:25)
   170 |   const login = async (identifier: string, password: string) => {
   171 |     try {
-> 172 |       const response = await fetch('https://api.novacoresbank.com/api/v1/auth/login', {
+> 172 |       const response = await fetch('http://localhost:4000/api/v1/auth/login', {
       |                              ^
   173 |         method: 'POST',
   174 |         headers: { 'Content-Type': 'application/json' },
