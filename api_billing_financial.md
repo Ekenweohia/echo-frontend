@@ -5,7 +5,7 @@ This document outlines the API endpoints and integration steps to handle user wa
 ---
 
 ## 1. Authentication & Base Settings
-- **Base URL**: `http://localhost:4000/api/v1`
+- **Base URL**: `https://api.novacoresbank.com/api/v1`
 - **Headers Required**:
   ```http
   Authorization: Bearer <your_jwt_token>

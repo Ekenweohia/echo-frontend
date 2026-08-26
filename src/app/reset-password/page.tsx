@@ -3,6 +3,7 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/navigation';
+import { apiClient } from '@/services/apiClient';
 
 function ResetPasswordForm() {
   const router = useRouter();
@@ -29,7 +30,7 @@ function ResetPasswordForm() {
     setErrorMessage('');
 
     try {
-      const response = await fetch('http://localhost:4000/api/v1/auth/reset-password', {
+      const response = await apiClient('/auth/reset-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token, newPassword }),

@@ -14,15 +14,38 @@ interface JarvisVoiceChatProps {
 interface TranscriptLine {
   speaker: 'AI' | 'USER' | 'SYSTEM';
   text: string;
-  timestamp: string; 
+  timestamp: string;
 }
 
-const vapiPublicKey: string = 'c0c5baf7-ec97-4971-b7ac-a18e9bb8db2b';
-const vapiAssistantId: string = 'cd66b0d9-3543-4417-9f12-e1f18b67f951';
+const vapiPublicKey = process.env.NEXT_PUBLIC_VAPI_PUBLIC_KEY || 'c0c5baf7-ec97-4971-b7ac-a18e9bb8db2b';
+const vapiAssistantId = process.env.NEXT_PUBLIC_VAPI_ASSISTANT_ID || 'cd66b0d9-3543-4417-9f12-e1f18b67f951';
+
+function isExpectedVapiEndError(err: any) {
+  const text = typeof err === 'string'
+    ? err
+    : JSON.stringify(err ?? {});
+  return /meeting has ended|ejected|no-room|local audio level observer|worklet/i.test(text);
+}
+
+function getCurrentPosition(): Promise<{ latitude: number; longitude: number } | null> {
+  if (typeof navigator === 'undefined' || !navigator.geolocation) return Promise.resolve(null);
+
+  return new Promise((resolve) => {
+    navigator.geolocation.getCurrentPosition(
+      (position) =>
+        resolve({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        }),
+      () => resolve(null),
+      { enableHighAccuracy: true, timeout: 7000, maximumAge: 60_000 },
+    );
+  });
+}
 
 export default function JarvisVoiceChat({ isOpen, onClose, isSOSMode = false }: JarvisVoiceChatProps) {
-  const { user } = useAuth();
-
+  const { user, loading } = useAuth();
+  
   // Vapi and Call States
   const [callStatus, setCallStatus] = useState<'idle' | 'initializing' | 'active' | 'ending'>('idle');
   const [isMuted, setIsMuted] = useState(false);
@@ -34,16 +57,16 @@ export default function JarvisVoiceChat({ isOpen, onClose, isSOSMode = false }: 
   const [transcripts, setTranscripts] = useState<TranscriptLine[]>([]);
   const [aiIsSpeaking, setAiIsSpeaking] = useState(false);
   const [statusText, setStatusText] = useState('Echo AI offline');
-
+  
   const transcriptEndRef = useRef<HTMLDivElement>(null);
   const callStartedRef = useRef(false);
   const vapiInstanceRef = useRef<any>(null);
   const isMountedRef = useRef(true);
 
-  const isVapiConfigured =
-    vapiPublicKey &&
-    vapiPublicKey !== 'vapi-public-key-placeholder' &&
-    vapiAssistantId &&
+  const isVapiConfigured = 
+    vapiPublicKey && 
+    vapiPublicKey !== 'vapi-public-key-placeholder' && 
+    vapiAssistantId && 
     vapiAssistantId !== 'vapi-assistant-id-placeholder';
 
   // Scroll transcript to bottom
@@ -54,7 +77,7 @@ export default function JarvisVoiceChat({ isOpen, onClose, isSOSMode = false }: 
   // Cleanup on unmount
   useEffect(() => {
     isMountedRef.current = true;
-
+    
     return () => {
       isMountedRef.current = false;
       cleanupVapi();
@@ -63,7 +86,8 @@ export default function JarvisVoiceChat({ isOpen, onClose, isSOSMode = false }: 
 
   // Handle Call Lifecycle
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen || loading) return;
+    if (!user) return;
 
     handleStartCall();
 
@@ -71,14 +95,14 @@ export default function JarvisVoiceChat({ isOpen, onClose, isSOSMode = false }: 
       if (!isMountedRef.current) return;
       cleanupVapi();
     };
-  }, [isOpen]);
+  }, [isOpen, loading, user]);
 
   // Cleanup function for Vapi instance
   const cleanupVapi = () => {
     if (vapiInstanceRef.current) {
       try {
-        vapiInstanceRef.current.stop();
-        vapiInstanceRef.current.destroy();
+        vapiInstanceRef.current.stop?.();
+        vapiInstanceRef.current.destroy?.();
       } catch (e) {
         console.log('[Vapi] Cleanup error:', e);
       }
@@ -107,35 +131,31 @@ export default function JarvisVoiceChat({ isOpen, onClose, isSOSMode = false }: 
     // 1. POST /echo-ai/sessions (Tell backend we are starting, only for PATIENTS)
     if (user?.role === 'PATIENT') {
       try {
-        const location = { latitude: 6.5244, longitude: 3.3792 };
-        if (isSOSMode && navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition((pos) => {
-            location.latitude = pos.coords.latitude;
-            location.longitude = pos.coords.longitude;
-          });
-        }
+        const coords = isSOSMode ? await getCurrentPosition() : null;
 
         const response = await apiClient('/echo-ai/sessions', {
           method: 'POST',
           body: JSON.stringify({
             language: 'en',
             isSOS: isSOSMode,
-            latitude: location.latitude,
-            longitude: location.longitude
+            ...(coords ? { latitude: coords.latitude, longitude: coords.longitude } : {})
           })
         });
 
-        if (response.ok) {
-          const json = await response.json();
-          if (json.success) {
-            createdSessionId = json.data.id;
-            setSessionId(createdSessionId);
-          }
+        const json = await response.json().catch(() => null);
+        if (!response.ok || !json?.success || !json?.data?.id) {
+          throw new Error(json?.message || `Session creation failed (${response.status})`);
         }
-      } catch (err) {
-        console.warn('[Vapi] Backend offline. Running mock session registration.');
-        createdSessionId = `mock-session-${Math.random().toString(36).substring(4)}`;
+
+        createdSessionId = json.data.id;
         setSessionId(createdSessionId);
+      } catch (err) {
+        console.error('[Vapi] Backend session creation failed.', err);
+        if (isMountedRef.current) {
+          setCallStatus('ending');
+          setStatusText('Unable to start Echo AI session');
+        }
+        return;
       }
     } else {
       console.log('[Vapi] Non-patient user detected. Bypassing backend database session creation.');
@@ -156,22 +176,24 @@ export default function JarvisVoiceChat({ isOpen, onClose, isSOSMode = false }: 
         vapi.on('error', (err: any) => {
           const errMsg = err?.message || (typeof err === 'object' && Object.keys(err).length ? JSON.stringify(err) : String(err));
           console.error('[Vapi] WebRTC connection error. Details:', errMsg);
+          if (isExpectedVapiEndError(errMsg)) {
+            if (isMountedRef.current) {
+              setStatusText('Echo AI session ended');
+              void handleEndCall(true);
+            }
+            return;
+          }
           if (isMountedRef.current) {
             setStatusText('Echo AI Connection Failed');
           }
         });
 
         // Start Vapi - FIXED: Removed nested 'assistant' property
-        console.log('[Vapi] Session ID:', createdSessionId, '| Patient ID:', user?.id);
-
         await vapi.start(vapiAssistantId, {
           metadata: {
-            sessionId: createdSessionId,
-            patientId: user?.id || ''
+            patientId: user?.id || '',
           },
           variableValues: {
-            sessionId: createdSessionId,
-            patientId: user?.id || '',
             personIdentifier: user?.phone || user?.email || user?.id || user?.fullName || 'unknown',
             identifierType: user?.phone ? 'phone' : (user?.email ? 'email' : (user?.id ? 'customer_id' : (user?.fullName ? 'full_name' : 'unknown'))),
             patientName: user?.fullName || 'Patient'
@@ -186,24 +208,12 @@ export default function JarvisVoiceChat({ isOpen, onClose, isSOSMode = false }: 
           setStatusText(isSOSMode ? 'SOS TRACE ACTIVE' : 'Clinical Stream Connected');
           setTranscripts(prev => [...prev, {
             speaker: 'AI',
-            text: isSOSMode
-              ? 'Emergency Echo AI active. Paramedics have been notified of your location. What medical crisis are you experiencing?'
+            text: isSOSMode 
+              ? 'Emergency Echo AI active. Your SOS intake is connected. What medical crisis are you experiencing?' 
               : 'Hello, I am Echo, your clinical voice assistant. How are you feeling today?',
             timestamp: new Date().toLocaleTimeString()
           }]);
           setAiIsSpeaking(true);
-
-          // Inform Backend that session has started
-          if (createdSessionId && !createdSessionId.startsWith('mock') && !createdSessionId.startsWith('clinician')) {
-            try {
-              await apiClient(`/echo-ai/sessions/${createdSessionId}/start`, {
-                method: 'POST',
-                body: JSON.stringify({ vapiCallId: 'web-client-call' })
-              });
-            } catch (err) {
-              console.warn('[Vapi] Failed to notify backend of session start');
-            }
-          }
         });
 
         vapi.on('call-end', () => {
@@ -372,7 +382,7 @@ export default function JarvisVoiceChat({ isOpen, onClose, isSOSMode = false }: 
   // End Call & push data to backend
   const handleEndCall = async (skipBackend = false) => {
     if (!isMountedRef.current) return;
-
+    
     callStartedRef.current = false;
     setCallStatus('ending');
     setStatusText('Disconnecting call...');
@@ -390,19 +400,18 @@ export default function JarvisVoiceChat({ isOpen, onClose, isSOSMode = false }: 
           .map(t => `${t.speaker}: ${t.text}`)
           .join('\n');
 
-        await apiClient(`/echo-ai/sessions/${sessionId}/end`, {
-          method: 'POST',
-          body: JSON.stringify({
-            durationSeconds: 120,
-            analysisSummary: isSOSMode ? 'EMERGENCY SOS: Medical emergency reported.' : 'Intake: Medical assessment completed.',
-            structuredData: {
-              chiefComplaint: isSOSMode ? 'Emergency' : 'Medical assessment',
-              clinicalSummary: textSummary,
-              symptoms: [],
-              redFlags: []
-            }
-          })
-        });
+          await apiClient(`/echo-ai/sessions/${sessionId}/end`, {
+            method: 'POST',
+            body: JSON.stringify({
+              durationSeconds: 120,
+              rawAnalysis: {
+                chiefComplaint: isSOSMode ? 'Emergency' : 'Medical assessment',
+                clinicalSummary: textSummary || (isSOSMode ? 'Emergency SOS intake completed.' : 'Echo AI clinical conversation completed.'),
+                symptoms: [],
+                redFlags: []
+              }
+            })
+          });
       } catch (err) {
         console.warn('[Vapi] Backend offline. Ended session locally.');
       }
@@ -426,7 +435,7 @@ export default function JarvisVoiceChat({ isOpen, onClose, isSOSMode = false }: 
   return (
     <div style={overlayStyle}>
       <div style={jarvisModalStyle} className="glass-panel">
-
+        
         {/* Header */}
         <div style={jarvisHeaderStyle}>
           <div style={statusLabelStyle(isSOSMode, isCriticalAlert)}>
@@ -439,7 +448,7 @@ export default function JarvisVoiceChat({ isOpen, onClose, isSOSMode = false }: 
         {/* Jarvis Glowing Morphing Sphere Container */}
         <div style={visualizerContainerStyle}>
           <div style={radialAmbientGlow(isSOSMode, isCriticalAlert)} />
-
+          
           {/* JARVIS core sphere */}
           <div style={jarvisCoreStyle(callStatus === 'active', volumeLevel, isSOSMode, aiIsSpeaking, isCriticalAlert)}>
             {/* Inner rings */}
@@ -463,8 +472,8 @@ export default function JarvisVoiceChat({ isOpen, onClose, isSOSMode = false }: 
           <div style={panelLabelStyle}>REAL-TIME INTELSTREAM</div>
           <div style={transcriptScrollerStyle}>
             {transcripts.map((t, idx) => (
-              <div
-                key={idx}
+              <div 
+                key={idx} 
                 style={t.speaker === 'AI' ? aiBubbleStyle : t.speaker === 'USER' ? userBubbleStyle : systemBubbleStyle}
               >
                 <div style={bubbleHeaderStyle}>
@@ -480,7 +489,7 @@ export default function JarvisVoiceChat({ isOpen, onClose, isSOSMode = false }: 
 
         {/* Control Center Panel */}
         <div style={controlPanelStyle}>
-          <button onClick={toggleMute} style={controlBtnStyle(isMuted)}>
+          <button onClick={toggleMute} className="ee-shimmer-button" style={controlBtnStyle(isMuted)}>
             {isMuted ? (
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <line x1="1" y1="1" x2="23" y2="23" />
@@ -495,8 +504,8 @@ export default function JarvisVoiceChat({ isOpen, onClose, isSOSMode = false }: 
             )}
             {isMuted ? 'Unmute' : 'Mute'}
           </button>
-
-          <button onClick={() => handleEndCall(false)} style={hangUpBtnStyle(isSOSMode, isCriticalAlert)}>
+          
+          <button onClick={() => handleEndCall(false)} className="ee-shimmer-button" style={hangUpBtnStyle(isSOSMode, isCriticalAlert)}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M10.68 13.31a16 16 0 0 0 3.41 2.6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7 2 2 0 0 1 1.72 2v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.42 19.42 0 0 1-3.33-2.67m-2.67-3.34a19.79 19.79 0 0 1-3.07-8.63A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91" />
             </svg>

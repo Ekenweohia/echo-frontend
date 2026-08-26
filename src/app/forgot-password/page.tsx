@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { apiClient } from '@/services/apiClient';
 
 export default function ForgotPasswordPage() {
   const router = useRouter();
@@ -19,7 +20,7 @@ export default function ForgotPasswordPage() {
     setErrorMessage('');
 
     try {
-      const response = await fetch('http://localhost:4000/api/v1/auth/forgot-password', {
+      const response = await apiClient('/auth/forgot-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),

@@ -5,7 +5,7 @@ This document details the API endpoints, payload configurations, and client task
 ---
 
 ## 1. Authentication & Security Policy
-- **Base URL**: `http://localhost:4000/api/v1`
+- **Base URL**: `https://api.novacoresbank.com/api/v1`
 - **Headers Required**:
   ```http
   Authorization: Bearer <your_jwt_token>

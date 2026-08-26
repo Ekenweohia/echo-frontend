@@ -34,6 +34,14 @@ interface ApiOptions extends RequestInit {
  */
 export async function apiClient(path: string, options: ApiOptions = {}) {
   const url = path.startsWith('http') ? path : `${API_BASE_URL}${path}`;
+  const isPublicAuthPath =
+    path === '/auth/login' ||
+    path === '/auth/register' ||
+    path === '/auth/refresh' ||
+    path === '/auth/verify-email' ||
+    path === '/auth/resend-verification' ||
+    path === '/auth/forgot-password' ||
+    path === '/auth/reset-password';
   const headers = new Headers(options.headers || {});
 
   // Add JSON header if needed
@@ -42,7 +50,7 @@ export async function apiClient(path: string, options: ApiOptions = {}) {
   }
 
   // Inject Bearer Token
-  if (currentAccessToken && !options.skipAuth) {
+  if (currentAccessToken && !options.skipAuth && !isPublicAuthPath) {
     headers.set('Authorization', `Bearer ${currentAccessToken}`);
   }
 
@@ -52,7 +60,7 @@ export async function apiClient(path: string, options: ApiOptions = {}) {
   });
 
   // Intercept 401 unauthorized to attempt token refresh
-  if (response.status === 401 && onTokenRefresh && !options.skipAuth) {
+  if (response.status === 401 && onTokenRefresh && !options.skipAuth && !isPublicAuthPath) {
     try {
       const newAccessToken = await onTokenRefresh();
       if (newAccessToken) {

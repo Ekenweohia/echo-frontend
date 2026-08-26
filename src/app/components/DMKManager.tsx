@@ -206,25 +206,25 @@ export default function DMKManager({ openQrOnMount = false }: { openQrOnMount?: 
     let updateStateFunc: React.Dispatch<React.SetStateAction<any[]>> | null = null;
 
     if (showAddForm === 'condition') {
-      endpoint = isEdit ? `/dmk/me/conditions/${editItem.id}` : '/dmk/conditions';
+      endpoint = isEdit ? `/dmk/me/conditions/${editItem.id}` : '/dmk/me/conditions';
       updateStateFunc = setConditions;
     } else if (showAddForm === 'medication') {
-      endpoint = isEdit ? `/dmk/me/medications/${editItem.id}` : '/dmk/medications';
+      endpoint = isEdit ? `/dmk/me/medications/${editItem.id}` : '/dmk/me/medications';
       updateStateFunc = setMedications;
     } else if (showAddForm === 'allergy') {
-      endpoint = isEdit ? `/dmk/me/allergies/${editItem.id}` : '/dmk/allergies';
+      endpoint = isEdit ? `/dmk/me/allergies/${editItem.id}` : '/dmk/me/allergies';
       updateStateFunc = setAllergies;
     } else if (showAddForm === 'mental-health') {
-      endpoint = isEdit ? `/dmk/me/mental-health/${editItem.id}` : '/dmk/mental-health';
+      endpoint = isEdit ? `/dmk/me/mental-health/${editItem.id}` : '/dmk/me/mental-health';
       updateStateFunc = setMentalHealthDiagnoses;
     } else if (showAddForm === 'admission') {
-      endpoint = isEdit ? `/dmk/me/hospital-admissions/${editItem.id}` : '/dmk/hospital-admissions';
+      endpoint = isEdit ? `/dmk/me/hospital-admissions/${editItem.id}` : '/dmk/me/hospital-admissions';
       updateStateFunc = setHospitalAdmissions;
     } else if (showAddForm === 'immunization') {
-      endpoint = isEdit ? `/dmk/me/immunizations/${editItem.id}` : '/dmk/immunizations';
+      endpoint = isEdit ? `/dmk/me/immunizations/${editItem.id}` : '/dmk/me/immunizations';
       updateStateFunc = setImmunizations;
     } else if (showAddForm === 'device') {
-      endpoint = isEdit ? `/dmk/me/devices/${editItem.id}` : '/dmk/devices';
+      endpoint = isEdit ? `/dmk/me/devices/${editItem.id}` : '/dmk/me/devices';
       updateStateFunc = setDevices;
     }
 
@@ -315,10 +315,10 @@ export default function DMKManager({ openQrOnMount = false }: { openQrOnMount?: 
           <p style={dmkSubtitleStyle}>Active health registry & emergency vitals</p>
         </div>
         <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-          <button onClick={() => openForm('vitals')} style={actionBtnStyle}>
+          <button onClick={() => openForm('vitals')} className="ee-shimmer-button" style={actionBtnStyle}>
             Update Demographics & Vitals
           </button>
-          <button onClick={handleGenerateShareToken} style={actionBtnStyle}>
+          <button onClick={handleGenerateShareToken} className="ee-shimmer-button" style={actionBtnStyle}>
             Emergency Share QR
           </button>
         </div>
@@ -531,7 +531,7 @@ export default function DMKManager({ openQrOnMount = false }: { openQrOnMount?: 
                   </div>
                 <div style={popupBtnRowStyle}>
                   <button type="button" onClick={() => setShowAddForm('none')} style={popupCancelBtnStyle}>Cancel</button>
-                  <button type="submit" style={popupSubmitBtnStyle}>Save</button>
+                  <button type="submit" className="ee-shimmer-button" style={popupSubmitBtnStyle}>Save</button>
                 </div>
               </form>
             )}
@@ -625,7 +625,7 @@ export default function DMKManager({ openQrOnMount = false }: { openQrOnMount?: 
 
                 <div style={popupBtnRowStyle}>
                   <button type="button" onClick={() => {setShowAddForm('none'); setEditItem(null);}} style={popupCancelBtnStyle}>Cancel</button>
-                  <button type="submit" style={popupSubmitBtnStyle}>Save</button>
+                  <button type="submit" className="ee-shimmer-button" style={popupSubmitBtnStyle}>Save</button>
                 </div>
               </form>
             )}
