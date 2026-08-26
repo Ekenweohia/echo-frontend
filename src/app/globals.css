@@ -147,6 +147,16 @@ button { min-height: 36px; }
   to   { transform: rotate(360deg); }
 }
 
+@keyframes eeButtonShimmer {
+  0% { transform: translateX(-65%); }
+  55% { transform: translateX(65%); }
+  100% { transform: translateX(65%); }
+}
+.ee-shimmer-button { position: relative; overflow: hidden; isolation: isolate; }
+.ee-shimmer-button::after { content: ''; position: absolute; inset: -40% -60%; background: linear-gradient(90deg, transparent, rgba(255,255,255,.34), transparent); transform: translateX(-65%); animation: eeButtonShimmer 2.8s ease-in-out infinite; pointer-events: none; z-index: 0; }
+.ee-shimmer-button > * { position: relative; z-index: 1; }
+@media (prefers-reduced-motion: reduce) { .ee-shimmer-button::after { animation: none; display: none; } }
+
 /* ── Glass panels ──────────────────────────────────────────────────────────── */
 .glass-panel {
   background: var(--glass-bg);

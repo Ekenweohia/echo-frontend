@@ -108,7 +108,7 @@ export default function TextChat({ isOpen, onClose, illnessTag, illnessTitle = '
       try {
         await apiClient(`/echo-ai/sessions/${id}/end`, { method: 'POST', body: JSON.stringify({
           durationSeconds: Math.max(1, Math.round((Date.now() - (startedAtRef.current ?? Date.now())) / 1000)),
-          rawAnalysis: { summary, structuredData: { illnessTag } },
+          rawAnalysis: { chiefComplaint: summary || illnessTitle, clinicalSummary: summary || `Echo AI text conversation about ${illnessTitle}.`, symptoms: [], redFlags: [] },
         }) });
       } catch { /* Preserve the locally visible transcript when offline. */ }
     }
@@ -159,7 +159,7 @@ export default function TextChat({ isOpen, onClose, illnessTag, illnessTitle = '
       }
       if (cancelled) {
         if (isBackendSession(createdId)) {
-          void apiClient(`/echo-ai/sessions/${createdId}/end`, { method: 'POST', body: JSON.stringify({ durationSeconds: 1, rawAnalysis: { summary: '' } }) });
+          void apiClient(`/echo-ai/sessions/${createdId}/end`, { method: 'POST', body: JSON.stringify({ durationSeconds: 1, rawAnalysis: { chiefComplaint: 'Echo AI text conversation', clinicalSummary: 'Echo AI text conversation completed.', symptoms: [], redFlags: [] } }) });
         }
         return;
       }

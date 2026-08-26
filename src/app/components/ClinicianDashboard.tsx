@@ -5,6 +5,7 @@ import { useAuth } from '@/context/AuthContext';
 import { apiClient } from '@/services/apiClient';
 import VideoRoom from './VideoRoom';
 import WalletConsole from './WalletConsole';
+import EchoHistory from './EchoHistory';
 import styles from './ClinicianDashboard.module.css';
 
 interface QueueEntry {
@@ -63,6 +64,7 @@ export default function ClinicianDashboard() {
   // UI States
   const [activeTab, setActiveTab] = useState<'queue' | 'workspace' | 'wallet' | 'settings'>('queue');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [selectedEchoSessionId, setSelectedEchoSessionId] = useState<string | null>(null);
 
   // Clinician is verified (submitted docs) but not yet admin-approved
   const isPending = (user?.role === 'DOCTOR' || user?.role === 'NURSE') && user?.isVerified && !user?.isApproved;
@@ -267,6 +269,9 @@ export default function ClinicianDashboard() {
       const json = await response.json();
       if (response.ok && json.success) {
         setActiveConsultation(json.data);
+        const acceptedSessionId = queue.find((item) => item.id === queueEntryId)?.sessionId || null;
+        setSelectedEchoSessionId(acceptedSessionId);
+        setActiveTab('workspace');
         setIsVideoOpen(true);
         fetchQueue();
       } else {
@@ -286,6 +291,8 @@ export default function ClinicianDashboard() {
           startedAt: new Date().toISOString()
         };
         setActiveConsultation(mockConsultation);
+        setSelectedEchoSessionId(selected.sessionId);
+        setActiveTab('workspace');
         setIsVideoOpen(true);
       }
     }
@@ -560,10 +567,10 @@ export default function ClinicianDashboard() {
                           </div>
                         ) : (
                           <div className={styles.cardActions}>
-                            <button onClick={() => claimCase(entry.id)} className={styles.acceptButton}>
+                            <button onClick={() => claimCase(entry.id)} className={`${styles.acceptButton} ee-shimmer-button`}>
                               Accept Call
                             </button>
-                            <button onClick={() => declineCase(entry.id)} className={styles.declineButton}>
+                            <button onClick={() => declineCase(entry.id)} className={`${styles.declineButton} ee-shimmer-button`}>
                               Decline
                             </button>
                           </div>
@@ -585,6 +592,7 @@ export default function ClinicianDashboard() {
             <div className={styles.fullWidthPanel}>
               <section style={{ background: 'rgba(255,255,255,0.7)', border: '1px solid rgba(255,255,255,0.9)', borderRadius: '24px', padding: '32px', boxShadow: '0 18px 50px rgba(24,32,51,0.08)' }}>
                 <h3 style={{ fontSize: '20px', fontWeight: 800, margin: '0 0 16px 0' }}>Clinician Workspace</h3>
+                {selectedEchoSessionId && <EchoHistory sessionId={selectedEchoSessionId} clinicianView />}
                 {activeConsultation ? (
                   <div style={{ padding: '24px', background: 'rgba(233,39,42,0.06)', border: '1px solid rgba(233,39,42,0.2)', borderRadius: '16px', textAlign: 'center' }}>
                     <div style={{ display: 'inline-block', padding: '4px 12px', background: '#e9272a', color: '#fff', borderRadius: '99px', fontSize: '11px', fontWeight: 800, marginBottom: '12px' }}>
@@ -593,7 +601,7 @@ export default function ClinicianDashboard() {
                     <p style={{ fontSize: '14px', color: '#687286', margin: '0 0 16px 0' }}>
                       Room ID: <strong>{activeConsultation.livekitRoomName || activeConsultation.id}</strong>
                     </p>
-                    <button onClick={() => setIsVideoOpen(true)} className={styles.acceptButton} style={{ width: 'auto', padding: '0 28px', margin: '0 auto' }}>
+                    <button onClick={() => setIsVideoOpen(true)} className={`${styles.acceptButton} ee-shimmer-button`} style={{ width: 'auto', padding: '0 28px', margin: '0 auto' }}>
                       Open Video Consultation Room
                     </button>
                   </div>
@@ -649,7 +657,7 @@ export default function ClinicianDashboard() {
             <p style={{ fontSize: '13px', color: '#64748b', lineHeight: 1.6, margin: '0 0 24px 0' }}>
               Your credentials have been submitted and are currently under review by the Echo administrative board. You will receive an email once approved.
             </p>
-            <button onClick={logout} className={styles.declineButton} style={{ width: '100%' }}>
+            <button onClick={logout} className={`${styles.declineButton} ee-shimmer-button`} style={{ width: '100%' }}>
               Sign Out
             </button>
           </div>

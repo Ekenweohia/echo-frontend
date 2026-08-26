@@ -17,8 +17,8 @@ interface TranscriptLine {
   timestamp: string;
 }
 
-const vapiPublicKey: string = 'c0c5baf7-ec97-4971-b7ac-a18e9bb8db2b';
-const vapiAssistantId: string = 'cd66b0d9-3543-4417-9f12-e1f18b67f951';
+const vapiPublicKey = process.env.NEXT_PUBLIC_VAPI_PUBLIC_KEY || 'c0c5baf7-ec97-4971-b7ac-a18e9bb8db2b';
+const vapiAssistantId = process.env.NEXT_PUBLIC_VAPI_ASSISTANT_ID || 'cd66b0d9-3543-4417-9f12-e1f18b67f951';
 
 function isExpectedVapiEndError(err: any) {
   const text = typeof err === 'string'
@@ -209,7 +209,7 @@ export default function JarvisVoiceChat({ isOpen, onClose, isSOSMode = false }: 
           setTranscripts(prev => [...prev, {
             speaker: 'AI',
             text: isSOSMode 
-              ? 'Emergency Echo AI active. Paramedics have been notified of your location. What medical crisis are you experiencing?' 
+              ? 'Emergency Echo AI active. Your SOS intake is connected. What medical crisis are you experiencing?' 
               : 'Hello, I am Echo, your clinical voice assistant. How are you feeling today?',
             timestamp: new Date().toLocaleTimeString()
           }]);
@@ -404,10 +404,9 @@ export default function JarvisVoiceChat({ isOpen, onClose, isSOSMode = false }: 
             method: 'POST',
             body: JSON.stringify({
               durationSeconds: 120,
-              analysisSummary: isSOSMode ? 'EMERGENCY SOS: Medical emergency reported.' : 'Intake: Medical assessment completed.',
-              structuredData: {
+              rawAnalysis: {
                 chiefComplaint: isSOSMode ? 'Emergency' : 'Medical assessment',
-                clinicalSummary: textSummary,
+                clinicalSummary: textSummary || (isSOSMode ? 'Emergency SOS intake completed.' : 'Echo AI clinical conversation completed.'),
                 symptoms: [],
                 redFlags: []
               }
@@ -490,7 +489,7 @@ export default function JarvisVoiceChat({ isOpen, onClose, isSOSMode = false }: 
 
         {/* Control Center Panel */}
         <div style={controlPanelStyle}>
-          <button onClick={toggleMute} style={controlBtnStyle(isMuted)}>
+          <button onClick={toggleMute} className="ee-shimmer-button" style={controlBtnStyle(isMuted)}>
             {isMuted ? (
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <line x1="1" y1="1" x2="23" y2="23" />
@@ -506,7 +505,7 @@ export default function JarvisVoiceChat({ isOpen, onClose, isSOSMode = false }: 
             {isMuted ? 'Unmute' : 'Mute'}
           </button>
           
-          <button onClick={() => handleEndCall(false)} style={hangUpBtnStyle(isSOSMode, isCriticalAlert)}>
+          <button onClick={() => handleEndCall(false)} className="ee-shimmer-button" style={hangUpBtnStyle(isSOSMode, isCriticalAlert)}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M10.68 13.31a16 16 0 0 0 3.41 2.6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7 2 2 0 0 1 1.72 2v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.42 19.42 0 0 1-3.33-2.67m-2.67-3.34a19.79 19.79 0 0 1-3.07-8.63A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91" />
             </svg>
