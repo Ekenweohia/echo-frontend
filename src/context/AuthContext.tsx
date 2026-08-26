@@ -104,8 +104,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           return accessToken;
         }
       }
+
+      if (!response.ok && response.status >= 500) {
+        localStorage.removeItem('refreshToken');
+      }
     } catch (err) {
       console.warn('[Auth] Failed to connect to refresh endpoint. Maintaining local session details.');
+      localStorage.removeItem('refreshToken');
     }
     return null;
   };
@@ -214,6 +219,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       const json = await response.json();
       if (!response.ok || !json.success) {
+        if (localAuthEnabled() && response.status >= 500) {
+          const normalisedIdentifier = identifier.trim().toLowerCase();
+          const localUser = LOCAL_USERS.find((candidate) =>
+            (candidate.email === normalisedIdentifier || candidate.username === normalisedIdentifier) && candidate.password === password
+          );
+
+          if (localUser) {
+            const { password: _password, ...profile } = localUser;
+            setAccessToken(LOCAL_ACCESS_TOKEN);
+            localStorage.setItem('refreshToken', 'local-development-refresh-token');
+            localStorage.setItem(LOCAL_AUTH_SESSION_KEY, 'true');
+            localStorage.setItem('userSession', JSON.stringify(profile));
+            setUser(profile);
+            return { success: true };
+          }
+        }
         return { success: false, error: json.message || 'Invalid credentials.' };
       }
 
