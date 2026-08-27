@@ -162,7 +162,7 @@
     dequal "^2.0.3"
     events "^3.1.0"
 
-"@daily-co/daily-js@^0.92.2":
+"@daily-co/daily-js@^0.92.0":
   version "0.92.2"
   resolved "https://registry.npmjs.org/@daily-co/daily-js/-/daily-js-0.92.2.tgz#93cde85c602e98c17256c66d7f1c6650e23aa7be"
   integrity sha512-YuZGsBzKKfPFdKg2osTUrm53VkLoNdrtAyx/+R9MZrd1bJ4E2SC/ie3SugYaSpp30yzy/6qSLkH7dgLk5a8cvg==
