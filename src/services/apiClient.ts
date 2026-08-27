@@ -29,6 +29,13 @@ interface ApiOptions extends RequestInit {
   skipAuth?: boolean;
 }
 
+export class ApiError extends Error {
+  constructor(public status: number, public code: string, message: string) {
+    super(message);
+    this.name = 'ApiError';
+  }
+}
+
 /**
  * Enhanced fetch client with auto-base url, auth headers, and 401 auto-retry interceptor.
  */
@@ -73,6 +80,18 @@ export async function apiClient(path: string, options: ApiOptions = {}) {
       }
     } catch (err) {
       console.error('[API Client] Silent refresh retry failed:', err);
+    }
+  }
+
+  if (!response.ok) {
+    try {
+      const cloned = response.clone();
+      const body = await cloned.json();
+      if (body?.error?.code === 'DMK_NOT_FOUND') {
+        throw new ApiError(response.status, body.error.code, body.message || 'DMK not found');
+      }
+    } catch (e) {
+      if (e instanceof ApiError) throw e;
     }
   }
 

@@ -148,8 +148,12 @@ export default function DMKManager({ openQrOnMount = false }: { openQrOnMount?: 
           setDevices(d.devices || []);
         }
       }
-    } catch (e) {
-      console.warn('[DMK] Offline or Error. Check network.');
+    } catch (e: any) {
+      if (e.name === 'ApiError' && e.code === 'DMK_NOT_FOUND') {
+        console.warn('[DMK] No DMK profile found for this patient.');
+      } else {
+        console.warn('[DMK] Offline or Error. Check network.');
+      }
     } finally {
       setLoading(false);
     }
