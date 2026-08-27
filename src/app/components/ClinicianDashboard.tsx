@@ -68,6 +68,7 @@ export default function ClinicianDashboard() {
 
   // Clinician is verified (submitted docs) but not yet admin-approved
   const isPending = (user?.role === 'DOCTOR' || user?.role === 'NURSE') && user?.isVerified && !user?.isApproved;
+  const isUnverified = (user?.role === 'DOCTOR' || user?.role === 'NURSE') && !user?.isVerified;
 
   useEffect(() => {
     const savedTheme = (localStorage.getItem('theme') as 'dark' | 'light') || 'light';
@@ -359,7 +360,35 @@ export default function ClinicianDashboard() {
       <button className={`${styles.scrim} ${sidebarOpen ? styles.scrimOpen : ''}`} onClick={() => setSidebarOpen(false)} aria-label="Close menu" />
 
       {/* Main Area */}
-      <div className={styles.content}>
+      <div className={styles.content} style={{ position: 'relative' }}>
+        {/* Locked State Overlay */}
+        {(isPending || isUnverified) && (
+          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 100, backgroundColor: 'rgba(5, 7, 12, 0.85)', backdropFilter: 'blur(10px)', display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '2rem' }}>
+            <div className="glass-panel" style={{ maxWidth: '500px', width: '100%', padding: '2.5rem', textAlign: 'center', border: '1px solid rgba(255, 90, 95, 0.2)', animation: 'fadeIn 0.3s ease-out' }}>
+              <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'rgba(255, 90, 95, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem', fontSize: '2rem' }}>
+                🔒
+              </div>
+              <h2 style={{ fontSize: '1.4rem', fontWeight: 700, marginBottom: '1rem', color: 'var(--text-primary)' }}>
+                {isUnverified ? 'Action Required: Complete Verification' : 'Verification Pending'}
+              </h2>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.6, marginBottom: '2rem' }}>
+                {isUnverified 
+                  ? 'Your professional credentials must be verified before you can access the live clinical dispatch queue. Please upload your MDCN/NMCN documents to proceed.'
+                  : 'Your credentials have been submitted and are currently under review by our administration team. You will be granted access to the clinical workspace once approved.'}
+              </p>
+              {isUnverified && (
+                <button 
+                  onClick={() => window.location.href = '/verify'}
+                  className="ee-shimmer-button"
+                  style={{ padding: '0.8rem 1.5rem', width: '100%', border: 'none', borderRadius: '8px', background: 'linear-gradient(90deg, var(--secondary) 0%, var(--primary) 100%)', color: '#080c14', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer' }}
+                >
+                  Upload Verification Documents
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Sticky Header */}
         <header className={styles.header}>
           <button className={styles.menuButton} onClick={() => setSidebarOpen(true)} aria-label="Open menu">☰</button>

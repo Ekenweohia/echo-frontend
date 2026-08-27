@@ -168,6 +168,18 @@ export default function JarvisVoiceChat({ isOpen, onClose, isSOSMode = false }: 
       try {
         setStatusText('Connecting WebRTC streams...');
 
+        // Explicitly request microphone permissions first
+        try {
+          await navigator.mediaDevices.getUserMedia({ audio: true });
+        } catch (mediaErr) {
+          console.error('[Vapi] Microphone permission denied or unavailable:', mediaErr);
+          if (isMountedRef.current) {
+            setStatusText('Microphone Access Denied');
+            setCallStatus('ending');
+          }
+          return;
+        }
+
         // Create new Vapi instance
         const vapi = new Vapi(vapiPublicKey);
         vapiInstanceRef.current = vapi;
@@ -188,18 +200,24 @@ export default function JarvisVoiceChat({ isOpen, onClose, isSOSMode = false }: 
           }
         });
 
-        // Start Vapi - FIXED: Removed nested 'assistant' property
-        await vapi.start(vapiAssistantId, {
+        // Prepare Vapi start payload
+        const vapiPayload = {
           metadata: {
             patientId: user?.id || '',
+            sessionId: createdSessionId,
           },
           variableValues: {
             personIdentifier: user?.phone || user?.email || user?.id || user?.fullName || 'unknown',
             identifierType: user?.phone ? 'phone' : (user?.email ? 'email' : (user?.id ? 'customer_id' : (user?.fullName ? 'full_name' : 'unknown'))),
             patientName: user?.fullName || 'Patient'
           }
-          // Removed 'assistant' property that was causing the error
-        });
+        };
+
+        console.log('[Vapi] Starting Vapi with Session ID:', createdSessionId);
+        console.log('[Vapi] Vapi Payload:', JSON.stringify(vapiPayload, null, 2));
+
+        // Start Vapi - FIXED: Removed nested 'assistant' property
+        await vapi.start(vapiAssistantId, vapiPayload);
 
         // Bind Vapi Event Listeners
         vapi.on('call-start', async () => {

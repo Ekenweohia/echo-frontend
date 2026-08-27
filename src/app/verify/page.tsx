@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
+import { apiClient } from '@/services/apiClient';
 
 export default function VerifyPortal() {
   const { user, submitVerification, logout, loading } = useAuth();
@@ -13,6 +14,32 @@ export default function VerifyPortal() {
   const [boardType, setBoardType] = useState('State Medical Board');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
+  
+  const [files, setFiles] = useState<{ [key: string]: File | null }>({
+    fullRegistration: null,
+    annualLicense: null,
+    mbbsDegree: null,
+    license: null,
+    degree: null,
+  });
+
+  const uploadSingleFile = async (file: File): Promise<string | null> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    try {
+      const res = await apiClient('/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      if (res.ok) {
+        const json = await res.json();
+        return json.data?.url || null;
+      }
+    } catch (e) {
+      console.error('File upload failed', e);
+    }
+    return null;
+  };
 
   // Redirect if they aren't authorized to be here
   useEffect(() => {
@@ -25,15 +52,46 @@ export default function VerifyPortal() {
     e.preventDefault();
     if (!licenseNumber || !institution) return;
 
+    const isDoc = user?.role === 'DOCTOR';
+    if (isDoc && (!files.fullRegistration || !files.annualLicense || !files.mbbsDegree)) {
+       alert("Please select all required documents for Doctor verification.");
+       return;
+    }
+    if (!isDoc && (!files.license || !files.degree)) {
+       alert("Please select all required documents for Nurse verification.");
+       return;
+    }
+
     setIsSubmitting(true);
     try {
-      await submitVerification(licenseNumber, institution);
+      const documentUrls: Record<string, string> = {};
+
+      if (isDoc) {
+        const fullRegUrl = await uploadSingleFile(files.fullRegistration!);
+        const annualLicUrl = await uploadSingleFile(files.annualLicense!);
+        const mbbsUrl = await uploadSingleFile(files.mbbsDegree!);
+        if (!fullRegUrl || !annualLicUrl || !mbbsUrl) throw new Error("File upload failed");
+        
+        documentUrls.fullRegistrationDocumentUrl = fullRegUrl;
+        documentUrls.annualLicenseDocumentUrl = annualLicUrl;
+        documentUrls.mbbsDegreeDocumentUrl = mbbsUrl;
+      } else {
+        const licUrl = await uploadSingleFile(files.license!);
+        const degUrl = await uploadSingleFile(files.degree!);
+        if (!licUrl || !degUrl) throw new Error("File upload failed");
+        
+        documentUrls.licenseDocumentUrl = licUrl;
+        documentUrls.degreeDocumentUrl = degUrl;
+      }
+
+      await submitVerification(licenseNumber, institution, documentUrls);
       setSuccess(true);
       setTimeout(() => {
         router.push('/lobby');
       }, 1500);
     } catch (err) {
       console.error(err);
+      alert('Verification submission failed. Please ensure all files are valid and try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -125,19 +183,33 @@ export default function VerifyPortal() {
               />
             </div>
 
-            {/* Mock Drag & Drop Upload */}
-            <div style={formGroupStyle}>
-              <label style={labelStyle}>Digital License Copy (PDF, JPG)</label>
-              <div style={uploadBoxStyle}>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2" style={{ marginBottom: '0.5rem' }}>
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                  <polyline points="17 8 12 3 7 8" />
-                  <line x1="12" y1="3" x2="12" y2="15" />
-                </svg>
-                <span style={{ fontSize: '0.74rem', fontWeight: 600, color: 'var(--text-primary)' }}>Click or Drag files to upload</span>
-                <span style={{ fontSize: '0.64rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>Supporting files up to 10MB</span>
-              </div>
-            </div>
+            {user.role === 'DOCTOR' ? (
+              <>
+                <div style={formGroupStyle}>
+                  <label style={labelStyle}>Full Registration Document (MDCN)</label>
+                  <input type="file" accept="image/*,.pdf" style={fileInputStyle} required onChange={(e) => setFiles(f => ({ ...f, fullRegistration: e.target.files?.[0] || null }))} />
+                </div>
+                <div style={formGroupStyle}>
+                  <label style={labelStyle}>Annual License Document</label>
+                  <input type="file" accept="image/*,.pdf" style={fileInputStyle} required onChange={(e) => setFiles(f => ({ ...f, annualLicense: e.target.files?.[0] || null }))} />
+                </div>
+                <div style={formGroupStyle}>
+                  <label style={labelStyle}>MBBS Degree Certificate</label>
+                  <input type="file" accept="image/*,.pdf" style={fileInputStyle} required onChange={(e) => setFiles(f => ({ ...f, mbbsDegree: e.target.files?.[0] || null }))} />
+                </div>
+              </>
+            ) : (
+              <>
+                <div style={formGroupStyle}>
+                  <label style={labelStyle}>Nursing License Document (NMCN)</label>
+                  <input type="file" accept="image/*,.pdf" style={fileInputStyle} required onChange={(e) => setFiles(f => ({ ...f, license: e.target.files?.[0] || null }))} />
+                </div>
+                <div style={formGroupStyle}>
+                  <label style={labelStyle}>Nursing Degree / Certificate</label>
+                  <input type="file" accept="image/*,.pdf" style={fileInputStyle} required onChange={(e) => setFiles(f => ({ ...f, degree: e.target.files?.[0] || null }))} />
+                </div>
+              </>
+            )}
 
             <button 
               type="submit" 
@@ -343,4 +415,16 @@ const spinnerStyle: React.CSSProperties = {
   border: '2px solid rgba(0, 245, 212, 0.1)',
   borderTopColor: 'var(--primary)',
   animation: 'heartbeat 1.5s infinite ease-in-out',
+};
+
+const fileInputStyle: React.CSSProperties = {
+  width: '100%',
+  padding: '0.65rem 1rem',
+  borderRadius: 'var(--border-radius-sm)',
+  background: 'rgba(0, 0, 0, 0.25)',
+  border: '1px solid rgba(255, 255, 255, 0.08)',
+  color: 'var(--text-primary)',
+  fontSize: '0.8rem',
+  outline: 'none',
+  cursor: 'pointer',
 };

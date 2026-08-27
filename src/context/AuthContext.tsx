@@ -63,7 +63,7 @@ interface AuthContextType {
   login: (identifier: string, password: string) => Promise<{ success: boolean; error?: string }>;
   register: (data: any) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
-  submitVerification: (licenseNumber: string, institution: string) => Promise<{ success: boolean }>;
+  submitVerification: (licenseNumber: string, institution: string, documentUrls: Record<string, string>) => Promise<{ success: boolean }>;
   mockApproveUser: () => void; // Utility for testing lobby approval
 }
 
@@ -290,7 +290,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   // 5. Submit Licensing Verification (For Doctors/Nurses)
-  const submitVerification = async (licenseNumber: string, institution: string) => {
+  const submitVerification = async (
+    licenseNumber: string, 
+    institution: string, 
+    documentUrls: Record<string, string>
+  ) => {
     if (!user) return { success: false };
 
     // Optimistically mark as verified/pending immediately so routing works
@@ -312,16 +316,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         medicalDegree: 'MBBS',
         universityAttended: institution,
         yearOfGraduation: new Date().getFullYear() - 5,
-        verificationDocumentUrl: 'https://storage.googleapis.com/docs/license.pdf',
         specialization: 'General Practice',
         yearsOfExperience: 5,
+        ...documentUrls // Includes fullRegistrationDocumentUrl, annualLicenseDocumentUrl, mbbsDegreeDocumentUrl
       } : {
         nmcnRegistrationNumber: licenseNumber,
         nursingQualification: 'RN',
-        universityAttended: institution,
-        verificationDocumentUrl: 'https://storage.googleapis.com/docs/rn-cert.pdf',
         specialization: 'General Nursing',
-        yearsOfExperience: 5,
+        yearsOfExperience: 3,
+        ...documentUrls // Includes licenseDocumentUrl, degreeDocumentUrl
       };
 
       const response = await apiClient(path, {

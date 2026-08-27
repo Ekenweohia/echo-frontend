@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import QRCode from 'react-qr-code';
 import { apiClient } from '@/services/apiClient';
 
 // --- INTERFACES ---
@@ -73,7 +74,7 @@ export default function DMKManager({ openQrOnMount = false }: { openQrOnMount?: 
   const [exerciseLevel, setExerciseLevel] = useState('');
   const [organDonorStatus, setOrganDonorStatus] = useState(false);
   const [primaryLanguage, setPrimaryLanguage] = useState('');
-  
+
   // ARRAYS
   const [conditions, setConditions] = useState<Condition[]>([]);
   const [medications, setMedications] = useState<Medication[]>([]);
@@ -87,9 +88,10 @@ export default function DMKManager({ openQrOnMount = false }: { openQrOnMount?: 
   const [loading, setLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState<'none' | 'condition' | 'medication' | 'allergy' | 'vitals' | 'mental-health' | 'admission' | 'immunization' | 'device'>('none');
   const [editItem, setEditItem] = useState<any>(null); // For generic editing
-  
+
   const [showQrModal, setShowQrModal] = useState(false);
   const [shareToken, setShareToken] = useState<string | null>(null);
+  const [shareTokenId, setShareTokenId] = useState<string | null>(null);
   const qrOpened = useRef(false);
 
   // Vitals Edit Inputs
@@ -200,7 +202,7 @@ export default function DMKManager({ openQrOnMount = false }: { openQrOnMount?: 
   const handleSaveItem = async (e: React.FormEvent) => {
     e.preventDefault();
     const isEdit = !!editItem;
-    
+
     // Determine endpoints and methods
     let endpoint = '';
     let updateStateFunc: React.Dispatch<React.SetStateAction<any[]>> | null = null;
@@ -237,16 +239,16 @@ export default function DMKManager({ openQrOnMount = false }: { openQrOnMount?: 
         const json = await response.json();
         const savedItem = json.data;
         if (updateStateFunc) {
-          updateStateFunc(prev => 
-            isEdit ? prev.map(item => item.id === savedItem.id ? savedItem : item) 
-                   : [...prev, savedItem]
+          updateStateFunc(prev =>
+            isEdit ? prev.map(item => item.id === savedItem.id ? savedItem : item)
+              : [...prev, savedItem]
           );
         }
       }
     } catch (err) {
       console.error(err);
     }
-    
+
     setShowAddForm('none');
     setEditItem(null);
   };
@@ -254,7 +256,7 @@ export default function DMKManager({ openQrOnMount = false }: { openQrOnMount?: 
   const handleDeleteItem = async (type: string, id: string) => {
     let endpoint = '';
     let updateStateFunc: React.Dispatch<React.SetStateAction<any[]>> | null = null;
-    
+
     if (type === 'condition') { endpoint = `/dmk/conditions/${id}`; updateStateFunc = setConditions; }
     if (type === 'medication') { endpoint = `/dmk/medications/${id}`; updateStateFunc = setMedications; }
     if (type === 'allergy') { endpoint = `/dmk/allergies/${id}`; updateStateFunc = setAllergies; }
@@ -265,7 +267,7 @@ export default function DMKManager({ openQrOnMount = false }: { openQrOnMount?: 
 
     try {
       await apiClient(endpoint, { method: 'DELETE' });
-    } catch (err) {}
+    } catch (err) { }
 
     if (updateStateFunc) {
       updateStateFunc(prev => prev.filter(item => item.id !== id));
@@ -275,13 +277,14 @@ export default function DMKManager({ openQrOnMount = false }: { openQrOnMount?: 
   const handleGenerateShareToken = async () => {
     setShowQrModal(true);
     try {
-      const response = await apiClient('/dmk/share-token', {
+      const response = await apiClient('/dmk/me/share', {
         method: 'POST',
         body: JSON.stringify({ description: 'Paramedic Emergency Scan' })
       });
       if (response.ok) {
         const json = await response.json();
-        setShareToken(json.data.tokenHash);
+        setShareToken(json.data.token);
+        setShareTokenId(json.data.id);
       }
     } catch (err) {
       setShareToken('mock-shared-token-hash-1729');
@@ -289,11 +292,12 @@ export default function DMKManager({ openQrOnMount = false }: { openQrOnMount?: 
   };
 
   const handleRevokeToken = async () => {
-    if (!shareToken) return;
+    if (!shareTokenId) return;
     try {
-      await apiClient(`/dmk/share-token/${shareToken}`, { method: 'DELETE' });
+      await apiClient(`/dmk/me/share/${shareTokenId}`, { method: 'DELETE' });
     } catch (err) { }
     setShareToken(null);
+    setShareTokenId(null);
     setShowQrModal(false);
   };
 
@@ -362,7 +366,7 @@ export default function DMKManager({ openQrOnMount = false }: { openQrOnMount?: 
 
       {/* Main Grids Container */}
       <div style={gridsContainerStyle}>
-        
+
         {/* Conditions */}
         <div style={sectionBoxStyle}>
           <div style={sectionHeaderStyle}>
@@ -480,7 +484,7 @@ export default function DMKManager({ openQrOnMount = false }: { openQrOnMount?: 
         <div style={popupOverlayStyle}>
           <div style={popupCardStyle} className="glass-panel">
             <h4 style={popupTitleStyle}>{editItem ? 'Edit' : 'Add'} {showAddForm.toUpperCase()}</h4>
-            
+
             {showAddForm === 'vitals' && (
               <form onSubmit={handleUpdateVitals} style={popupFormStyle}>
                 <div style={popupRowStyle}>
@@ -526,9 +530,9 @@ export default function DMKManager({ openQrOnMount = false }: { openQrOnMount?: 
                   </div>
                 </div>
                 <div style={formGroupStyle}>
-                    <label style={popupLabelStyle}>Organ Donor</label>
-                    <input type="checkbox" checked={editOrganDonor} onChange={e => setEditOrganDonor(e.target.checked)} />
-                  </div>
+                  <label style={popupLabelStyle}>Organ Donor</label>
+                  <input type="checkbox" checked={editOrganDonor} onChange={e => setEditOrganDonor(e.target.checked)} />
+                </div>
                 <div style={popupBtnRowStyle}>
                   <button type="button" onClick={() => setShowAddForm('none')} style={popupCancelBtnStyle}>Cancel</button>
                   <button type="submit" className="ee-shimmer-button" style={popupSubmitBtnStyle}>Save</button>
@@ -539,20 +543,20 @@ export default function DMKManager({ openQrOnMount = false }: { openQrOnMount?: 
             {/* Dynamic Single Form for Item arrays */}
             {showAddForm !== 'vitals' && (
               <form onSubmit={handleSaveItem} style={popupFormStyle}>
-                
+
                 {showAddForm === 'condition' && (
                   <>
                     <div style={formGroupStyle}>
                       <label style={popupLabelStyle}>Condition Name</label>
-                      <input type="text" value={formData.name || ''} onChange={e => setFormData({...formData, name: e.target.value})} style={popupInputStyle} required />
+                      <input type="text" value={formData.name || ''} onChange={e => setFormData({ ...formData, name: e.target.value })} style={popupInputStyle} required />
                     </div>
                     <div style={formGroupStyle}>
                       <label style={popupLabelStyle}>ICD-10 Code</label>
-                      <input type="text" value={formData.code || ''} onChange={e => setFormData({...formData, code: e.target.value})} style={popupInputStyle} />
+                      <input type="text" value={formData.code || ''} onChange={e => setFormData({ ...formData, code: e.target.value })} style={popupInputStyle} />
                     </div>
                     <div style={formGroupStyle}>
                       <label style={popupLabelStyle}>Notes</label>
-                      <input type="text" value={formData.notes || ''} onChange={e => setFormData({...formData, notes: e.target.value})} style={popupInputStyle} />
+                      <input type="text" value={formData.notes || ''} onChange={e => setFormData({ ...formData, notes: e.target.value })} style={popupInputStyle} />
                     </div>
                   </>
                 )}
@@ -561,16 +565,16 @@ export default function DMKManager({ openQrOnMount = false }: { openQrOnMount?: 
                   <>
                     <div style={formGroupStyle}>
                       <label style={popupLabelStyle}>Medication Name</label>
-                      <input type="text" value={formData.name || ''} onChange={e => setFormData({...formData, name: e.target.value})} style={popupInputStyle} required />
+                      <input type="text" value={formData.name || ''} onChange={e => setFormData({ ...formData, name: e.target.value })} style={popupInputStyle} required />
                     </div>
                     <div style={popupRowStyle}>
                       <div style={formGroupStyle}>
                         <label style={popupLabelStyle}>Dosage</label>
-                        <input type="text" value={formData.dosage || ''} onChange={e => setFormData({...formData, dosage: e.target.value})} style={popupInputStyle} required />
+                        <input type="text" value={formData.dosage || ''} onChange={e => setFormData({ ...formData, dosage: e.target.value })} style={popupInputStyle} required />
                       </div>
                       <div style={formGroupStyle}>
                         <label style={popupLabelStyle}>Frequency</label>
-                        <input type="text" value={formData.frequency || ''} onChange={e => setFormData({...formData, frequency: e.target.value})} style={popupInputStyle} required />
+                        <input type="text" value={formData.frequency || ''} onChange={e => setFormData({ ...formData, frequency: e.target.value })} style={popupInputStyle} required />
                       </div>
                     </div>
                   </>
@@ -580,11 +584,11 @@ export default function DMKManager({ openQrOnMount = false }: { openQrOnMount?: 
                   <>
                     <div style={formGroupStyle}>
                       <label style={popupLabelStyle}>Allergen Name</label>
-                      <input type="text" value={formData.allergen || ''} onChange={e => setFormData({...formData, allergen: e.target.value})} style={popupInputStyle} required />
+                      <input type="text" value={formData.allergen || ''} onChange={e => setFormData({ ...formData, allergen: e.target.value })} style={popupInputStyle} required />
                     </div>
                     <div style={formGroupStyle}>
                       <label style={popupLabelStyle}>Severity</label>
-                      <select value={formData.severity || 'SEVERE'} onChange={e => setFormData({...formData, severity: e.target.value})} style={popupInputStyle}>
+                      <select value={formData.severity || 'SEVERE'} onChange={e => setFormData({ ...formData, severity: e.target.value })} style={popupInputStyle}>
                         <option value="MILD">MILD</option>
                         <option value="MODERATE">MODERATE</option>
                         <option value="SEVERE">SEVERE</option>
@@ -592,7 +596,7 @@ export default function DMKManager({ openQrOnMount = false }: { openQrOnMount?: 
                     </div>
                     <div style={formGroupStyle}>
                       <label style={popupLabelStyle}>Reaction</label>
-                      <input type="text" value={formData.reaction || ''} onChange={e => setFormData({...formData, reaction: e.target.value})} style={popupInputStyle} required />
+                      <input type="text" value={formData.reaction || ''} onChange={e => setFormData({ ...formData, reaction: e.target.value })} style={popupInputStyle} required />
                     </div>
                   </>
                 )}
@@ -601,11 +605,11 @@ export default function DMKManager({ openQrOnMount = false }: { openQrOnMount?: 
                   <>
                     <div style={formGroupStyle}>
                       <label style={popupLabelStyle}>Vaccine</label>
-                      <input type="text" value={formData.vaccine || ''} onChange={e => setFormData({...formData, vaccine: e.target.value})} style={popupInputStyle} required />
+                      <input type="text" value={formData.vaccine || ''} onChange={e => setFormData({ ...formData, vaccine: e.target.value })} style={popupInputStyle} required />
                     </div>
                     <div style={formGroupStyle}>
                       <label style={popupLabelStyle}>Date Administered (ISO)</label>
-                      <input type="text" value={formData.dateAdministered || ''} onChange={e => setFormData({...formData, dateAdministered: e.target.value})} style={popupInputStyle} required />
+                      <input type="text" value={formData.dateAdministered || ''} onChange={e => setFormData({ ...formData, dateAdministered: e.target.value })} style={popupInputStyle} required />
                     </div>
                   </>
                 )}
@@ -614,17 +618,17 @@ export default function DMKManager({ openQrOnMount = false }: { openQrOnMount?: 
                   <>
                     <div style={formGroupStyle}>
                       <label style={popupLabelStyle}>Device Name</label>
-                      <input type="text" value={formData.deviceName || ''} onChange={e => setFormData({...formData, deviceName: e.target.value})} style={popupInputStyle} required />
+                      <input type="text" value={formData.deviceName || ''} onChange={e => setFormData({ ...formData, deviceName: e.target.value })} style={popupInputStyle} required />
                     </div>
                     <div style={formGroupStyle}>
                       <label style={popupLabelStyle}>Type</label>
-                      <input type="text" value={formData.type || ''} onChange={e => setFormData({...formData, type: e.target.value})} style={popupInputStyle} required />
+                      <input type="text" value={formData.type || ''} onChange={e => setFormData({ ...formData, type: e.target.value })} style={popupInputStyle} required />
                     </div>
                   </>
                 )}
 
                 <div style={popupBtnRowStyle}>
-                  <button type="button" onClick={() => {setShowAddForm('none'); setEditItem(null);}} style={popupCancelBtnStyle}>Cancel</button>
+                  <button type="button" onClick={() => { setShowAddForm('none'); setEditItem(null); }} style={popupCancelBtnStyle}>Cancel</button>
                   <button type="submit" className="ee-shimmer-button" style={popupSubmitBtnStyle}>Save</button>
                 </div>
               </form>
@@ -640,18 +644,22 @@ export default function DMKManager({ openQrOnMount = false }: { openQrOnMount?: 
           <div style={qrCardStyle} className="glass-panel">
             <h4 style={popupTitleStyle}>Emergency Medical Share</h4>
             <div style={{ marginBottom: '1.5rem' }}>
-               <div style={{ width: '120px', height: '120px', background: 'white', padding: '12px', margin: '0 auto', borderRadius: '12px' }}>
-                  <div style={{ width: '100%', height: '100%', display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-                     {[...Array(16)].map((_, i) => <div key={i} style={{ width: '20px', height: '20px', background: i % 3 === 0 ? 'transparent' : 'var(--primary)' }} />)}
+              <div style={{ width: '200px', height: '200px', background: 'white', padding: '16px', margin: '0 auto', borderRadius: '12px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                {shareToken ? (
+                  <QRCode value={`${window.location.origin}/shared/${shareToken}`} size={168} />
+                ) : (
+                  <div style={{ width: '100%', height: '100%', display: 'flex', flexWrap: 'wrap', gap: '4px', opacity: 0.5 }}>
+                    {[...Array(16)].map((_, i) => <div key={i} style={{ width: '20%', height: '20%', background: i % 3 === 0 ? 'transparent' : 'var(--primary)' }} />)}
                   </div>
-               </div>
+                )}
+              </div>
             </div>
             {shareToken ? (
               <div style={{ background: 'rgba(0,0,0,0.25)', padding: '1rem', borderRadius: '8px', marginBottom: '1rem' }}>
-                <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>TOKEN HASH</span><br />
-                <code style={{ fontSize: '0.8rem', color: 'var(--primary)' }}>{shareToken}</code>
+                <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>PUBLIC SCAN URL</span><br />
+                <code style={{ fontSize: '0.7rem', color: 'var(--primary)', wordBreak: 'break-all' }}>{`${window.location.origin}/shared/${shareToken}`}</code>
               </div>
-            ) : <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Generating...</span>}
+            ) : <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block', marginBottom: '1rem' }}>Generating...</span>}
             <button onClick={handleRevokeToken} style={revokeBtnStyle}>Close & Revoke</button>
           </div>
         </div>
