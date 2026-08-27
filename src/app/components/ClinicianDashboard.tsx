@@ -426,7 +426,7 @@ export default function ClinicianDashboard() {
               <section className={styles.hero}>
                 <div>
                   <p className={styles.eyebrow}><span /> CLINICAL WORKSPACE • EMERGENCY ECHO</p>
-                  <h1>Good to see you, <em>{user?.fullName?.startsWith('Dr.') ? user.fullName : `Dr. ${firstName}`}.</em></h1>
+                  <h1>Good to see you, <em>{user?.role === 'NURSE' ? (user?.fullName?.startsWith('Nurse') ? user.fullName : `Nurse ${firstName}`) : (user?.fullName?.startsWith('Dr.') ? user.fullName : `Dr. ${firstName}`)}.</em></h1>
                   <p className={styles.heroCopy}>Review live patient triage intakes and accept cases to begin audio/video consultations.</p>
                   <div className={styles.heroMeta}>
                     <span>ROLE: {user?.role || 'DOCTOR'}</span>
