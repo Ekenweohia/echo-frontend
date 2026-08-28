@@ -271,7 +271,7 @@ export default function UnifiedDMKForm({ onClose, onSuccess }: UnifiedDMKFormPro
               </Row>
               <Row>
                 <Input label="Prescription Meds" value={rxMeds} onChange={setRxMeds} />
-                <Input label="Pharmacy Meds (No Prescription)" value={otcMeds} onChange={setOtcMeds} />
+                <Input label="What medicine or herbs have you taken? or currently taking" value={otcMeds} onChange={setOtcMeds} />
                 <Input label="Herbal Supplements" value={herbalMeds} onChange={setHerbalMeds} />
               </Row>
             </Section>

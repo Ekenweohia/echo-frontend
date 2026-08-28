@@ -365,7 +365,7 @@ If a piece of information is not mentioned in the audio, leave the field empty o
 
               <div style={rowStyle}>
                 <div style={formGroupStyle}>
-                  <label style={labelStyle}>Symptom Onset (Duration)</label>
+                  <label style={labelStyle}>How long have you had this problem?</label>
                   <select
                     value={symptomOnset}
                     onChange={e => setSymptomOnset(e.target.value)}
@@ -424,7 +424,7 @@ If a piece of information is not mentioned in the audio, leave the field empty o
 
               {currentGroup && currentGroup.focusedQuestions && currentGroup.focusedQuestions.length > 0 && (
                 <div style={{ padding: '16px', background: 'rgba(15, 23, 42, 0.4)', borderRadius: '12px', border: '1px solid rgba(147, 197, 253, .14)', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                  <h4 style={{ margin: 0, color: '#93c5fd', fontSize: '15px' }}>Clinical Questionnaire: {currentGroup.label}</h4>
+                  <h4 style={{ margin: 0, color: '#93c5fd', fontSize: '15px' }}>Help your doctor or nurse understand you better: {currentGroup.label}</h4>
 
                   {currentGroup.focusedQuestions.map((q: any) => {
                     const answerObj = clinicalAnswers[q.id];
@@ -511,7 +511,7 @@ If a piece of information is not mentioned in the audio, leave the field empty o
                   />
                 </div>
                 <div style={formGroupStyle}>
-                  <label style={labelStyle}>Pharmacy Meds (No Prescription)</label>
+                  <label style={labelStyle}>What medicine or herbs have you taken? or currently taking</label>
                   <input
                     type="text"
                     placeholder="e.g., Aspirin"
