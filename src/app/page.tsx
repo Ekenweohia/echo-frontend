@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import SplashScreen from './components/SplashScreen';
 import Dashboard from './components/Dashboard';
@@ -8,8 +8,17 @@ import ClinicianDashboard from './components/ClinicianDashboard';
 import LandingPage from './components/LandingPage';
 
 export default function Home() {
+  const [mounted, setMounted] = useState(false);
   const [showSplash, setShowSplash] = useState(true);
   const { loading, user } = useAuth();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return null; // Prevent hydration mismatch
+  }
 
   if (showSplash) {
     return <SplashScreen onComplete={() => setShowSplash(false)} />;

@@ -419,6 +419,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (loading) return;
 
+    const redirectBasedOnRole = (profile: UserProfile) => {
+      if (profile.role === 'DOCTOR' || profile.role === 'NURSE') {
+        if (!profile.isVerified) {
+          // Haven't submitted credentials yet
+          if (pathname !== '/verify') router.push('/verify');
+        } else {
+          // Submitted credentials — go to dashboard regardless of approval.
+          // Dashboard shows a locked overlay if not yet approved.
+          if (pathname !== '/') router.push('/');
+        }
+      } else {
+        if (pathname !== '/') router.push('/');
+      }
+    };
+
     const publicPaths = ['/login', '/register', '/verify-email', '/forgot-password', '/reset-password', '/lobby', '/shared'];
     const isPublicPath = publicPaths.some(path => pathname?.startsWith(path));
 
@@ -447,22 +462,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       }
     }
-  }, [user, loading, pathname]);
-
-  const redirectBasedOnRole = (profile: UserProfile) => {
-    if (profile.role === 'DOCTOR' || profile.role === 'NURSE') {
-      if (!profile.isVerified) {
-        // Haven't submitted credentials yet
-        if (pathname !== '/verify') router.push('/verify');
-      } else {
-        // Submitted credentials — go to dashboard regardless of approval.
-        // Dashboard shows a locked overlay if not yet approved.
-        if (pathname !== '/') router.push('/');
-      }
-    } else {
-      if (pathname !== '/') router.push('/');
-    }
-  };
+  }, [user, loading, pathname, router]);
 
   return (
     <AuthContext.Provider
