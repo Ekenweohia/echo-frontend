@@ -32,39 +32,39 @@ function blobToBase64(blob: Blob): Promise<string> {
   });
 }
 
-export default function TextChat({ 
-  isOpen, 
-  onClose, 
-  illnessTitle = 'Medical Chat', 
-  illnessColor = '#00f5d4', 
-  illnessIcon = '🩺' 
+export default function TextChat({
+  isOpen,
+  onClose,
+  illnessTitle = 'Medical Chat',
+  illnessColor = '#00f5d4',
+  illnessIcon = '🩺'
 }: TextChatProps) {
   const { user, loading } = useAuth();
   const [status, setStatus] = useState<'idle' | 'loading' | 'submitting' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
-  
+
   // Voice Recording State
   const [recordingStatus, setRecordingStatus] = useState<'idle' | 'recording' | 'processing'>('idle');
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
-  
+
   // Form State
   const [chiefComplaint, setChiefComplaint] = useState(illnessTitle);
   const [symptomOnset, setSymptomOnset] = useState('');
   const [redFlags, setRedFlags] = useState<string[]>([]);
-  
+
   // Dynamic Form State
   const [selectedSymptomGroupId, setSelectedSymptomGroupId] = useState<string>('');
   const [clinicalAnswers, setClinicalAnswers] = useState<Record<string, { question: string, answer: string }>>({});
-  
+
   const currentGroup = formData.symptomGroups.find(g => g.id === selectedSymptomGroupId);
 
-  
+
   // Health Readings
   const [bloodPressure, setBloodPressure] = useState('');
   const [temperature, setTemperature] = useState('');
   const [pulse, setPulse] = useState('');
-  
+
   // DMK Prefills
   const [drugAll, setDrugAll] = useState('');
   const [foodAll, setFoodAll] = useState('');
@@ -74,11 +74,11 @@ export default function TextChat({
   // Fetch DMK to prefill
   useEffect(() => {
     if (!isOpen || loading || !user) return;
-    
+
     setChiefComplaint(illnessTitle);
-    
+
     // Auto-select symptom group if it loosely matches illnessTitle
-    const matchedGroup = formData.symptomGroups.find(g => 
+    const matchedGroup = formData.symptomGroups.find(g =>
       g.label.toLowerCase().includes(illnessTitle.toLowerCase()) ||
       illnessTitle.toLowerCase().includes(g.label.toLowerCase().split(' / ')[0])
     );
@@ -89,7 +89,7 @@ export default function TextChat({
     }
     setClinicalAnswers({});
     setRedFlags([]);
-    
+
     const fetchDMK = async () => {
       setStatus('loading');
       try {
@@ -99,12 +99,12 @@ export default function TextChat({
           const dmk = payload?.data;
           if (dmk) {
             if (dmk.allergies && dmk.allergies.length > 0) {
-              // Pre-fill all existing allergies into drugAll for simplicity (user can separate them)
-              setDrugAll(dmk.allergies.map((a: any) => a.allergen || a.name).join(', '));
+              const uniqueAllergies = Array.from(new Set(dmk.allergies.map((a: any) => (a.allergen || a.name)?.trim()).filter(Boolean)));
+              setDrugAll(uniqueAllergies.join(', '));
             }
             if (dmk.medications && dmk.medications.length > 0) {
-              // Pre-fill all existing medications into rxMeds
-              setRxMeds(dmk.medications.map((m: any) => m.name).join(', '));
+              const uniqueMeds = Array.from(new Set(dmk.medications.map((m: any) => m.name?.trim()).filter(Boolean)));
+              setRxMeds(uniqueMeds.join(', '));
             }
           }
         }
@@ -114,12 +114,12 @@ export default function TextChat({
         setStatus('idle');
       }
     };
-    
+
     fetchDMK();
   }, [isOpen, loading, user, illnessTitle]);
 
   const handleRedFlagToggle = (flag: string) => {
-    setRedFlags(prev => 
+    setRedFlags(prev =>
       prev.includes(flag) ? prev.filter(f => f !== flag) : [...prev, flag]
     );
   };
@@ -156,7 +156,7 @@ export default function TextChat({
       mediaRecorder.addEventListener("stop", async () => {
         const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
         await processVoiceIntake(audioBlob);
-        
+
         // Stop all tracks to release microphone
         stream.getTracks().forEach(track => track.stop());
       });
@@ -180,7 +180,7 @@ export default function TextChat({
     try {
       const base64Audio = await blobToBase64(audioBlob);
       const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
-      
+
       if (!apiKey) {
         throw new Error("Missing NEXT_PUBLIC_GEMINI_API_KEY in environment variables.");
       }
@@ -219,7 +219,7 @@ If a piece of information is not mentioned in the audio, leave the field empty o
 
       if (response.text) {
         const intakeData = JSON.parse(response.text);
-        
+
         // Populate fields if present
         if (intakeData.chiefComplaint) setChiefComplaint(intakeData.chiefComplaint);
         if (intakeData.symptomOnset) setSymptomOnset(intakeData.symptomOnset);
@@ -227,7 +227,7 @@ If a piece of information is not mentioned in the audio, leave the field empty o
         if (intakeData.foodAll && Array.isArray(intakeData.foodAll)) setFoodAll(intakeData.foodAll.join(', '));
         if (intakeData.rxMeds && Array.isArray(intakeData.rxMeds)) setRxMeds(intakeData.rxMeds.join(', '));
         if (intakeData.otcMeds && Array.isArray(intakeData.otcMeds)) setOtcMeds(intakeData.otcMeds.join(', '));
-        
+
         if (intakeData.healthReadings) {
           if (intakeData.healthReadings.bloodPressure) setBloodPressure(intakeData.healthReadings.bloodPressure);
           if (intakeData.healthReadings.temperature) setTemperature(intakeData.healthReadings.temperature);
@@ -241,7 +241,7 @@ If a piece of information is not mentioned in the audio, leave the field empty o
           setRedFlags(prev => Array.from(new Set([...prev, ...validFlags])));
         }
       }
-      
+
     } catch (err: any) {
       console.error("Error processing voice intake:", err);
       setErrorMessage(err.message || "Failed to process voice intake.");
@@ -253,10 +253,10 @@ If a piece of information is not mentioned in the audio, leave the field empty o
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (status === 'submitting') return;
-    
+
     setStatus('submitting');
     setErrorMessage('');
-    
+
     const payload = {
       chiefComplaint,
       symptomOnset: symptomOnset || undefined,
@@ -282,7 +282,7 @@ If a piece of information is not mentioned in the audio, leave the field empty o
         method: 'POST',
         body: JSON.stringify(payload),
       });
-      
+
       const result = await response.json().catch(() => null);
       if (response.ok && result?.success) {
         setStatus('success');
@@ -330,14 +330,14 @@ If a piece of information is not mentioned in the audio, leave the field empty o
             {status === 'error' && (
               <div style={errorBannerStyle}>{errorMessage}</div>
             )}
-            
+
             <div style={voiceSectionStyle}>
               <div style={{ flex: 1 }}>
                 <h4 style={{ margin: '0 0 4px', fontSize: 14 }}>Voice Intake</h4>
                 <p style={{ margin: 0, fontSize: 12, color: '#94a3b8' }}>Speak your symptoms and we'll automatically fill the form.</p>
               </div>
-              <button 
-                type="button" 
+              <button
+                type="button"
                 onClick={recordingStatus === 'recording' ? stopRecording : startRecording}
                 disabled={recordingStatus === 'processing'}
                 style={{
@@ -354,10 +354,10 @@ If a piece of information is not mentioned in the audio, leave the field empty o
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               <div style={formGroupStyle}>
                 <label style={labelStyle}>Main Reason for Visit</label>
-                <input 
-                  type="text" 
-                  value={chiefComplaint} 
-                  onChange={e => setChiefComplaint(e.target.value)} 
+                <input
+                  type="text"
+                  value={chiefComplaint}
+                  onChange={e => setChiefComplaint(e.target.value)}
                   required
                   style={inputStyle}
                 />
@@ -366,9 +366,9 @@ If a piece of information is not mentioned in the audio, leave the field empty o
               <div style={rowStyle}>
                 <div style={formGroupStyle}>
                   <label style={labelStyle}>Symptom Onset (Duration)</label>
-                  <select 
-                    value={symptomOnset} 
-                    onChange={e => setSymptomOnset(e.target.value)} 
+                  <select
+                    value={symptomOnset}
+                    onChange={e => setSymptomOnset(e.target.value)}
                     style={inputStyle}
                   >
                     <option value="">-- Select Duration --</option>
@@ -384,25 +384,25 @@ If a piece of information is not mentioned in the audio, leave the field empty o
               <div style={formGroupStyle}>
                 <label style={labelStyle}>Health Readings (Optional)</label>
                 <div style={rowStyle}>
-                  <input 
-                    type="text" 
-                    placeholder="BP (e.g. 120/80)" 
-                    value={bloodPressure} 
-                    onChange={e => setBloodPressure(e.target.value)} 
+                  <input
+                    type="text"
+                    placeholder="BP (e.g. 120/80)"
+                    value={bloodPressure}
+                    onChange={e => setBloodPressure(e.target.value)}
                     style={inputStyle}
                   />
-                  <input 
-                    type="text" 
-                    placeholder="Temp (e.g. 38.5 C)" 
-                    value={temperature} 
-                    onChange={e => setTemperature(e.target.value)} 
+                  <input
+                    type="text"
+                    placeholder="Temp (e.g. 38.5 C)"
+                    value={temperature}
+                    onChange={e => setTemperature(e.target.value)}
                     style={inputStyle}
                   />
-                  <input 
-                    type="text" 
-                    placeholder="Pulse (e.g. 90)" 
-                    value={pulse} 
-                    onChange={e => setPulse(e.target.value)} 
+                  <input
+                    type="text"
+                    placeholder="Pulse (e.g. 90)"
+                    value={pulse}
+                    onChange={e => setPulse(e.target.value)}
                     style={inputStyle}
                   />
                 </div>
@@ -410,8 +410,8 @@ If a piece of information is not mentioned in the audio, leave the field empty o
 
               <div style={formGroupStyle}>
                 <label style={labelStyle}>Symptom Group</label>
-                <select 
-                  value={selectedSymptomGroupId} 
+                <select
+                  value={selectedSymptomGroupId}
                   onChange={handleSymptomGroupChange}
                   style={inputStyle}
                 >
@@ -425,7 +425,7 @@ If a piece of information is not mentioned in the audio, leave the field empty o
               {currentGroup && currentGroup.focusedQuestions && currentGroup.focusedQuestions.length > 0 && (
                 <div style={{ padding: '16px', background: 'rgba(15, 23, 42, 0.4)', borderRadius: '12px', border: '1px solid rgba(147, 197, 253, .14)', display: 'flex', flexDirection: 'column', gap: '16px' }}>
                   <h4 style={{ margin: 0, color: '#93c5fd', fontSize: '15px' }}>Clinical Questionnaire: {currentGroup.label}</h4>
-                  
+
                   {currentGroup.focusedQuestions.map((q: any) => {
                     const answerObj = clinicalAnswers[q.id];
                     const currentAnswer = answerObj ? answerObj.answer : '';
@@ -434,8 +434,8 @@ If a piece of information is not mentioned in the audio, leave the field empty o
                       <div key={q.id} style={formGroupStyle}>
                         <label style={labelStyle}>{q.label}</label>
                         {q.type === 'select' || q.type === 'yesno' ? (
-                          <select 
-                            value={currentAnswer} 
+                          <select
+                            value={currentAnswer}
                             onChange={(e) => handleDynamicQuestionChange(q.id, q.label, e.target.value)}
                             style={inputStyle}
                           >
@@ -445,8 +445,8 @@ If a piece of information is not mentioned in the audio, leave the field empty o
                             ))}
                           </select>
                         ) : (
-                          <input 
-                            type="text" 
+                          <input
+                            type="text"
                             value={currentAnswer}
                             onChange={(e) => handleDynamicQuestionChange(q.id, q.label, e.target.value)}
                             style={inputStyle}
@@ -464,7 +464,7 @@ If a piece of information is not mentioned in the audio, leave the field empty o
                   <div style={checkboxGroupStyle}>
                     {currentGroup.redFlags.map((flag: any) => (
                       <label key={flag.label} style={checkboxLabelStyle}>
-                        <input 
+                        <input
                           type="checkbox"
                           checked={redFlags.includes(flag.label)}
                           onChange={() => handleRedFlagToggle(flag.label)}
@@ -480,21 +480,21 @@ If a piece of information is not mentioned in the audio, leave the field empty o
               <div style={rowStyle}>
                 <div style={formGroupStyle}>
                   <label style={labelStyle}>Drug Allergies</label>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     placeholder="e.g., Penicillin"
-                    value={drugAll} 
-                    onChange={e => setDrugAll(e.target.value)} 
+                    value={drugAll}
+                    onChange={e => setDrugAll(e.target.value)}
                     style={inputStyle}
                   />
                 </div>
                 <div style={formGroupStyle}>
                   <label style={labelStyle}>Food Allergies</label>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     placeholder="e.g., Peanuts"
-                    value={foodAll} 
-                    onChange={e => setFoodAll(e.target.value)} 
+                    value={foodAll}
+                    onChange={e => setFoodAll(e.target.value)}
                     style={inputStyle}
                   />
                 </div>
@@ -502,30 +502,30 @@ If a piece of information is not mentioned in the audio, leave the field empty o
               <div style={rowStyle}>
                 <div style={formGroupStyle}>
                   <label style={labelStyle}>Prescription Meds</label>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     placeholder="e.g., Lisinopril"
-                    value={rxMeds} 
-                    onChange={e => setRxMeds(e.target.value)} 
+                    value={rxMeds}
+                    onChange={e => setRxMeds(e.target.value)}
                     style={inputStyle}
                   />
                 </div>
                 <div style={formGroupStyle}>
-                  <label style={labelStyle}>OTC Meds</label>
-                  <input 
-                    type="text" 
+                  <label style={labelStyle}>Pharmacy Meds (No Prescription)</label>
+                  <input
+                    type="text"
                     placeholder="e.g., Aspirin"
-                    value={otcMeds} 
-                    onChange={e => setOtcMeds(e.target.value)} 
+                    value={otcMeds}
+                    onChange={e => setOtcMeds(e.target.value)}
                     style={inputStyle}
                   />
                 </div>
               </div>
 
               <div style={footerStyle}>
-                <button 
-                  type="submit" 
-                  disabled={status === 'submitting' || recordingStatus !== 'idle'} 
+                <button
+                  type="submit"
+                  disabled={status === 'submitting' || recordingStatus !== 'idle'}
                   style={{ ...submitStyle, background: illnessColor, opacity: (status === 'submitting' || recordingStatus !== 'idle') ? 0.7 : 1 }}
                 >
                   {status === 'submitting' ? 'Submitting...' : 'Submit Intake'}

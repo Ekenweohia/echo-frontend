@@ -554,7 +554,14 @@ export default function DMKManager({ openQrOnMount = false }: { openQrOnMount?: 
                   <>
                     <div style={formGroupStyle}>
                       <label style={popupLabelStyle}>Condition Name</label>
-                      <input type="text" value={formData.name || ''} onChange={e => setFormData({ ...formData, name: e.target.value })} style={popupInputStyle} required />
+                      <input type="text" value={formData.name || ''} onChange={e => setFormData({ ...formData, name: e.target.value })} style={popupInputStyle} list="conditionNames" required />
+                      <datalist id="conditionNames">
+                        <option value="Asthma" />
+                        <option value="Diabetes" />
+                        <option value="Hypertension" />
+                        <option value="Arthritis" />
+                        <option value="Heart Disease" />
+                      </datalist>
                     </div>
                     <div style={formGroupStyle}>
                       <label style={popupLabelStyle}>ICD-10 Code</label>
@@ -571,7 +578,19 @@ export default function DMKManager({ openQrOnMount = false }: { openQrOnMount?: 
                   <>
                     <div style={formGroupStyle}>
                       <label style={popupLabelStyle}>Medication Name</label>
-                      <input type="text" value={formData.name || ''} onChange={e => setFormData({ ...formData, name: e.target.value })} style={popupInputStyle} required />
+                      <input type="text" value={formData.name || ''} onChange={e => setFormData({ ...formData, name: e.target.value })} style={popupInputStyle} list="medicationNames" required />
+                      <datalist id="medicationNames">
+                        <option value="Albuterol Inhaler" />
+                        <option value="Lisinopril" />
+                        <option value="Metformin" />
+                        <option value="Amlodipine" />
+                        <option value="Levothyroxine" />
+                        <option value="Atorvastatin" />
+                        <option value="Omeprazole" />
+                        <option value="Ibuprofen" />
+                        <option value="Acetaminophen" />
+                        <option value="Aspirin" />
+                      </datalist>
                     </div>
                     <div style={popupRowStyle}>
                       <div style={formGroupStyle}>
@@ -590,7 +609,19 @@ export default function DMKManager({ openQrOnMount = false }: { openQrOnMount?: 
                   <>
                     <div style={formGroupStyle}>
                       <label style={popupLabelStyle}>Allergen Name</label>
-                      <input type="text" value={formData.allergen || ''} onChange={e => setFormData({ ...formData, allergen: e.target.value })} style={popupInputStyle} required />
+                      <input type="text" value={formData.allergen || ''} onChange={e => setFormData({ ...formData, allergen: e.target.value })} style={popupInputStyle} list="allergenNames" required />
+                      <datalist id="allergenNames">
+                        <option value="Penicillin" />
+                        <option value="Sulfa drugs" />
+                        <option value="Peanuts" />
+                        <option value="Tree nuts" />
+                        <option value="Milk" />
+                        <option value="Egg" />
+                        <option value="Wheat" />
+                        <option value="Soy" />
+                        <option value="Fish" />
+                        <option value="Shellfish" />
+                      </datalist>
                     </div>
                     <div style={formGroupStyle}>
                       <label style={popupLabelStyle}>Severity</label>
@@ -611,7 +642,17 @@ export default function DMKManager({ openQrOnMount = false }: { openQrOnMount?: 
                   <>
                     <div style={formGroupStyle}>
                       <label style={popupLabelStyle}>Vaccine</label>
-                      <input type="text" value={formData.vaccine || ''} onChange={e => setFormData({ ...formData, vaccine: e.target.value })} style={popupInputStyle} required />
+                      <input type="text" value={formData.vaccine || ''} onChange={e => setFormData({ ...formData, vaccine: e.target.value })} style={popupInputStyle} list="vaccineNames" required />
+                      <datalist id="vaccineNames">
+                        <option value="COVID-19" />
+                        <option value="Influenza (Flu)" />
+                        <option value="Hepatitis B" />
+                        <option value="Tetanus" />
+                        <option value="Measles, Mumps, Rubella (MMR)" />
+                        <option value="Polio" />
+                        <option value="Yellow Fever" />
+                        <option value="Typhoid" />
+                      </datalist>
                     </div>
                     <div style={formGroupStyle}>
                       <label style={popupLabelStyle}>Date Administered (ISO)</label>

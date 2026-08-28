@@ -180,11 +180,11 @@ export default function UnifiedDMKForm({ onClose, onSuccess }: UnifiedDMKFormPro
               <Row>
                 <Input label="Full Name" value={fullName} onChange={setFullName} />
                 <Input label="Date of Birth" type="date" value={dob} onChange={setDob} />
-                <Input label="Gender" value={gender} onChange={setGender} />
+                <Input label="Gender" value={gender} onChange={setGender} options={["Male", "Female", "Prefer not to say"]} />
               </Row>
               <Row>
-                <Input label="Marital Status" value={maritalStatus} onChange={setMaritalStatus} />
-                <Input label="Religion" value={religion} onChange={setReligion} />
+                <Input label="Marital Status" value={maritalStatus} onChange={setMaritalStatus} options={["Single", "Married", "Divorced", "Widowed"]} />
+                <Input label="Religion" value={religion} onChange={setReligion} options={["Christianity", "Islam", "Traditional", "Other", "Prefer not to say"]} />
                 <Input label="Nationality" value={nationality} onChange={setNationality} />
               </Row>
               <Row>
@@ -206,16 +206,16 @@ export default function UnifiedDMKForm({ onClose, onSuccess }: UnifiedDMKFormPro
 
             <Section title="3. Vitals & Lifestyle">
               <Row>
-                <Input label="Blood Group" placeholder="e.g. O+" value={bloodGroup} onChange={setBloodGroup} />
-                <Input label="Genotype" placeholder="e.g. AA, AS" value={genotype} onChange={setGenotype} />
+                <Input label="Blood Group" placeholder="e.g. O+" value={bloodGroup} onChange={setBloodGroup} options={["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-", "Unknown"]} />
+                <Input label="Genotype" placeholder="e.g. AA, AS" value={genotype} onChange={setGenotype} options={["AA", "AS", "SS", "AC", "SC", "Unknown"]} />
               </Row>
               <Row>
-                <Input label="Smoking Status" value={smoking} onChange={setSmoking} />
-                <Input label="Alcohol Use" value={alcohol} onChange={setAlcohol} />
+                <Input label="Smoking Status" value={smoking} onChange={setSmoking} options={["Never smoked", "Former smoker", "Current smoker (social)", "Current smoker (daily)"]} />
+                <Input label="Alcohol Use" value={alcohol} onChange={setAlcohol} options={["None", "Occasional/Social", "Moderate", "Heavy"]} />
               </Row>
               <Row>
-                <Input label="Diet" value={diet} onChange={setDiet} />
-                <Input label="Exercise Frequency" value={exerciseFreq} onChange={setExerciseFreq} />
+                <Input label="Diet" value={diet} onChange={setDiet} options={["Standard/Omnivore", "Vegetarian", "Vegan", "Keto", "Gluten-Free", "Other"]} />
+                <Input label="Exercise Frequency" value={exerciseFreq} onChange={setExerciseFreq} options={["None", "1-2 times/week", "3-4 times/week", "5+ times/week"]} />
               </Row>
               <Row>
                 <Input label="Occupation Category" value={occupationCat} onChange={setOccupationCat} />
@@ -227,15 +227,15 @@ export default function UnifiedDMKForm({ onClose, onSuccess }: UnifiedDMKFormPro
               <Row>
                 <Input label="Gravida (Pregnancies)" type="number" value={gravida} onChange={setGravida} />
                 <Input label="Para (Live Births)" type="number" value={para} onChange={setPara} />
-                <Input label="Miscarriages" type="number" value={miscarriages} onChange={setMiscarriages} />
+                <Input label="Miscarriages" type="number" value={miscarriages} onChange={setMiscarriages} options={["0", "1", "2", "3", "4", "5+"]} />
               </Row>
               <Row>
                 <Input label="Last Menstrual Period" type="date" value={lastMenstrualPeriod} onChange={setLastMenstrualPeriod} />
-                <Input label="Menstrual Regularity" value={menstrualRegularity} onChange={setMenstrualRegularity} />
+                <Input label="Menstrual Regularity" value={menstrualRegularity} onChange={setMenstrualRegularity} options={["Regular", "Irregular", "No longer menstruating"]} />
               </Row>
               <Row>
-                <Input label="Contraceptive Use" value={contraceptiveUse} onChange={setContraceptiveUse} />
-                <Input label="Menopause" value={menopause} onChange={setMenopause} />
+                <Input label="Contraceptive Use" value={contraceptiveUse} onChange={setContraceptiveUse} options={["None", "Pills", "IUD", "Implants", "Condoms", "Other"]} />
+                <Input label="Menopause" value={menopause} onChange={setMenopause} options={["Pre-menopausal", "Peri-menopausal", "Post-menopausal"]} />
               </Row>
               <Input label="OBGYN Notes" value={obgynNotes} onChange={setObgynNotes} />
             </Section>
@@ -271,7 +271,7 @@ export default function UnifiedDMKForm({ onClose, onSuccess }: UnifiedDMKFormPro
               </Row>
               <Row>
                 <Input label="Prescription Meds" value={rxMeds} onChange={setRxMeds} />
-                <Input label="OTC Meds" value={otcMeds} onChange={setOtcMeds} />
+                <Input label="Pharmacy Meds (No Prescription)" value={otcMeds} onChange={setOtcMeds} />
                 <Input label="Herbal Supplements" value={herbalMeds} onChange={setHerbalMeds} />
               </Row>
             </Section>
@@ -329,21 +329,38 @@ const Row = ({ children }: { children: React.ReactNode }) => (
   <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>{children}</div>
 );
 
-const Input = ({ label, value, onChange, type = 'text', placeholder = '' }: any) => (
-  <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flex: 1, minWidth: 200 }}>
-    <label style={{ fontSize: 12, fontWeight: 600, color: '#94a3b8' }}>{label}</label>
-    <input 
-      type={type} 
-      value={value} 
-      placeholder={placeholder}
-      onChange={(e) => onChange(e.target.value)} 
-      style={{
-        padding: '10px 12px', background: 'rgba(15, 23, 42, 0.6)', border: '1px solid #31425c', 
-        borderRadius: 8, color: '#f8fafc', fontSize: 14, outline: 'none'
-      }} 
-    />
-  </div>
-);
+const Input = ({ label, value, onChange, type = 'text', placeholder = '', options }: any) => {
+  const inputBaseStyle = {
+    padding: '10px 12px', background: 'rgba(15, 23, 42, 0.6)', border: '1px solid #31425c', 
+    borderRadius: 8, color: '#f8fafc', fontSize: 14, outline: 'none', width: '100%', boxSizing: 'border-box' as const
+  };
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flex: 1, minWidth: 200 }}>
+      <label style={{ fontSize: 12, fontWeight: 600, color: '#94a3b8' }}>{label}</label>
+      {options ? (
+        <select 
+          value={value} 
+          onChange={(e) => onChange(e.target.value)} 
+          style={inputBaseStyle}
+        >
+          <option value="">-- Select --</option>
+          {options.map((opt: string) => (
+            <option key={opt} value={opt}>{opt}</option>
+          ))}
+        </select>
+      ) : (
+        <input 
+          type={type} 
+          value={value} 
+          placeholder={placeholder}
+          onChange={(e) => onChange(e.target.value)} 
+          style={inputBaseStyle} 
+        />
+      )}
+    </div>
+  );
+};
 
 // Styles
 const overlayStyle: React.CSSProperties = { position: 'fixed', inset: 0, zIndex: 1000, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '20px', background: 'rgba(5, 14, 28, .8)', backdropFilter: 'blur(8px)' };
