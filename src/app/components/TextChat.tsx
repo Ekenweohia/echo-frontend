@@ -353,7 +353,7 @@ If a piece of information is not mentioned in the audio, leave the field empty o
 
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               <div style={formGroupStyle}>
-                <label style={labelStyle}>Chief Complaint (Main Reason for Visit)</label>
+                <label style={labelStyle}>Main Reason for Visit</label>
                 <input 
                   type="text" 
                   value={chiefComplaint} 
@@ -409,7 +409,7 @@ If a piece of information is not mentioned in the audio, leave the field empty o
               </div>
 
               <div style={formGroupStyle}>
-                <label style={labelStyle}>Symptom Group (Triage Questionnaire)</label>
+                <label style={labelStyle}>Symptom Group</label>
                 <select 
                   value={selectedSymptomGroupId} 
                   onChange={handleSymptomGroupChange}
