@@ -133,7 +133,7 @@ export default function UnifiedDMKForm({ onClose, onSuccess }: UnifiedDMKFormPro
     addStr('substanceDetails', substanceDetails); addStr('lifestyleNotes', lifestyleNotes);
 
     try {
-      const response = await apiClient('/api/medical-history', {
+      const response = await apiClient('/medical-history', {
         method: 'POST',
         body: JSON.stringify(payload)
       });
