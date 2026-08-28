@@ -434,12 +434,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     };
 
-    const publicPaths = ['/login', '/register', '/verify-email', '/forgot-password', '/reset-password', '/lobby', '/shared'];
+    const publicPaths = ['/login', '/register', '/verify-email', '/forgot-password', '/reset-password', '/lobby'];
+    const alwaysAllowedPaths = ['/shared']; // Paths anyone can view, logged in or not
+
     const isPublicPath = publicPaths.some(path => pathname?.startsWith(path));
+    const isAlwaysAllowed = alwaysAllowedPaths.some(path => pathname?.startsWith(path));
 
     if (!user) {
       // Unauthenticated users are redirected to login if trying to access private space
-      if (!isPublicPath && pathname !== '/') {
+      if (!isPublicPath && !isAlwaysAllowed && pathname !== '/') {
         router.push('/login');
       }
     } else {
