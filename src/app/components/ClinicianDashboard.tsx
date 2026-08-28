@@ -18,6 +18,7 @@ interface QueueEntry {
   priority: number;
   status: string;
   queuedAt: string;
+  formData?: any;
   session: {
     id: string;
     latitude: number;
@@ -578,6 +579,33 @@ export default function ClinicianDashboard() {
                               </li>
                             </ul>
                           </div>
+
+                          {entry.formData && (
+                            <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid var(--border-color)', width: '100%' }}>
+                              <p className={styles.sectionCaption}>DETAILED CLINICAL INTAKE (MANUAL)</p>
+                              {entry.formData.symptomGroupLabel && (
+                                <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-color)', marginBottom: '8px' }}>
+                                  Symptom Group: {entry.formData.symptomGroupLabel}
+                                </p>
+                              )}
+                              <ul className={styles.clinicalPointsList} style={{ gap: '6px' }}>
+                                {entry.formData.answers ? Object.entries(entry.formData.answers).map(([qId, val]: any) => (
+                                  <li key={qId} style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
+                                    <strong style={{ fontSize: '12px', color: 'var(--text-color)' }}>{val?.question || qId}</strong>
+                                    <span style={{ display: 'block', fontSize: '13px', color: 'var(--text-muted)' }}>{val?.answer || String(val)}</span>
+                                  </li>
+                                )) : Object.entries(entry.formData).map(([k, v]) => {
+                                  if (k === 'symptomGroup' || k === 'symptomGroupLabel') return null;
+                                  return (
+                                    <li key={k} style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
+                                      <strong style={{ fontSize: '12px', color: 'var(--text-color)' }}>{k}</strong>
+                                      <span style={{ display: 'block', fontSize: '13px', color: 'var(--text-muted)' }}>{String(v)}</span>
+                                    </li>
+                                  );
+                                })}
+                              </ul>
+                            </div>
+                          )}
 
                           <div className={styles.roomIdTag}>
                             Room ID: <strong>{entry.session.id}</strong>
