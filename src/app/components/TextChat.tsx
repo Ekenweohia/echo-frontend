@@ -1,9 +1,9 @@
 'use client';
 
-import React, { FormEvent, useCallback, useEffect, useRef, useState } from 'react';
-import Vapi from '@vapi-ai/web';
+import React, { FormEvent, useEffect, useState, useRef } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { apiClient } from '@/services/apiClient';
+import { GoogleGenAI } from '@google/genai';
 
 interface TextChatProps {
   isOpen: boolean;
@@ -14,262 +14,474 @@ interface TextChatProps {
   illnessIcon?: string;
 }
 
-interface TranscriptLine {
-  id: string;
-  speaker: 'AI' | 'USER' | 'SYSTEM';
-  text: string;
-}
+const RED_FLAGS_OPTIONS = [
+  "Very hard to wake or confused",
+  "Fits / seizure",
+  "Severe bleeding",
+  "Stiff neck",
+  "Fast breathing",
+  "Yellow eyes/skin"
+];
 
-const VAPI_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPI_PUBLIC_KEY || 'c0c5baf7-ec97-4971-b7ac-a18e9bb8db2b';
-const VAPI_ASSISTANT_ID = process.env.NEXT_PUBLIC_VAPI_ASSISTANT_ID || 'cd66b0d9-3543-4417-9f12-e1f18b67f951';
-const isBackendSession = (id: string | null) => Boolean(id && !id.startsWith('mock-') && !id.startsWith('clinician-'));
-
-function isExpectedVapiEndError(err: any) {
-  const text = typeof err === 'string'
-    ? err
-    : JSON.stringify(err ?? {});
-  return /meeting has ended|ejected|no-room|local audio level observer|worklet/i.test(text);
-}
-
-function getCurrentPosition(): Promise<{ latitude: number; longitude: number } | null> {
-  if (typeof navigator === 'undefined' || !navigator.geolocation) return Promise.resolve(null);
-
-  return new Promise((resolve) => {
-    navigator.geolocation.getCurrentPosition(
-      (position) =>
-        resolve({
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-        }),
-      () => resolve(null),
-      { enableHighAccuracy: true, timeout: 7000, maximumAge: 60_000 },
-    );
+// Helper to convert Blob to Base64
+function blobToBase64(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      if (typeof reader.result === 'string') {
+        resolve(reader.result.split(',')[1]);
+      } else {
+        reject(new Error("Failed to convert blob to base64"));
+      }
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
   });
 }
 
-export default function TextChat({ isOpen, onClose, illnessTag, illnessTitle = 'Medical Chat', illnessColor = '#00f5d4', illnessIcon = '🩺' }: TextChatProps) {
+export default function TextChat({ 
+  isOpen, 
+  onClose, 
+  illnessTitle = 'Medical Chat', 
+  illnessColor = '#00f5d4', 
+  illnessIcon = '🩺' 
+}: TextChatProps) {
   const { user, loading } = useAuth();
-  const [status, setStatus] = useState<'connecting' | 'active' | 'error'>('connecting');
-  const [input, setInput] = useState('');
-  const [transcript, setTranscript] = useState<TranscriptLine[]>([]);
-  const [sessionId, setSessionId] = useState<string | null>(null);
-  const vapiRef = useRef<Vapi | null>(null);
-  const sessionIdRef = useRef<string | null>(null);
-  const transcriptRef = useRef<TranscriptLine[]>([]);
-  const pendingUserMessagesRef = useRef<string[]>([]);
-  const startedAtRef = useRef<number | null>(null);
-  const endedRef = useRef(false);
-  const mountedRef = useRef(false);
-  const transcriptEndRef = useRef<HTMLDivElement>(null);
+  const [status, setStatus] = useState<'idle' | 'loading' | 'submitting' | 'success' | 'error'>('idle');
+  const [errorMessage, setErrorMessage] = useState('');
+  
+  // Voice Recording State
+  const [recordingStatus, setRecordingStatus] = useState<'idle' | 'recording' | 'processing'>('idle');
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  
+  // Form State
+  const [chiefComplaint, setChiefComplaint] = useState(illnessTitle);
+  const [symptomOnset, setSymptomOnset] = useState('');
+  const [duration, setDuration] = useState('');
+  const [redFlags, setRedFlags] = useState<string[]>([]);
+  
+  // Health Readings
+  const [bloodPressure, setBloodPressure] = useState('');
+  const [temperature, setTemperature] = useState('');
+  const [pulse, setPulse] = useState('');
+  
+  // DMK Prefills
+  const [drugAll, setDrugAll] = useState('');
+  const [foodAll, setFoodAll] = useState('');
+  const [rxMeds, setRxMeds] = useState('');
+  const [otcMeds, setOtcMeds] = useState('');
 
-  const addLine = useCallback((speaker: TranscriptLine['speaker'], text: string) => {
-    const line = { id: crypto.randomUUID(), speaker, text };
-    transcriptRef.current = [...transcriptRef.current, line];
-    setTranscript(transcriptRef.current);
-  }, []);
-
-  const sendToolResult = useCallback((toolCall: any, result: unknown) => {
-    vapiRef.current?.send({ type: 'add-message', message: {
-      role: 'tool', name: toolCall.function?.name, tool_call_id: toolCall.id, content: JSON.stringify(result),
-    } } as any);
-  }, []);
-
-  const handleToolCall = useCallback(async (toolCall: any) => {
-    const name = toolCall.function?.name;
-    if (name === 'get_patient_context' || name === 'get_person_details') {
-      addLine('SYSTEM', 'Syncing your medical history…');
+  // Fetch DMK to prefill
+  useEffect(() => {
+    if (!isOpen || loading || !user) return;
+    
+    setChiefComplaint(illnessTitle);
+    
+    const fetchDMK = async () => {
+      setStatus('loading');
       try {
         const response = await apiClient('/dmk/me');
-        const payload = response.ok ? await response.json() : null;
-        const dmk = payload?.success ? payload.data : null;
-        sendToolResult(toolCall, {
-          patientName: user?.fullName || 'Patient', firstName: user?.fullName?.split(' ')[0] || 'Patient',
-          activeConditions: (dmk?.conditions ?? []).map((item: any) => item.name),
-          activeMedications: (dmk?.medications ?? []).map((item: any) => [item.name, item.dosage, item.frequency].filter(Boolean).join(' ')),
-          knownAllergies: (dmk?.allergies ?? []).map((item: any) => `${item.allergen} (${item.severity}${item.reaction ? ` — ${item.reaction}` : ''})`),
-          dmkCompleteness: dmk ? 'available' : 'not_initialized',
-        });
-      } catch {
-        sendToolResult(toolCall, { error: 'Failed to retrieve patient details.' });
-      }
-      return;
-    }
-    if (name === 'flag_red_flag') addLine('SYSTEM', 'Urgent symptoms were flagged for clinical review.');
-    if (name === 'finish_intake') addLine('SYSTEM', 'Intake complete. Your triage is being prepared.');
-    sendToolResult(toolCall, { success: true, message: name === 'finish_intake' ? 'Intake finished.' : name === 'flag_red_flag' ? 'Red flag recorded.' : `Unsupported client tool: ${name || 'unknown'}` });
-  }, [addLine, sendToolResult, user]);
-
-  const endSession = useCallback(async (closeAfter: boolean) => {
-    if (endedRef.current) return;
-    endedRef.current = true;
-    const id = sessionIdRef.current;
-    if (isBackendSession(id)) {
-      const summary = transcriptRef.current.filter((line) => line.speaker !== 'SYSTEM').map((line) => `${line.speaker}: ${line.text}`).join('\n');
-      try {
-        await apiClient(`/echo-ai/sessions/${id}/end`, { method: 'POST', body: JSON.stringify({
-          durationSeconds: Math.max(1, Math.round((Date.now() - (startedAtRef.current ?? Date.now())) / 1000)),
-          rawAnalysis: { chiefComplaint: summary || illnessTitle, clinicalSummary: summary || `Echo AI text conversation about ${illnessTitle}.`, symptoms: [], redFlags: [] },
-        }) });
-      } catch { /* Preserve the locally visible transcript when offline. */ }
-    }
-    const vapi = vapiRef.current;
-    vapiRef.current = null;
-    try { vapi?.stop?.(); (vapi as any)?.destroy?.(); } catch { /* Connection already closed. */ }
-    if (closeAfter && mountedRef.current) onClose();
-  }, [illnessTag, onClose]);
-
-  useEffect(() => { transcriptEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [transcript]);
-
-  useEffect(() => {
-    if (!isOpen || loading) return;
-    if (!user) return;
-    mountedRef.current = true;
-    endedRef.current = false;
-    startedAtRef.current = Date.now();
-    sessionIdRef.current = null;
-    transcriptRef.current = [];
-    pendingUserMessagesRef.current = [];
-    setTranscript([]);
-    setSessionId(null);
-    setStatus('connecting');
-    addLine('SYSTEM', `Connecting your ${illnessTitle.toLowerCase()} text intake…`);
-
-    let cancelled = false;
-    const start = async () => {
-      let createdId = `clinician-${crypto.randomUUID()}`;
-      if (user?.role === 'PATIENT') {
-        try {
-          const coords = await getCurrentPosition();
-          const response = await apiClient('/echo-ai/sessions', {
-            method: 'POST',
-            body: JSON.stringify({
-              language: 'en',
-              isSOS: false,
-              ...(coords ? { latitude: coords.latitude, longitude: coords.longitude } : {}),
-            }),
-          });
-          const payload = await response.json().catch(() => null);
-          if (!response.ok || !payload?.success || !payload?.data?.id) throw new Error(payload?.message || 'Session creation failed');
-          createdId = payload.data.id;
-        } catch (err) {
-          addLine('SYSTEM', 'Unable to start Echo AI session. Please try again.');
-          setStatus('error');
-          return;
-        }
-      }
-      if (cancelled) {
-        if (isBackendSession(createdId)) {
-          void apiClient(`/echo-ai/sessions/${createdId}/end`, { method: 'POST', body: JSON.stringify({ durationSeconds: 1, rawAnalysis: { chiefComplaint: 'Echo AI text conversation', clinicalSummary: 'Echo AI text conversation completed.', symptoms: [], redFlags: [] } }) });
-        }
-        return;
-      }
-      sessionIdRef.current = createdId;
-      setSessionId(createdId);
-      const vapi = new Vapi(VAPI_PUBLIC_KEY);
-      vapiRef.current = vapi;
-      vapi.on('error', (err: any) => {
-        if (isExpectedVapiEndError(err)) {
-          if (mountedRef.current) {
-            setStatus('connecting');
-            addLine('SYSTEM', 'Echo AI session ended.');
-          }
-          void endSession(true);
-          return;
-        }
-        if (mountedRef.current) setStatus('error');
-      });
-      vapi.on('call-start', async () => {
-        if (cancelled || !mountedRef.current) return;
-        setStatus('active');
-        
-        // Force Vapi into a text-only mode by muting the microphone
-        try { vapi.setMuted(true); } catch (e) {}
-        
-        // Mute AI audio output to make it purely text-based
-        const muteAudio = () => {
-          document.querySelectorAll('audio').forEach(audio => {
-            audio.muted = true;
-            audio.volume = 0;
-          });
-        };
-        muteAudio();
-        
-        // Vapi might inject the audio element slightly after start, so we observe
-        const observer = new MutationObserver((mutations) => {
-          mutations.forEach((mutation) => {
-            if (mutation.addedNodes) {
-              muteAudio();
+        if (response.ok) {
+          const payload = await response.json();
+          const dmk = payload?.data;
+          if (dmk) {
+            if (dmk.allergies && dmk.allergies.length > 0) {
+              // Pre-fill all existing allergies into drugAll for simplicity (user can separate them)
+              setDrugAll(dmk.allergies.map((a: any) => a.allergen || a.name).join(', '));
             }
-          });
-        });
-        observer.observe(document.body, { childList: true, subtree: true });
-        
-        // Clean up observer when call ends
-        vapi.on('call-end', () => observer.disconnect());
-
-      });
-      vapi.on('call-end', () => { void endSession(false); });
-      vapi.on('message', (message: any) => {
-        if (cancelled || !mountedRef.current) return;
-        if (message.type === 'transcript' && message.transcriptType === 'final' && message.transcript) {
-          if (message.role !== 'assistant') {
-            const duplicateIndex = pendingUserMessagesRef.current.indexOf(message.transcript);
-            if (duplicateIndex >= 0) {
-              pendingUserMessagesRef.current.splice(duplicateIndex, 1);
-              return;
+            if (dmk.medications && dmk.medications.length > 0) {
+              // Pre-fill all existing medications into rxMeds
+              setRxMeds(dmk.medications.map((m: any) => m.name).join(', '));
             }
           }
-          addLine(message.role === 'assistant' ? 'AI' : 'USER', message.transcript);
         }
-        if (message.type === 'tool-calls') for (const toolCall of message.toolCallList || []) void handleToolCall(toolCall);
-      });
-      try {
-        await vapi.start(VAPI_ASSISTANT_ID, { metadata: { patientId: user?.id || '' }, variableValues: {
-          personIdentifier: user?.phone || user?.email || user?.id || 'unknown',
-          identifierType: user?.phone ? 'phone' : user?.email ? 'email' : user?.id ? 'customer_id' : 'unknown',
-          patientName: user?.fullName || 'Patient', illnessTag, illnessTitle,
-        } });
       } catch (err) {
-        if (isExpectedVapiEndError(err)) {
-          void endSession(false);
-          return;
-        }
-        if (!cancelled && mountedRef.current) { setStatus('error'); addLine('SYSTEM', 'Unable to connect to Echo AI. Please try again.'); }
+        console.error("Error fetching DMK:", err);
+      } finally {
+        setStatus('idle');
       }
     };
-    void start();
-    return () => { cancelled = true; mountedRef.current = false; void endSession(false); };
-  }, [addLine, endSession, handleToolCall, illnessTag, illnessTitle, isOpen, loading, user]);
+    
+    fetchDMK();
+  }, [isOpen, loading, user, illnessTitle]);
 
-  const sendMessage = (event: FormEvent) => {
-    event.preventDefault();
-    const text = input.trim();
-    if (!text || status !== 'active' || !vapiRef.current) return;
-    vapiRef.current.send({ type: 'add-message', message: { role: 'user', content: text } } as any);
-    pendingUserMessagesRef.current.push(text);
-    addLine('USER', text);
-    setInput('');
+  const handleRedFlagToggle = (flag: string) => {
+    setRedFlags(prev => 
+      prev.includes(flag) ? prev.filter(f => f !== flag) : [...prev, flag]
+    );
+  };
+
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+      audioChunksRef.current = [];
+
+      mediaRecorder.addEventListener("dataavailable", event => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      });
+
+      mediaRecorder.addEventListener("stop", async () => {
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        await processVoiceIntake(audioBlob);
+        
+        // Stop all tracks to release microphone
+        stream.getTracks().forEach(track => track.stop());
+      });
+
+      mediaRecorder.start();
+      setRecordingStatus('recording');
+    } catch (err) {
+      console.error("Microphone access denied or error", err);
+      setErrorMessage("Could not access microphone.");
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && recordingStatus === 'recording') {
+      mediaRecorderRef.current.stop();
+      setRecordingStatus('processing');
+    }
+  };
+
+  const processVoiceIntake = async (audioBlob: Blob) => {
+    try {
+      const base64Audio = await blobToBase64(audioBlob);
+      const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+      
+      if (!apiKey) {
+        throw new Error("Missing NEXT_PUBLIC_GEMINI_API_KEY in environment variables.");
+      }
+
+      const ai = new GoogleGenAI({ apiKey });
+
+      const response = await ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: [
+          {
+            inlineData: {
+              data: base64Audio,
+              mimeType: 'audio/webm'
+            }
+          },
+          "Extract the clinical intake information from this audio."
+        ],
+        config: {
+          responseMimeType: "application/json",
+          systemInstruction: `You are an expert clinical triage assistant.
+Listen to the patient's audio recording and extract their clinical intake information.
+Output ONLY a raw JSON object with the following structure:
+{
+  "chiefComplaint": "string",
+  "symptomOnset": "string",
+  "duration": "string",
+  "redFlags": ["array of matching warning signs"],
+  "healthReadings": { "bloodPressure": "string", "temperature": "string", "pulse": "string" },
+  "drugAll": ["array of drug allergies"],
+  "foodAll": ["array of food allergies"],
+  "rxMeds": ["array of prescription medications"],
+  "otcMeds": ["array of over-the-counter medications"]
+}
+If a piece of information is not mentioned in the audio, leave the field empty or omit it.`
+        }
+      });
+
+      if (response.text) {
+        const intakeData = JSON.parse(response.text);
+        
+        // Populate fields if present
+        if (intakeData.chiefComplaint) setChiefComplaint(intakeData.chiefComplaint);
+        if (intakeData.symptomOnset) setSymptomOnset(intakeData.symptomOnset);
+        if (intakeData.duration) setDuration(intakeData.duration);
+        if (intakeData.drugAll && Array.isArray(intakeData.drugAll)) setDrugAll(intakeData.drugAll.join(', '));
+        if (intakeData.foodAll && Array.isArray(intakeData.foodAll)) setFoodAll(intakeData.foodAll.join(', '));
+        if (intakeData.rxMeds && Array.isArray(intakeData.rxMeds)) setRxMeds(intakeData.rxMeds.join(', '));
+        if (intakeData.otcMeds && Array.isArray(intakeData.otcMeds)) setOtcMeds(intakeData.otcMeds.join(', '));
+        
+        if (intakeData.healthReadings) {
+          if (intakeData.healthReadings.bloodPressure) setBloodPressure(intakeData.healthReadings.bloodPressure);
+          if (intakeData.healthReadings.temperature) setTemperature(intakeData.healthReadings.temperature);
+          if (intakeData.healthReadings.pulse) setPulse(intakeData.healthReadings.pulse);
+        }
+
+        if (Array.isArray(intakeData.redFlags)) {
+          // Only add valid red flags
+          const validFlags = intakeData.redFlags.filter((flag: string) => RED_FLAGS_OPTIONS.includes(flag));
+          setRedFlags(prev => Array.from(new Set([...prev, ...validFlags])));
+        }
+      }
+      
+    } catch (err: any) {
+      console.error("Error processing voice intake:", err);
+      setErrorMessage(err.message || "Failed to process voice intake.");
+    } finally {
+      setRecordingStatus('idle');
+    }
+  };
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (status === 'submitting') return;
+    
+    setStatus('submitting');
+    setErrorMessage('');
+    
+    const payload = {
+      chiefComplaint,
+      symptomOnset: symptomOnset || undefined,
+      duration: duration || undefined,
+      redFlags: redFlags.length > 0 ? redFlags : undefined,
+      healthReadings: (bloodPressure || temperature || pulse) ? {
+        ...(bloodPressure ? { bloodPressure } : {}),
+        ...(temperature ? { temperature } : {}),
+        ...(pulse ? { pulse } : {})
+      } : undefined,
+      drugAll: drugAll ? drugAll.split(',').map(s => s.trim()).filter(Boolean) : undefined,
+      foodAll: foodAll ? foodAll.split(',').map(s => s.trim()).filter(Boolean) : undefined,
+      rxMeds: rxMeds ? rxMeds.split(',').map(s => s.trim()).filter(Boolean) : undefined,
+      otcMeds: otcMeds ? otcMeds.split(',').map(s => s.trim()).filter(Boolean) : undefined
+    };
+
+    try {
+      const response = await apiClient('/echo-ai/manual-intake', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      });
+      
+      const result = await response.json().catch(() => null);
+      if (response.ok && result?.success) {
+        setStatus('success');
+        setTimeout(() => {
+          onClose();
+          setStatus('idle');
+          setRedFlags([]);
+          setSymptomOnset('');
+          setDuration('');
+          setBloodPressure('');
+          setTemperature('');
+          setPulse('');
+        }, 2000);
+      } else {
+        throw new Error(result?.message || 'Failed to submit intake form');
+      }
+    } catch (err: any) {
+      setStatus('error');
+      setErrorMessage(err.message || 'An error occurred while submitting.');
+    }
   };
 
   if (!isOpen) return null;
-  return <div style={overlayStyle} role="dialog" aria-modal="true" aria-label={`${illnessTitle} text chat`}>
-    <section style={modalStyle}>
-      <header style={headerStyle}><div><div style={{ color: illnessColor, fontSize: 13, fontWeight: 700 }}>{illnessIcon} ECHO AI · TEXT INTAKE</div><h2 style={{ margin: '5px 0 0', fontSize: 20 }}>{illnessTitle}</h2></div><button type="button" onClick={() => void endSession(true)} style={closeStyle} aria-label="End text intake">×</button></header>
-      <div style={{ ...statusStyle, color: status === 'error' ? '#fca5a5' : illnessColor }}>{status === 'active' ? 'Connected' : status === 'error' ? 'Connection problem' : 'Connecting securely…'}{sessionId && ' · Session active'}</div>
-      <main style={messagesStyle} aria-live="polite">{transcript.map((line) => <div key={line.id} style={messageStyle(line.speaker, illnessColor)}>{line.speaker !== 'SYSTEM' && <span style={speakerStyle}>{line.speaker === 'AI' ? 'Echo AI' : 'You'}</span>}{line.text}</div>)}<div ref={transcriptEndRef} /></main>
-      <form onSubmit={sendMessage} style={composerStyle}><input value={input} onChange={(event) => setInput(event.target.value)} disabled={status !== 'active'} placeholder={status === 'active' ? 'Describe how you feel…' : 'Waiting for a secure connection…'} style={inputStyle} /><button type="submit" disabled={!input.trim() || status !== 'active'} style={{ ...sendStyle, background: illnessColor }}>Send</button></form>
-    </section>
-  </div>;
+
+  return (
+    <div style={overlayStyle} role="dialog" aria-modal="true" aria-label={`${illnessTitle} Intake Form`}>
+      <section style={modalStyle}>
+        <header style={headerStyle}>
+          <div>
+            <div style={{ color: illnessColor, fontSize: 13, fontWeight: 700 }}>
+              {illnessIcon} CLINICAL INTAKE
+            </div>
+            <h2 style={{ margin: '5px 0 0', fontSize: 20 }}>{illnessTitle}</h2>
+          </div>
+          <button type="button" onClick={onClose} style={closeStyle} aria-label="Close intake">×</button>
+        </header>
+
+        {status === 'success' ? (
+          <div style={successStateStyle}>
+            <div style={{ fontSize: 48, marginBottom: 16 }}>✅</div>
+            <h3 style={{ margin: '0 0 8px' }}>Intake Submitted</h3>
+            <p style={{ margin: 0, color: '#94a3b8' }}>Your triage is being prepared.</p>
+          </div>
+        ) : (
+          <div style={formStyle}>
+            {status === 'error' && (
+              <div style={errorBannerStyle}>{errorMessage}</div>
+            )}
+            
+            <div style={voiceSectionStyle}>
+              <div style={{ flex: 1 }}>
+                <h4 style={{ margin: '0 0 4px', fontSize: 14 }}>Voice Intake</h4>
+                <p style={{ margin: 0, fontSize: 12, color: '#94a3b8' }}>Speak your symptoms and we'll automatically fill the form.</p>
+              </div>
+              <button 
+                type="button" 
+                onClick={recordingStatus === 'recording' ? stopRecording : startRecording}
+                disabled={recordingStatus === 'processing'}
+                style={{
+                  ...recordButtonStyle,
+                  background: recordingStatus === 'recording' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(15, 23, 42, 0.6)',
+                  color: recordingStatus === 'recording' ? '#ef4444' : '#94a3b8',
+                  borderColor: recordingStatus === 'recording' ? '#ef4444' : '#31425c',
+                }}
+              >
+                {recordingStatus === 'recording' ? 'Stop Recording 🛑' : recordingStatus === 'processing' ? 'Processing...' : 'Record 🎤'}
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              <div style={formGroupStyle}>
+                <label style={labelStyle}>Chief Complaint (Main Reason for Visit)</label>
+                <input 
+                  type="text" 
+                  value={chiefComplaint} 
+                  onChange={e => setChiefComplaint(e.target.value)} 
+                  required
+                  style={inputStyle}
+                />
+              </div>
+
+              <div style={rowStyle}>
+                <div style={formGroupStyle}>
+                  <label style={labelStyle}>Symptom Onset</label>
+                  <input 
+                    type="text" 
+                    placeholder="e.g., Today, 3 days ago" 
+                    value={symptomOnset} 
+                    onChange={e => setSymptomOnset(e.target.value)} 
+                    style={inputStyle}
+                  />
+                </div>
+                <div style={formGroupStyle}>
+                  <label style={labelStyle}>Duration</label>
+                  <input 
+                    type="text" 
+                    placeholder="e.g., 1 to 10 days" 
+                    value={duration} 
+                    onChange={e => setDuration(e.target.value)} 
+                    style={inputStyle}
+                  />
+                </div>
+              </div>
+
+              <div style={formGroupStyle}>
+                <label style={labelStyle}>Health Readings (Optional)</label>
+                <div style={rowStyle}>
+                  <input 
+                    type="text" 
+                    placeholder="BP (e.g. 120/80)" 
+                    value={bloodPressure} 
+                    onChange={e => setBloodPressure(e.target.value)} 
+                    style={inputStyle}
+                  />
+                  <input 
+                    type="text" 
+                    placeholder="Temp (e.g. 38.5 C)" 
+                    value={temperature} 
+                    onChange={e => setTemperature(e.target.value)} 
+                    style={inputStyle}
+                  />
+                  <input 
+                    type="text" 
+                    placeholder="Pulse (e.g. 90)" 
+                    value={pulse} 
+                    onChange={e => setPulse(e.target.value)} 
+                    style={inputStyle}
+                  />
+                </div>
+              </div>
+
+              <div style={formGroupStyle}>
+                <label style={labelStyle}>Warning Signs (Select any that apply)</label>
+                <div style={checkboxGroupStyle}>
+                  {RED_FLAGS_OPTIONS.map(flag => (
+                    <label key={flag} style={checkboxLabelStyle}>
+                      <input 
+                        type="checkbox"
+                        checked={redFlags.includes(flag)}
+                        onChange={() => handleRedFlagToggle(flag)}
+                        style={{ marginRight: 8, accentColor: illnessColor }}
+                      />
+                      {flag}
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div style={rowStyle}>
+                <div style={formGroupStyle}>
+                  <label style={labelStyle}>Drug Allergies</label>
+                  <input 
+                    type="text" 
+                    placeholder="e.g., Penicillin"
+                    value={drugAll} 
+                    onChange={e => setDrugAll(e.target.value)} 
+                    style={inputStyle}
+                  />
+                </div>
+                <div style={formGroupStyle}>
+                  <label style={labelStyle}>Food Allergies</label>
+                  <input 
+                    type="text" 
+                    placeholder="e.g., Peanuts"
+                    value={foodAll} 
+                    onChange={e => setFoodAll(e.target.value)} 
+                    style={inputStyle}
+                  />
+                </div>
+              </div>
+              <div style={rowStyle}>
+                <div style={formGroupStyle}>
+                  <label style={labelStyle}>Prescription Meds</label>
+                  <input 
+                    type="text" 
+                    placeholder="e.g., Lisinopril"
+                    value={rxMeds} 
+                    onChange={e => setRxMeds(e.target.value)} 
+                    style={inputStyle}
+                  />
+                </div>
+                <div style={formGroupStyle}>
+                  <label style={labelStyle}>OTC Meds</label>
+                  <input 
+                    type="text" 
+                    placeholder="e.g., Aspirin"
+                    value={otcMeds} 
+                    onChange={e => setOtcMeds(e.target.value)} 
+                    style={inputStyle}
+                  />
+                </div>
+              </div>
+
+              <div style={footerStyle}>
+                <button 
+                  type="submit" 
+                  disabled={status === 'submitting' || recordingStatus !== 'idle'} 
+                  style={{ ...submitStyle, background: illnessColor, opacity: (status === 'submitting' || recordingStatus !== 'idle') ? 0.7 : 1 }}
+                >
+                  {status === 'submitting' ? 'Submitting...' : 'Submit Intake'}
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+      </section>
+    </div>
+  );
 }
 
+// Styles
 const overlayStyle: React.CSSProperties = { position: 'fixed', inset: 0, zIndex: 1000, display: 'grid', placeItems: 'center', padding: 20, background: 'rgba(5, 14, 28, .72)', backdropFilter: 'blur(8px)' };
-const modalStyle: React.CSSProperties = { width: 'min(680px, 100%)', height: 'min(720px, calc(100vh - 40px))', display: 'flex', flexDirection: 'column', overflow: 'hidden', color: '#eff6ff', background: '#0b1628', border: '1px solid rgba(147, 197, 253, .24)', borderRadius: 20, boxShadow: '0 28px 80px rgba(0,0,0,.45)' };
-const headerStyle: React.CSSProperties = { display: 'flex', alignItems: 'start', justifyContent: 'space-between', padding: '22px 24px 16px', borderBottom: '1px solid rgba(147, 197, 253, .14)' };
+const modalStyle: React.CSSProperties = { width: 'min(680px, 100%)', maxHeight: 'calc(100vh - 40px)', display: 'flex', flexDirection: 'column', overflow: 'hidden', color: '#eff6ff', background: '#0b1628', border: '1px solid rgba(147, 197, 253, .24)', borderRadius: 20, boxShadow: '0 28px 80px rgba(0,0,0,.45)' };
+const headerStyle: React.CSSProperties = { display: 'flex', alignItems: 'start', justifyContent: 'space-between', padding: '22px 24px 16px', borderBottom: '1px solid rgba(147, 197, 253, .14)', flexShrink: 0 };
 const closeStyle: React.CSSProperties = { border: 0, color: '#cbd5e1', background: 'transparent', cursor: 'pointer', fontSize: 28, lineHeight: 1 };
-const statusStyle: React.CSSProperties = { padding: '9px 24px', fontSize: 12, background: 'rgba(15, 23, 42, .7)' };
-const messagesStyle: React.CSSProperties = { flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 12, padding: 24 };
-const messageStyle = (speaker: TranscriptLine['speaker'], color: string): React.CSSProperties => ({ alignSelf: speaker === 'USER' ? 'flex-end' : 'flex-start', maxWidth: speaker === 'SYSTEM' ? '100%' : '82%', padding: speaker === 'SYSTEM' ? '2px 4px' : '12px 14px', color: speaker === 'SYSTEM' ? '#94a3b8' : '#f8fafc', background: speaker === 'USER' ? color : speaker === 'AI' ? '#17243a' : 'transparent', borderRadius: speaker === 'USER' ? '16px 16px 4px 16px' : '16px 16px 16px 4px', fontSize: 14, lineHeight: 1.5 });
-const speakerStyle: React.CSSProperties = { display: 'block', marginBottom: 4, color: '#93c5fd', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.05em' };
-const composerStyle: React.CSSProperties = { display: 'flex', gap: 10, padding: 18, borderTop: '1px solid rgba(147, 197, 253, .14)' };
-const inputStyle: React.CSSProperties = { minWidth: 0, flex: 1, padding: '12px 14px', color: '#f8fafc', background: '#101d31', border: '1px solid #31425c', borderRadius: 10, outline: 'none' };
-const sendStyle: React.CSSProperties = { padding: '0 18px', color: '#fff', border: 0, borderRadius: 10, cursor: 'pointer', fontWeight: 700 };
+
+const formStyle: React.CSSProperties = { padding: '24px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '20px' };
+const formGroupStyle: React.CSSProperties = { display: 'flex', flexDirection: 'column', gap: '8px', flex: 1 };
+const rowStyle: React.CSSProperties = { display: 'flex', gap: '16px', flexWrap: 'wrap' };
+const labelStyle: React.CSSProperties = { fontSize: '13px', fontWeight: 600, color: '#94a3b8' };
+const inputStyle: React.CSSProperties = { padding: '12px 14px', color: '#f8fafc', background: '#101d31', border: '1px solid #31425c', borderRadius: 10, outline: 'none', width: '100%', boxSizing: 'border-box' };
+
+const checkboxGroupStyle: React.CSSProperties = { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '10px' };
+const checkboxLabelStyle: React.CSSProperties = { display: 'flex', alignItems: 'center', fontSize: '14px', color: '#e2e8f0', cursor: 'pointer' };
+
+const footerStyle: React.CSSProperties = { display: 'flex', justifyContent: 'flex-end', paddingTop: '16px', borderTop: '1px solid rgba(147, 197, 253, .14)', marginTop: '8px' };
+const submitStyle: React.CSSProperties = { padding: '12px 24px', color: '#0b1628', border: 0, borderRadius: 10, cursor: 'pointer', fontWeight: 700, fontSize: '15px' };
+
+const errorBannerStyle: React.CSSProperties = { background: 'rgba(239, 68, 68, 0.1)', color: '#fca5a5', padding: '12px', borderRadius: '8px', border: '1px solid rgba(239, 68, 68, 0.2)', fontSize: '14px', marginBottom: 16 };
+const successStateStyle: React.CSSProperties = { padding: '60px 24px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', flex: 1 };
+
+const voiceSectionStyle: React.CSSProperties = { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px', background: 'rgba(15, 23, 42, 0.4)', border: '1px solid #31425c', borderRadius: '12px' };
+const recordButtonStyle: React.CSSProperties = { padding: '8px 16px', border: '1px solid', borderRadius: '20px', cursor: 'pointer', fontWeight: 600, fontSize: '13px', transition: 'all 0.2s ease' };

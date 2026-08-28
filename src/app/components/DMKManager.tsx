@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import QRCode from 'react-qr-code';
 import { apiClient } from '@/services/apiClient';
+import UnifiedDMKForm from './UnifiedDMKForm';
 
 // --- INTERFACES ---
 interface Condition {
@@ -90,6 +91,7 @@ export default function DMKManager({ openQrOnMount = false }: { openQrOnMount?: 
   const [editItem, setEditItem] = useState<any>(null); // For generic editing
 
   const [showQrModal, setShowQrModal] = useState(false);
+  const [showUnifiedForm, setShowUnifiedForm] = useState(false);
   const [shareToken, setShareToken] = useState<string | null>(null);
   const [shareTokenId, setShareTokenId] = useState<string | null>(null);
   const qrOpened = useRef(false);
@@ -323,8 +325,8 @@ export default function DMKManager({ openQrOnMount = false }: { openQrOnMount?: 
           <p style={dmkSubtitleStyle}>Active health registry & emergency vitals</p>
         </div>
         <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-          <button onClick={() => openForm('vitals')} className="ee-shimmer-button" style={actionBtnStyle}>
-            Update Demographics & Vitals
+          <button onClick={() => setShowUnifiedForm(true)} className="ee-shimmer-button" style={actionBtnStyle}>
+            Update Comprehensive Profile
           </button>
           <button onClick={handleGenerateShareToken} className="ee-shimmer-button" style={actionBtnStyle}>
             Emergency Share QR
@@ -667,6 +669,16 @@ export default function DMKManager({ openQrOnMount = false }: { openQrOnMount?: 
             <button onClick={handleRevokeToken} style={revokeBtnStyle}>Close & Revoke</button>
           </div>
         </div>
+      )}
+
+      {/* Unified Form */}
+      {showUnifiedForm && (
+        <UnifiedDMKForm 
+          onClose={() => setShowUnifiedForm(false)} 
+          onSuccess={() => {
+            fetchDMK(); // Reload after save
+          }} 
+        />
       )}
 
     </div>

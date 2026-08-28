@@ -12,6 +12,8 @@ import EchoHistory from './EchoHistory';
 import NotificationHub from './NotificationHub';
 import TextChat from './TextChat';
 import IllnessCardGrid, { type IllnessItem } from './IllnessCardGrid';
+import SOSWaitingRoom from './SOSWaitingRoom';
+import VideoRoom from './VideoRoom';
 import styles from './Dashboard.module.css';
 
 type Tab = 'overview' | 'consultations' | 'records' | 'wallet' | 'qr' | 'notifications';
@@ -29,6 +31,10 @@ export default function Dashboard() {
   const [isSosCall, setIsSosCall] = useState(false);
   const [textChatOpen, setTextChatOpen] = useState(false);
   const [selectedIllness, setSelectedIllness] = useState<IllnessItem | null>(null);
+  
+  const [showSosWaitingRoom, setShowSosWaitingRoom] = useState(false);
+  const [activeConsultationId, setActiveConsultationId] = useState<string | null>(null);
+
   const [unreadMessages, setUnreadMessages] = useState(0);
   const [profileDetail, setProfileDetail] = useState<{ dateOfBirth?: string; gender?: string; address?: string }>({
     dateOfBirth: '1990-05-15', gender: 'FEMALE', address: '123 Main St, Lagos, Nigeria',
@@ -54,7 +60,15 @@ export default function Dashboard() {
   }, []);
 
   const openTab = (tab: Tab) => { setActiveTab(tab); setSidebarOpen(false); };
-  const startVoiceChat = (sos = false) => { setIsSosCall(sos); setVoiceChatOpen(true); };
+  const startVoiceChat = (isSos = false) => {
+    setIsSosCall(isSos);
+    setVoiceChatOpen(true);
+  };
+
+  const startSOSFlow = () => {
+    setShowSosWaitingRoom(true);
+  };
+
   const toggleTheme = () => { const nextTheme = theme === 'dark' ? 'light' : 'dark'; setTheme(nextTheme); document.documentElement.setAttribute('data-theme', nextTheme); localStorage.setItem('theme', nextTheme); };
   const firstName = user?.fullName?.split(' ')[0] || 'there';
 
@@ -71,21 +85,38 @@ export default function Dashboard() {
       <header className={styles.header}><button className={styles.menuButton} onClick={() => setSidebarOpen(true)} aria-label="Open menu">☰</button><div className={styles.mobileBrand}>Emergency <b>Echo</b></div><div className={styles.headerActions}><button className={styles.iconButton} onClick={toggleTheme} aria-label="Toggle colour theme">{theme === 'dark' ? '☀' : '◐'}</button><button className={styles.avatar} onClick={() => openTab('records')} aria-label="Open profile">{user?.fullName?.slice(0, 2).toUpperCase() || 'ME'}</button></div></header>
       <main className={styles.main}>
         {activeTab === 'overview' && <section className={styles.overview}>
-          <div className={styles.hero}><div><p className={styles.eyebrow}><span /> Your care space is active</p><h1>Good to see you, <em>{firstName}.</em></h1><p className={styles.heroCopy}>Start with Echo AI for guidance, or connect with a clinician when you need to.</p>{profileDetail && <div className={styles.profileMeta}><span>DOB: {profileDetail.dateOfBirth}</span><span>{profileDetail.gender}</span><span>{profileDetail.address?.split(',')[0]}</span></div>}</div><div className={styles.heroActions}><button className={`${styles.primaryAction} ee-shimmer-button`} onClick={() => startVoiceChat(false)}><span>◌</span> Talk to Echo</button><button className={`${styles.sosAction} ee-shimmer-button`} onClick={() => startVoiceChat(true)}><span>+</span> SOS</button></div></div>
+          <div className={styles.hero}><div><p className={styles.eyebrow}><span /> Your care space is active</p><h1>Good to see you, <em>{firstName}.</em></h1><p className={styles.heroCopy}>Start with Echo AI for guidance, or connect with a clinician when you need to.</p>{profileDetail && <div className={styles.profileMeta}><span>DOB: {profileDetail.dateOfBirth}</span><span>{profileDetail.gender}</span><span>{profileDetail.address?.split(',')[0]}</span></div>}</div><div className={styles.heroActions}><button className={`${styles.primaryAction} ee-shimmer-button`} onClick={() => startVoiceChat(false)}><span>◌</span> Talk to Echo</button><button className={`${styles.sosAction} ee-shimmer-button`} onClick={startSOSFlow}><span>+</span> SOS</button></div></div>
           <div className={styles.statusRow}><div className={styles.statusItem}><i>✦</i><div><strong>Echo AI is ready</strong><small>Private triage, whenever you need it</small></div></div><button className={styles.statusItem} onClick={() => openTab('notifications')}><i className={styles.blueIcon}>◔</i><div><strong>{unreadMessages ? `${unreadMessages} new update${unreadMessages > 1 ? 's' : ''}` : 'You are all caught up'}</strong><small>View care updates</small></div><b>›</b></button></div>
           <section className={styles.voiceCard}><div className={styles.voiceGlow} /><div className={styles.voiceCopy}><p className={styles.eyebrow}>Voice care</p><h2>Tell Echo what’s going on.</h2><p>Speak naturally and get the right next step for your care.</p></div><button className={`${styles.voiceButton} ee-shimmer-button`} onClick={() => startVoiceChat(false)} aria-label="Start a voice consultation"><span>⌁</span></button><button className={`${styles.voiceTextAction} ee-shimmer-button`} onClick={() => startVoiceChat(false)}>Start voice check-in <b>→</b></button></section>
           <section className={styles.categories}><div className={styles.sectionHeading}><div><p className={styles.eyebrow}>Quick help</p><h2>Choose a health concern</h2></div><span>Echo AI</span></div><IllnessCardGrid onSelectIllness={(item) => { setSelectedIllness(item); setTextChatOpen(true); }} /></section>
         </section>}
         {activeTab === 'consultations' && <Workspace title="Your Echo care" onBack={() => openTab('overview')}><ConsultationManager /></Workspace>}
-        {activeTab === 'records' && <Workspace title="My health" onBack={() => openTab('overview')}><EchoHistory /><ConsultationHistory /><DMKManager /></Workspace>}
+        {activeTab === 'records' && <Workspace title="My health" onBack={() => openTab('overview')}><DMKManager /></Workspace>}
         {activeTab === 'wallet' && <Workspace title="Wallet & billing" onBack={() => openTab('overview')}><BillingPanel /></Workspace>}
         {activeTab === 'qr' && <Workspace title="Digital QR Code" onBack={() => openTab('overview')}><DMKManager openQrOnMount /></Workspace>}
         {activeTab === 'notifications' && <Workspace title="Care updates" onBack={() => openTab('overview')}><NotificationHub /></Workspace>}
       </main>
     </div>
-    <nav className={styles.mobileNav} aria-label="Patient navigation">{navItems.filter((item) => item.id !== 'qr').map((item) => <button key={item.id} className={activeTab === item.id ? styles.mobileNavActive : ''} onClick={() => openTab(item.id)}><i>{item.icon}</i><span>{item.label}</span></button>)}<button className={styles.mobileSos} onClick={() => startVoiceChat(true)} aria-label="Start emergency SOS">+</button></nav>
+    <nav className={styles.mobileNav} aria-label="Patient navigation">{navItems.filter((item) => item.id !== 'qr').map((item) => <button key={item.id} className={activeTab === item.id ? styles.mobileNavActive : ''} onClick={() => openTab(item.id)}><i>{item.icon}</i><span>{item.label}</span></button>)}<button className={styles.mobileSos} onClick={startSOSFlow} aria-label="Start emergency SOS">+</button></nav>
     <JarvisVoiceChat isOpen={voiceChatOpen} onClose={() => setVoiceChatOpen(false)} isSOSMode={isSosCall} />
     {selectedIllness && <TextChat isOpen={textChatOpen} onClose={() => setTextChatOpen(false)} illnessTag={selectedIllness.tag} illnessTitle={selectedIllness.title} illnessColor={selectedIllness.color} illnessIcon={selectedIllness.icon} />}
+    
+    {showSosWaitingRoom && (
+      <SOSWaitingRoom 
+        onDoctorJoined={(consultationId) => {
+          setShowSosWaitingRoom(false);
+          setActiveConsultationId(consultationId);
+        }}
+        onCancel={() => setShowSosWaitingRoom(false)}
+      />
+    )}
+
+    {activeConsultationId && (
+       <div style={{ position: 'fixed', inset: 0, zIndex: 10000, background: '#000' }}>
+          <VideoRoom consultationId={activeConsultationId} onClose={() => setActiveConsultationId(null)} />
+       </div>
+    )}
+
   </div>;
 }
 

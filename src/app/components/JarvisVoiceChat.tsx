@@ -133,13 +133,16 @@ export default function JarvisVoiceChat({ isOpen, onClose, isSOSMode = false }: 
       try {
         const coords = isSOSMode ? await getCurrentPosition() : null;
 
-        const response = await apiClient('/echo-ai/sessions', {
+        const endpoint = isSOSMode ? '/echo-ai/sos' : '/echo-ai/sessions';
+        const body = isSOSMode ? undefined : JSON.stringify({
+          language: 'en',
+          isSOS: false,
+          ...(coords ? { latitude: coords.latitude, longitude: coords.longitude } : {})
+        });
+
+        const response = await apiClient(endpoint, {
           method: 'POST',
-          body: JSON.stringify({
-            language: 'en',
-            isSOS: isSOSMode,
-            ...(coords ? { latitude: coords.latitude, longitude: coords.longitude } : {})
-          })
+          ...(body ? { body } : {})
         });
 
         const json = await response.json().catch(() => null);
@@ -187,7 +190,7 @@ export default function JarvisVoiceChat({ isOpen, onClose, isSOSMode = false }: 
         // Bind Vapi Error Listener FIRST
         vapi.on('error', (err: any) => {
           const errMsg = err?.message || (typeof err === 'object' && Object.keys(err).length ? JSON.stringify(err) : String(err));
-          console.error('[Vapi] WebRTC connection error. Details:', errMsg);
+          
           if (isExpectedVapiEndError(errMsg)) {
             if (isMountedRef.current) {
               setStatusText('Echo AI session ended');
@@ -195,6 +198,9 @@ export default function JarvisVoiceChat({ isOpen, onClose, isSOSMode = false }: 
             }
             return;
           }
+          
+          console.error('[Vapi] WebRTC connection error. Details:', errMsg);
+          
           if (isMountedRef.current) {
             setStatusText('Echo AI Connection Failed');
           }
