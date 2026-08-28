@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import QRCode from 'react-qr-code';
 import { apiClient } from '@/services/apiClient';
 import UnifiedDMKForm from './UnifiedDMKForm';
+import echoaiFormData from '@/app/data/echoai_form_data.json';
 
 // --- INTERFACES ---
 interface Condition {
@@ -556,11 +557,9 @@ export default function DMKManager({ openQrOnMount = false }: { openQrOnMount?: 
                       <label style={popupLabelStyle}>Condition Name</label>
                       <input type="text" value={formData.name || ''} onChange={e => setFormData({ ...formData, name: e.target.value })} style={popupInputStyle} list="conditionNames" required />
                       <datalist id="conditionNames">
-                        <option value="Asthma" />
-                        <option value="Diabetes" />
-                        <option value="Hypertension" />
-                        <option value="Arthritis" />
-                        <option value="Heart Disease" />
+                        {echoaiFormData.symptomGroups.map((g) => (
+                          <option key={g.id} value={g.label} />
+                        ))}
                       </datalist>
                     </div>
                     <div style={formGroupStyle}>

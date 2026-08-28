@@ -522,16 +522,54 @@ export default function ClinicianDashboard() {
                       return str;
                     };
 
-                    const rawSummary = entry.session.clinicalIntake?.clinicalSummary || entry.session.clinicalIntake?.chiefComplaint || 'Patient requested video consultation.';
+                    let rawSummary = entry.session.clinicalIntake?.clinicalSummary || entry.session.clinicalIntake?.chiefComplaint || 'Patient requested video consultation.';
+                    let rawDiagnosis = entry.session.patient.probableDiagnosis || entry.session.triageResult?.decision || entry.session.clinicalIntake?.chiefComplaint || 'General Diagnostic Review';
+                    let rawFindings = entry.session.patient.supportiveFindings || entry.session.triageResult?.reasons || entry.session.clinicalIntake?.clinicalSummary || 'Patient reported symptoms via Echo AI intake.';
+
+                    // If dynamic manual intake data exists, prioritize it for the clinical presentation
+                    if (entry.formData) {
+                      const groupLabel = entry.formData.symptomGroupLabel || '';
+                      const messyComplaint = entry.session.clinicalIntake?.chiefComplaint || '';
+                      
+                      // Extract clean chief complaint and onset from the messy backend string
+                      const m = messyComplaint.match(/Chief Complaint:\s*(.*?)\s*Symptom Onset:\s*(.*?)\s*Symptom Duration/i);
+                      if (m) {
+                        const cc = m[1].trim();
+                        const onset = m[2].trim();
+                        rawSummary = `${cc}${onset && onset.toLowerCase() !== 'unknown' ? ` (Onset: ${onset})` : ''}`;
+                      } else if (groupLabel) {
+                        rawSummary = `${groupLabel} Symptoms`;
+                      }
+
+                      if (groupLabel) {
+                        rawDiagnosis = `${groupLabel} Consultation`;
+                      }
+
+                      if (entry.formData.answers) {
+                        // Extract meaningful answers to build supportive findings
+                        const positiveAnswers = Object.values(entry.formData.answers as Record<string, {question: string, answer: string}>)
+                          .map(val => val.answer)
+                          .filter(ans => ans && ans.toLowerCase() !== 'no' && ans.toLowerCase() !== 'not sure' && ans.toLowerCase() !== '-- select --' && ans.toLowerCase() !== 'n/a');
+                        
+                        if (positiveAnswers.length > 0) {
+                          rawFindings = positiveAnswers.slice(0, 5).join(', ');
+                        }
+                      }
+                      
+                      // Also prepend red flags to findings if present
+                      const messyRedFlagsMatch = messyComplaint.match(/Red Flags:\s*(.*?)\s*Triage Level:/i);
+                      if (messyRedFlagsMatch && messyRedFlagsMatch[1] && messyRedFlagsMatch[1] !== 'None') {
+                         rawFindings = `Red Flags: ${messyRedFlagsMatch[1]} | ${rawFindings}`;
+                      } else if (entry.formData.redFlags && Array.isArray(entry.formData.redFlags) && entry.formData.redFlags.length > 0) {
+                        rawFindings = `Red Flags: ${entry.formData.redFlags.join(', ')} | ${rawFindings}`;
+                      }
+                    }
+
                     const presentationSummary = cleanClinicalText(rawSummary);
-
-                    const rawDiagnosis = entry.session.patient.probableDiagnosis || entry.session.triageResult?.decision || entry.session.clinicalIntake?.chiefComplaint || 'General Diagnostic Review';
                     const probableDiagnosis = cleanClinicalText(rawDiagnosis);
-
-                    const rawFindings = entry.session.patient.supportiveFindings || entry.session.triageResult?.reasons || entry.session.clinicalIntake?.clinicalSummary || 'Patient reported symptoms via Echo AI intake.';
                     const supportiveFindings = cleanClinicalText(rawFindings);
 
-                    const vitalsAndAllergies = entry.session.patient.vitalsAndAllergies || 'O+, AA | Penicillin';
+                    const vitalsAndAllergies = entry.session.patient.vitalsAndAllergies || 'O+, AA | No Known Allergies';
 
                     return (
                       <div key={entry.id} className={`${styles.cardOuter} ${entry.isSOS ? styles.cardOuterSos : ''}`}>
