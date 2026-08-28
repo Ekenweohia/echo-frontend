@@ -51,7 +51,6 @@ export default function TextChat({
   // Form State
   const [chiefComplaint, setChiefComplaint] = useState(illnessTitle);
   const [symptomOnset, setSymptomOnset] = useState('');
-  const [duration, setDuration] = useState('');
   const [redFlags, setRedFlags] = useState<string[]>([]);
   
   // Dynamic Form State
@@ -263,7 +262,6 @@ If a piece of information is not mentioned in the audio, leave the field empty o
     const payload = {
       chiefComplaint,
       symptomOnset: symptomOnset || undefined,
-      duration: duration || undefined,
       redFlags: redFlags.length > 0 ? redFlags : undefined,
       healthReadings: (bloodPressure || temperature || pulse) ? {
         ...(bloodPressure ? { bloodPressure } : {}),
@@ -370,24 +368,19 @@ If a piece of information is not mentioned in the audio, leave the field empty o
 
               <div style={rowStyle}>
                 <div style={formGroupStyle}>
-                  <label style={labelStyle}>Symptom Onset</label>
-                  <input 
-                    type="text" 
-                    placeholder="e.g., Today, 3 days ago" 
+                  <label style={labelStyle}>Symptom Onset (Duration)</label>
+                  <select 
                     value={symptomOnset} 
                     onChange={e => setSymptomOnset(e.target.value)} 
                     style={inputStyle}
-                  />
-                </div>
-                <div style={formGroupStyle}>
-                  <label style={labelStyle}>Duration</label>
-                  <input 
-                    type="text" 
-                    placeholder="e.g., 1 to 10 days" 
-                    value={duration} 
-                    onChange={e => setDuration(e.target.value)} 
-                    style={inputStyle}
-                  />
+                  >
+                    <option value="">-- Select Duration --</option>
+                    <option value="Today">Today</option>
+                    <option value="1-3 days">1-3 days</option>
+                    <option value="4-7 days">4-7 days</option>
+                    <option value="1-2 weeks">1-2 weeks</option>
+                    <option value="More than 2 weeks">More than 2 weeks</option>
+                  </select>
                 </div>
               </div>
 
