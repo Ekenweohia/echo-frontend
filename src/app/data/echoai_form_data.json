@@ -1,0 +1,4534 @@
+{
+  "title": "EchoAI source-based patient form data",
+  "source": "EchoAI Clinical Question Bank",
+  "sourceDescription": "20 symptom groups, 20 questions each, in plain Nigerian English.",
+  "focusedQuestionCount": 10,
+  "note": "focusedQuestions contains the first 10 questions from the supplied question bank for each symptom group. The full source inventory is retained under allQuestions.",
+  "symptomGroups": [
+    {
+      "id": "symptom_1",
+      "label": "Malaria / Fever",
+      "focusedQuestions": [
+        {
+          "id": "symptom_1_q1",
+          "sourceQuestion": "How many days now have you been having this fever — is it today, yesterday, or has it been going on for more than 3 days?",
+          "label": "How many days now have you been having this fever — is it today, yesterday, or has it been going on for more than 3 days?",
+          "type": "select",
+          "options": [
+            "Today",
+            "1–3 days",
+            "4–7 days",
+            "1–2 weeks",
+            "More than 2 weeks",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_1_q2",
+          "sourceQuestion": "Is the fever always there, or does it come at certain times — like in the evening or at night — and then go down?",
+          "label": "Is the fever always there, or does it come at certain times — like in the evening or at night — and then go down?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_1_q3",
+          "sourceQuestion": "When the fever comes, do you start shaking and feeling very cold first, before your body becomes hot?",
+          "label": "When the fever comes, do you start shaking and feeling very cold first, before your body becomes hot?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_1_q4",
+          "sourceQuestion": "After the fever breaks, do you sweat a lot and feel very weak, like your body drained out?",
+          "label": "After the fever breaks, do you sweat a lot and feel very weak, like your body drained out?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_1_q5",
+          "sourceQuestion": "Have you been to the farm, bush, or any waterlogged area recently — like within the last 2 weeks?",
+          "label": "Have you been to the farm, bush, or any waterlogged area recently — like within the last 2 weeks?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_1_q6",
+          "sourceQuestion": "Have you already taken any drugs for the fever — like Coartem, Lonart, or any malaria medicine from the chemist?",
+          "label": "Have you already taken any drugs for the fever — like Coartem, Lonart, or any malaria medicine from the chemist?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_1_q7",
+          "sourceQuestion": "Apart from the fever, do you have any headache, body pain, or pain behind your eyes?",
+          "label": "Apart from the fever, do you have any headache, body pain, or pain behind your eyes?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_1_q8",
+          "sourceQuestion": "Have you done a malaria test — either the rapid test or blood test — and what was the result?",
+          "label": "Have you done a malaria test — either the rapid test or blood test — and what was the result?",
+          "type": "text"
+        },
+        {
+          "id": "symptom_1_q9",
+          "sourceQuestion": "Are you vomiting or feeling like you want to vomit when the fever is high?",
+          "label": "Are you vomiting or feeling like you want to vomit when the fever is high?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_1_q10",
+          "sourceQuestion": "Is the person that is sick a child? If yes, how old — and have they had convulsion (seizure) with this fever?",
+          "label": "Is the person that is sick a child? If yes, how old — and have they had convulsion (seizure) with this fever?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        }
+      ],
+      "allQuestions": [
+        {
+          "id": "symptom_1_q1",
+          "sourceQuestion": "How many days now have you been having this fever — is it today, yesterday, or has it been going on for more than 3 days?"
+        },
+        {
+          "id": "symptom_1_q2",
+          "sourceQuestion": "Is the fever always there, or does it come at certain times — like in the evening or at night — and then go down?"
+        },
+        {
+          "id": "symptom_1_q3",
+          "sourceQuestion": "When the fever comes, do you start shaking and feeling very cold first, before your body becomes hot?"
+        },
+        {
+          "id": "symptom_1_q4",
+          "sourceQuestion": "After the fever breaks, do you sweat a lot and feel very weak, like your body drained out?"
+        },
+        {
+          "id": "symptom_1_q5",
+          "sourceQuestion": "Have you been to the farm, bush, or any waterlogged area recently — like within the last 2 weeks?"
+        },
+        {
+          "id": "symptom_1_q6",
+          "sourceQuestion": "Have you already taken any drugs for the fever — like Coartem, Lonart, or any malaria medicine from the chemist?"
+        },
+        {
+          "id": "symptom_1_q7",
+          "sourceQuestion": "Apart from the fever, do you have any headache, body pain, or pain behind your eyes?"
+        },
+        {
+          "id": "symptom_1_q8",
+          "sourceQuestion": "Have you done a malaria test — either the rapid test or blood test — and what was the result?"
+        },
+        {
+          "id": "symptom_1_q9",
+          "sourceQuestion": "Are you vomiting or feeling like you want to vomit when the fever is high?"
+        },
+        {
+          "id": "symptom_1_q10",
+          "sourceQuestion": "Is the person that is sick a child? If yes, how old — and have they had convulsion (seizure) with this fever?"
+        },
+        {
+          "id": "symptom_1_q11",
+          "sourceQuestion": "Have you or anyone in your house had malaria recently — within the last one month?"
+        },
+        {
+          "id": "symptom_1_q12",
+          "sourceQuestion": "Are you pregnant or is there any chance you could be pregnant?"
+        },
+        {
+          "id": "symptom_1_q13",
+          "sourceQuestion": "Do you have any history of typhoid or have you been treating typhoid alongside this?"
+        },
+        {
+          "id": "symptom_1_q14",
+          "sourceQuestion": "Are you feeling confused, dizzy, or is it hard to stay awake when the fever is high?"
+        },
+        {
+          "id": "symptom_1_q15",
+          "sourceQuestion": "Have you noticed your urine becoming very dark — like the colour of Coca-Cola or palm oil?"
+        },
+        {
+          "id": "symptom_1_q16",
+          "sourceQuestion": "Do you have any known illness like sickle cell, HIV, or diabetes that could make this worse?"
+        },
+        {
+          "id": "symptom_1_q17",
+          "sourceQuestion": "Are you currently taking any medication — including antimalarials, antibiotics, or herbal medicine?"
+        },
+        {
+          "id": "symptom_1_q18",
+          "sourceQuestion": "When you press on your left side just under your ribs, does it feel painful or swollen?"
+        },
+        {
+          "id": "symptom_1_q19",
+          "sourceQuestion": "Have you travelled outside your state or to a new environment recently?"
+        },
+        {
+          "id": "symptom_1_q20",
+          "sourceQuestion": "Are you able to eat and drink water, or has the fever been making it difficult to keep anything down?"
+        }
+      ],
+      "redFlags": [
+        {
+          "label": "Very hard to wake or confused",
+          "explanation": "Not thinking clearly, very sleepy, or difficult to wake."
+        },
+        {
+          "label": "Fits / seizure",
+          "explanation": "A shaking episode, loss of awareness, or body jerking."
+        },
+        {
+          "label": "Unable to drink",
+          "explanation": "You cannot drink enough to replace lost fluids."
+        },
+        {
+          "label": "Breathing difficulty",
+          "explanation": "Finding it hard to breathe or talk normally."
+        },
+        {
+          "label": "Very weak or faint",
+          "explanation": "You fall, nearly pass out, or become too weak to stand."
+        }
+      ]
+    },
+    {
+      "id": "symptom_2",
+      "label": "Headache",
+      "focusedQuestions": [
+        {
+          "id": "symptom_2_q1",
+          "sourceQuestion": "Where exactly is the pain in your head — is it the front, the back, one side, or is it all over your head?",
+          "label": "Where exactly is the pain in your head — is it the front, the back, one side, or is it all over your head?",
+          "type": "select",
+          "options": [
+            "Front",
+            "Back",
+            "Left side",
+            "Right side",
+            "Middle",
+            "All over",
+            "Somewhere else",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_2_q2",
+          "sourceQuestion": "How does the pain feel — is it like something is pressing your head, or is it a sharp stabbing pain, or does it pound like a heartbeat?",
+          "label": "How does the pain feel — is it like something is pressing your head, or is it a sharp stabbing pain, or does it pound like a heartbeat?",
+          "type": "select",
+          "options": [
+            "Sharp",
+            "Dull",
+            "Cramping",
+            "Burning",
+            "Heavy pressure",
+            "Pulsing",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_2_q3",
+          "sourceQuestion": "How long have you had this headache — is it something that just started today, or has it been there for days or even weeks?",
+          "label": "How long have you had this headache — is it something that just started today, or has it been there for days or even weeks?",
+          "type": "select",
+          "options": [
+            "Today",
+            "1–3 days",
+            "4–7 days",
+            "1–2 weeks",
+            "More than 2 weeks",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_2_q4",
+          "sourceQuestion": "Is this the worst headache of your life — did it come suddenly like thunder, or did it build up slowly?",
+          "label": "Is this the worst headache of your life — did it come suddenly like thunder, or did it build up slowly?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_2_q5",
+          "sourceQuestion": "Does the pain go into your eyes, your neck, your teeth, or your jaw?",
+          "label": "Does the pain go into your eyes, your neck, your teeth, or your jaw?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_2_q6",
+          "sourceQuestion": "Does bright light or loud noise make the headache worse?",
+          "label": "Does bright light or loud noise make the headache worse?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_2_q7",
+          "sourceQuestion": "Do you vomit or feel like vomiting when the headache is very bad?",
+          "label": "Do you vomit or feel like vomiting when the headache is very bad?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_2_q8",
+          "sourceQuestion": "Do you have high blood pressure — have you checked it recently, and are you on any medication for it?",
+          "label": "Do you have high blood pressure — have you checked it recently, and are you on any medication for it?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_2_q9",
+          "sourceQuestion": "Do you wear glasses or have you been told you need glasses? Has your vision been blurry lately?",
+          "label": "Do you wear glasses or have you been told you need glasses? Has your vision been blurry lately?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_2_q10",
+          "sourceQuestion": "Have you been under a lot of stress recently — at work, at home, or financially?",
+          "label": "Have you been under a lot of stress recently — at work, at home, or financially?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        }
+      ],
+      "allQuestions": [
+        {
+          "id": "symptom_2_q1",
+          "sourceQuestion": "Where exactly is the pain in your head — is it the front, the back, one side, or is it all over your head?"
+        },
+        {
+          "id": "symptom_2_q2",
+          "sourceQuestion": "How does the pain feel — is it like something is pressing your head, or is it a sharp stabbing pain, or does it pound like a heartbeat?"
+        },
+        {
+          "id": "symptom_2_q3",
+          "sourceQuestion": "How long have you had this headache — is it something that just started today, or has it been there for days or even weeks?"
+        },
+        {
+          "id": "symptom_2_q4",
+          "sourceQuestion": "Is this the worst headache of your life — did it come suddenly like thunder, or did it build up slowly?"
+        },
+        {
+          "id": "symptom_2_q5",
+          "sourceQuestion": "Does the pain go into your eyes, your neck, your teeth, or your jaw?"
+        },
+        {
+          "id": "symptom_2_q6",
+          "sourceQuestion": "Does bright light or loud noise make the headache worse?"
+        },
+        {
+          "id": "symptom_2_q7",
+          "sourceQuestion": "Do you vomit or feel like vomiting when the headache is very bad?"
+        },
+        {
+          "id": "symptom_2_q8",
+          "sourceQuestion": "Do you have high blood pressure — have you checked it recently, and are you on any medication for it?"
+        },
+        {
+          "id": "symptom_2_q9",
+          "sourceQuestion": "Do you wear glasses or have you been told you need glasses? Has your vision been blurry lately?"
+        },
+        {
+          "id": "symptom_2_q10",
+          "sourceQuestion": "Have you been under a lot of stress recently — at work, at home, or financially?"
+        },
+        {
+          "id": "symptom_2_q11",
+          "sourceQuestion": "Do you sleep well, or have you not been sleeping properly? When did you last eat before this headache started?"
+        },
+        {
+          "id": "symptom_2_q12",
+          "sourceQuestion": "Does the headache go away after you sleep or rest, or is it still there when you wake up?"
+        },
+        {
+          "id": "symptom_2_q13",
+          "sourceQuestion": "Are you taking any painkillers like paracetamol, ibuprofen, or codeine regularly for this headache?"
+        },
+        {
+          "id": "symptom_2_q14",
+          "sourceQuestion": "Do you have fever alongside this headache — or neck pain that makes it hard to bend your head forward?"
+        },
+        {
+          "id": "symptom_2_q15",
+          "sourceQuestion": "Have you had any injury or fall to your head recently — even if it seemed small at the time?"
+        },
+        {
+          "id": "symptom_2_q16",
+          "sourceQuestion": "Does your face feel numb, or is one side of your face drooping at all?"
+        },
+        {
+          "id": "symptom_2_q17",
+          "sourceQuestion": "Do you have a history of seizure (convulsion), stroke, or brain-related problems in the past?"
+        },
+        {
+          "id": "symptom_2_q18",
+          "sourceQuestion": "Is the headache there every day, or does it come and go — and if it goes, how long before it comes back?"
+        },
+        {
+          "id": "symptom_2_q19",
+          "sourceQuestion": "Have you recently started any new medication, or stopped a medication you were using before?"
+        },
+        {
+          "id": "symptom_2_q20",
+          "sourceQuestion": "Do other people in your family also get these kinds of headaches — like your mother, father, or siblings?"
+        }
+      ],
+      "redFlags": [
+        {
+          "label": "Sudden worst-ever headache",
+          "explanation": "A sudden or serious change that should be checked quickly by a nurse or doctor."
+        },
+        {
+          "label": "Weakness or face drooping",
+          "explanation": "A sudden loss of strength or trouble moving part of the body."
+        },
+        {
+          "label": "Confusion or hard to wake",
+          "explanation": "Not thinking clearly, very sleepy, or difficult to wake."
+        },
+        {
+          "label": "Fever with stiff neck",
+          "explanation": "A high temperature together with feeling very unwell."
+        },
+        {
+          "label": "New loss of vision",
+          "explanation": "Your sight suddenly becomes blurred, dark, or missing."
+        }
+      ]
+    },
+    {
+      "id": "symptom_3",
+      "label": "Chest Pain",
+      "focusedQuestions": [
+        {
+          "id": "symptom_3_q1",
+          "sourceQuestion": "Where exactly in your chest is the pain — is it in the middle, the left side, the right side, or all over?",
+          "label": "Where exactly in your chest is the pain — is it in the middle, the left side, the right side, or all over?",
+          "type": "select",
+          "options": [
+            "Front",
+            "Back",
+            "Left side",
+            "Right side",
+            "Middle",
+            "All over",
+            "Somewhere else",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_3_q2",
+          "sourceQuestion": "How does the pain feel — is it like something heavy is sitting on your chest, or is it a sharp stabbing pain, or does it burn?",
+          "label": "How does the pain feel — is it like something heavy is sitting on your chest, or is it a sharp stabbing pain, or does it burn?",
+          "type": "select",
+          "options": [
+            "Sharp",
+            "Dull",
+            "Cramping",
+            "Burning",
+            "Heavy pressure",
+            "Pulsing",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_3_q3",
+          "sourceQuestion": "Does the pain move or spread anywhere — like to your left arm, your jaw, your back, or your stomach?",
+          "label": "Does the pain move or spread anywhere — like to your left arm, your jaw, your back, or your stomach?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_3_q4",
+          "sourceQuestion": "When did the pain start — and is it still there now, or does it come and go?",
+          "label": "When did the pain start — and is it still there now, or does it come and go?",
+          "type": "select",
+          "options": [
+            "Today",
+            "1–3 days",
+            "4–7 days",
+            "1–2 weeks",
+            "More than 2 weeks",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_3_q5",
+          "sourceQuestion": "Does the pain get worse when you breathe in deeply, cough, or move your body?",
+          "label": "Does the pain get worse when you breathe in deeply, cough, or move your body?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_3_q6",
+          "sourceQuestion": "Does the pain get better when you rest, or does it stay the same whether you are resting or moving?",
+          "label": "Does the pain get better when you rest, or does it stay the same whether you are resting or moving?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_3_q7",
+          "sourceQuestion": "Do you have difficulty breathing or shortness of breath alongside the chest pain?",
+          "label": "Do you have difficulty breathing or shortness of breath alongside the chest pain?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_3_q8",
+          "sourceQuestion": "Are you sweating, feeling dizzy, or did you vomit when the chest pain started?",
+          "label": "Are you sweating, feeling dizzy, or did you vomit when the chest pain started?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_3_q9",
+          "sourceQuestion": "Do you have high blood pressure, diabetes, or has any doctor ever told you that you have a heart problem?",
+          "label": "Do you have high blood pressure, diabetes, or has any doctor ever told you that you have a heart problem?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_3_q10",
+          "sourceQuestion": "Has anyone in your family had a heart attack or died suddenly — your father, mother, brother, or sister?",
+          "label": "Has anyone in your family had a heart attack or died suddenly — your father, mother, brother, or sister?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        }
+      ],
+      "allQuestions": [
+        {
+          "id": "symptom_3_q1",
+          "sourceQuestion": "Where exactly in your chest is the pain — is it in the middle, the left side, the right side, or all over?"
+        },
+        {
+          "id": "symptom_3_q2",
+          "sourceQuestion": "How does the pain feel — is it like something heavy is sitting on your chest, or is it a sharp stabbing pain, or does it burn?"
+        },
+        {
+          "id": "symptom_3_q3",
+          "sourceQuestion": "Does the pain move or spread anywhere — like to your left arm, your jaw, your back, or your stomach?"
+        },
+        {
+          "id": "symptom_3_q4",
+          "sourceQuestion": "When did the pain start — and is it still there now, or does it come and go?"
+        },
+        {
+          "id": "symptom_3_q5",
+          "sourceQuestion": "Does the pain get worse when you breathe in deeply, cough, or move your body?"
+        },
+        {
+          "id": "symptom_3_q6",
+          "sourceQuestion": "Does the pain get better when you rest, or does it stay the same whether you are resting or moving?"
+        },
+        {
+          "id": "symptom_3_q7",
+          "sourceQuestion": "Do you have difficulty breathing or shortness of breath alongside the chest pain?"
+        },
+        {
+          "id": "symptom_3_q8",
+          "sourceQuestion": "Are you sweating, feeling dizzy, or did you vomit when the chest pain started?"
+        },
+        {
+          "id": "symptom_3_q9",
+          "sourceQuestion": "Do you have high blood pressure, diabetes, or has any doctor ever told you that you have a heart problem?"
+        },
+        {
+          "id": "symptom_3_q10",
+          "sourceQuestion": "Has anyone in your family had a heart attack or died suddenly — your father, mother, brother, or sister?"
+        },
+        {
+          "id": "symptom_3_q11",
+          "sourceQuestion": "Do you smoke cigarettes or have you smoked before? Do you drink alcohol regularly?"
+        },
+        {
+          "id": "symptom_3_q12",
+          "sourceQuestion": "Have you had this kind of chest pain before? If yes, what did the doctor say it was?"
+        },
+        {
+          "id": "symptom_3_q13",
+          "sourceQuestion": "Have you been under a lot of stress or had an emotional shock recently?"
+        },
+        {
+          "id": "symptom_3_q14",
+          "sourceQuestion": "Do you have any heartburn or acid problem — like when food or sour liquid comes back up into your throat?"
+        },
+        {
+          "id": "symptom_3_q15",
+          "sourceQuestion": "Have you been coughing for a long time — and if yes, do you cough up blood or have you lost weight?"
+        },
+        {
+          "id": "symptom_3_q16",
+          "sourceQuestion": "Have you recently travelled long distance by road, plane, or been on bed rest for a long time?"
+        },
+        {
+          "id": "symptom_3_q17",
+          "sourceQuestion": "Are your legs swollen — especially around the ankle area?"
+        },
+        {
+          "id": "symptom_3_q18",
+          "sourceQuestion": "Do you take any heart medication, blood thinners, or any drugs regularly?"
+        },
+        {
+          "id": "symptom_3_q19",
+          "sourceQuestion": "Did the pain start after eating a heavy meal, drinking alcohol, or taking any medication?"
+        },
+        {
+          "id": "symptom_3_q20",
+          "sourceQuestion": "If you press on your chest with your finger, does the spot feel tender or sore?"
+        }
+      ],
+      "redFlags": [
+        {
+          "label": "Severe or squeezing chest pain",
+          "explanation": "Pain that is very strong, sudden, spreading, or getting worse."
+        },
+        {
+          "label": "Breathing difficulty",
+          "explanation": "Finding it hard to breathe or talk normally."
+        },
+        {
+          "label": "Fainting or collapse",
+          "explanation": "You fall, nearly pass out, or become too weak to stand."
+        },
+        {
+          "label": "Pain spreading to arm, jaw, or back",
+          "explanation": "Pain that is very strong, sudden, spreading, or getting worse."
+        },
+        {
+          "label": "Cold sweat or severe weakness",
+          "explanation": "A sudden loss of strength or trouble moving part of the body."
+        }
+      ]
+    },
+    {
+      "id": "symptom_4",
+      "label": "Cough",
+      "focusedQuestions": [
+        {
+          "id": "symptom_4_q1",
+          "sourceQuestion": "How long have you been coughing — is it a few days, two weeks, or has it been going on for more than one month?",
+          "label": "How long have you been coughing — is it a few days, two weeks, or has it been going on for more than one month?",
+          "type": "select",
+          "options": [
+            "Today",
+            "1–3 days",
+            "4–7 days",
+            "1–2 weeks",
+            "More than 2 weeks",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_4_q2",
+          "sourceQuestion": "When you cough, do you bring out anything — like phlegm, mucus, or blood? What colour is it?",
+          "label": "When you cough, do you bring out anything — like phlegm, mucus, or blood? What colour is it?",
+          "type": "select",
+          "options": [
+            "Clear",
+            "White",
+            "Yellow",
+            "Green",
+            "Brown",
+            "Black",
+            "Red / blood",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_4_q3",
+          "sourceQuestion": "Is the cough worse at night, in the morning, or does it happen at any time of the day?",
+          "label": "Is the cough worse at night, in the morning, or does it happen at any time of the day?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_4_q4",
+          "sourceQuestion": "Do you have difficulty breathing or does your chest feel tight when you cough?",
+          "label": "Do you have difficulty breathing or does your chest feel tight when you cough?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_4_q5",
+          "sourceQuestion": "Do you have fever, weight loss, or night sweats alongside this cough?",
+          "label": "Do you have fever, weight loss, or night sweats alongside this cough?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_4_q6",
+          "sourceQuestion": "Has anyone in your house, workplace, or school been coughing for a long time — especially someone with TB?",
+          "label": "Has anyone in your house, workplace, or school been coughing for a long time — especially someone with TB?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_4_q7",
+          "sourceQuestion": "Do you smoke cigarettes or have you smoked in the past? Do you live or work near smoke, dust, or chemicals?",
+          "label": "Do you smoke cigarettes or have you smoked in the past? Do you live or work near smoke, dust, or chemicals?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_4_q8",
+          "sourceQuestion": "Do you have a history of asthma — does your chest ever make a whistling sound when you breathe?",
+          "label": "Do you have a history of asthma — does your chest ever make a whistling sound when you breathe?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_4_q9",
+          "sourceQuestion": "Do you have a blocked or runny nose, sore throat, or sneezing alongside the cough?",
+          "label": "Do you have a blocked or runny nose, sore throat, or sneezing alongside the cough?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_4_q10",
+          "sourceQuestion": "Have you lost weight recently without trying to — like your clothes are becoming loose on you?",
+          "label": "Have you lost weight recently without trying to — like your clothes are becoming loose on you?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        }
+      ],
+      "allQuestions": [
+        {
+          "id": "symptom_4_q1",
+          "sourceQuestion": "How long have you been coughing — is it a few days, two weeks, or has it been going on for more than one month?"
+        },
+        {
+          "id": "symptom_4_q2",
+          "sourceQuestion": "When you cough, do you bring out anything — like phlegm, mucus, or blood? What colour is it?"
+        },
+        {
+          "id": "symptom_4_q3",
+          "sourceQuestion": "Is the cough worse at night, in the morning, or does it happen at any time of the day?"
+        },
+        {
+          "id": "symptom_4_q4",
+          "sourceQuestion": "Do you have difficulty breathing or does your chest feel tight when you cough?"
+        },
+        {
+          "id": "symptom_4_q5",
+          "sourceQuestion": "Do you have fever, weight loss, or night sweats alongside this cough?"
+        },
+        {
+          "id": "symptom_4_q6",
+          "sourceQuestion": "Has anyone in your house, workplace, or school been coughing for a long time — especially someone with TB?"
+        },
+        {
+          "id": "symptom_4_q7",
+          "sourceQuestion": "Do you smoke cigarettes or have you smoked in the past? Do you live or work near smoke, dust, or chemicals?"
+        },
+        {
+          "id": "symptom_4_q8",
+          "sourceQuestion": "Do you have a history of asthma — does your chest ever make a whistling sound when you breathe?"
+        },
+        {
+          "id": "symptom_4_q9",
+          "sourceQuestion": "Do you have a blocked or runny nose, sore throat, or sneezing alongside the cough?"
+        },
+        {
+          "id": "symptom_4_q10",
+          "sourceQuestion": "Have you lost weight recently without trying to — like your clothes are becoming loose on you?"
+        },
+        {
+          "id": "symptom_4_q11",
+          "sourceQuestion": "Have you done a TB test or chest X-ray recently, and what was the result?"
+        },
+        {
+          "id": "symptom_4_q12",
+          "sourceQuestion": "Are you on any medication — especially drugs for heart, blood pressure, or any long-term illness?"
+        },
+        {
+          "id": "symptom_4_q13",
+          "sourceQuestion": "Do you have acid in your stomach — like a burning feeling that comes up to your chest or throat?"
+        },
+        {
+          "id": "symptom_4_q14",
+          "sourceQuestion": "Do children or elderly people in your house also have this cough?"
+        },
+        {
+          "id": "symptom_4_q15",
+          "sourceQuestion": "Have you travelled recently or been exposed to someone who was very sick?"
+        },
+        {
+          "id": "symptom_4_q16",
+          "sourceQuestion": "When you cough, do you sometimes pass urine or do you vomit?"
+        },
+        {
+          "id": "symptom_4_q17",
+          "sourceQuestion": "Does cold weather, dusty rooms, or certain smells make the cough worse?"
+        },
+        {
+          "id": "symptom_4_q18",
+          "sourceQuestion": "Have you had COVID-19 before, or did your cough start after recovering from COVID?"
+        },
+        {
+          "id": "symptom_4_q19",
+          "sourceQuestion": "Are you HIV positive or do you have any illness that affects your immune system?"
+        },
+        {
+          "id": "symptom_4_q20",
+          "sourceQuestion": "Have you tried any cough syrup, herbal medicine, or antibiotic for this cough, and did it help at all?"
+        }
+      ],
+      "redFlags": [
+        {
+          "label": "Breathing difficulty",
+          "explanation": "Finding it hard to breathe or talk normally."
+        },
+        {
+          "label": "Coughing blood",
+          "explanation": "You see blood or something very dark where it should not be."
+        },
+        {
+          "label": "Blue lips",
+          "explanation": "The lips or face look blue or grey."
+        },
+        {
+          "label": "Severe chest pain",
+          "explanation": "Pain that is very strong, sudden, spreading, or getting worse."
+        },
+        {
+          "label": "Confusion or hard to wake",
+          "explanation": "Not thinking clearly, very sleepy, or difficult to wake."
+        }
+      ]
+    },
+    {
+      "id": "symptom_5",
+      "label": "Stomach / Abdominal Pain",
+      "focusedQuestions": [
+        {
+          "id": "symptom_5_q1",
+          "sourceQuestion": "Where exactly in your stomach is the pain — is it the upper part, lower part, left side, right side, or all over?",
+          "label": "Where exactly in your stomach is the pain — is it the upper part, lower part, left side, right side, or all over?",
+          "type": "select",
+          "options": [
+            "Front",
+            "Back",
+            "Left side",
+            "Right side",
+            "Middle",
+            "All over",
+            "Somewhere else",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_5_q2",
+          "sourceQuestion": "How does the pain feel — is it sharp and stabbing, dull and constant, crampy like your stomach is twisting, or does it come in waves?",
+          "label": "How does the pain feel — is it sharp and stabbing, dull and constant, crampy like your stomach is twisting, or does it come in waves?",
+          "type": "select",
+          "options": [
+            "Sharp",
+            "Dull",
+            "Cramping",
+            "Burning",
+            "Heavy pressure",
+            "Pulsing",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_5_q3",
+          "sourceQuestion": "When did the pain start, and has it been getting better, getting worse, or staying the same?",
+          "label": "When did the pain start, and has it been getting better, getting worse, or staying the same?",
+          "type": "select",
+          "options": [
+            "Today",
+            "1–3 days",
+            "4–7 days",
+            "1–2 weeks",
+            "More than 2 weeks",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_5_q4",
+          "sourceQuestion": "Does the pain come after eating or before eating — or does it have nothing to do with food?",
+          "label": "Does the pain come after eating or before eating — or does it have nothing to do with food?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_5_q5",
+          "sourceQuestion": "Do you have vomiting, diarrhoea, or have you not been able to pass stool at all?",
+          "label": "Do you have vomiting, diarrhoea, or have you not been able to pass stool at all?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_5_q6",
+          "sourceQuestion": "Have you noticed any blood in your vomit or in your stool — or is your stool black and tarry?",
+          "label": "Have you noticed any blood in your vomit or in your stool — or is your stool black and tarry?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_5_q7",
+          "sourceQuestion": "Does your stomach look swollen or bigger than normal, and does it feel hard when you press it?",
+          "label": "Does your stomach look swollen or bigger than normal, and does it feel hard when you press it?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_5_q8",
+          "sourceQuestion": "Have you eaten anything different recently — street food, bush meat, iced water, or something that may have been bad?",
+          "label": "Have you eaten anything different recently — street food, bush meat, iced water, or something that may have been bad?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_5_q9",
+          "sourceQuestion": "For women — when was your last period, and is there any chance you could be pregnant?",
+          "label": "For women — when was your last period, and is there any chance you could be pregnant?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_5_q10",
+          "sourceQuestion": "Do you have a burning pain in your upper stomach — especially when your stomach is empty or after taking aspirin or ibuprofen?",
+          "label": "Do you have a burning pain in your upper stomach — especially when your stomach is empty or after taking aspirin or ibuprofen?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        }
+      ],
+      "allQuestions": [
+        {
+          "id": "symptom_5_q1",
+          "sourceQuestion": "Where exactly in your stomach is the pain — is it the upper part, lower part, left side, right side, or all over?"
+        },
+        {
+          "id": "symptom_5_q2",
+          "sourceQuestion": "How does the pain feel — is it sharp and stabbing, dull and constant, crampy like your stomach is twisting, or does it come in waves?"
+        },
+        {
+          "id": "symptom_5_q3",
+          "sourceQuestion": "When did the pain start, and has it been getting better, getting worse, or staying the same?"
+        },
+        {
+          "id": "symptom_5_q4",
+          "sourceQuestion": "Does the pain come after eating or before eating — or does it have nothing to do with food?"
+        },
+        {
+          "id": "symptom_5_q5",
+          "sourceQuestion": "Do you have vomiting, diarrhoea, or have you not been able to pass stool at all?"
+        },
+        {
+          "id": "symptom_5_q6",
+          "sourceQuestion": "Have you noticed any blood in your vomit or in your stool — or is your stool black and tarry?"
+        },
+        {
+          "id": "symptom_5_q7",
+          "sourceQuestion": "Does your stomach look swollen or bigger than normal, and does it feel hard when you press it?"
+        },
+        {
+          "id": "symptom_5_q8",
+          "sourceQuestion": "Have you eaten anything different recently — street food, bush meat, iced water, or something that may have been bad?"
+        },
+        {
+          "id": "symptom_5_q9",
+          "sourceQuestion": "For women — when was your last period, and is there any chance you could be pregnant?"
+        },
+        {
+          "id": "symptom_5_q10",
+          "sourceQuestion": "Do you have a burning pain in your upper stomach — especially when your stomach is empty or after taking aspirin or ibuprofen?"
+        },
+        {
+          "id": "symptom_5_q11",
+          "sourceQuestion": "Have you had malaria, typhoid, or any infection recently that was treated?"
+        },
+        {
+          "id": "symptom_5_q12",
+          "sourceQuestion": "Is the pain on your right side and going towards your back — especially after eating fatty or fried food?"
+        },
+        {
+          "id": "symptom_5_q13",
+          "sourceQuestion": "Do you have any history of ulcer, appendix problem, or hernia?"
+        },
+        {
+          "id": "symptom_5_q14",
+          "sourceQuestion": "When you urinate, do you feel pain, burning, or is your urine cloudy or smelling very strong?"
+        },
+        {
+          "id": "symptom_5_q15",
+          "sourceQuestion": "Have you had any surgery on your stomach before?"
+        },
+        {
+          "id": "symptom_5_q16",
+          "sourceQuestion": "Is the pain making it difficult to stand straight or are you bent over because it hurts to stand up?"
+        },
+        {
+          "id": "symptom_5_q17",
+          "sourceQuestion": "Have you been under a lot of stress recently — could this be connected to worry, anxiety, or not eating well?"
+        },
+        {
+          "id": "symptom_5_q18",
+          "sourceQuestion": "Are you on any pain medication like aspirin, ibuprofen, or Voltaren that you take regularly?"
+        },
+        {
+          "id": "symptom_5_q19",
+          "sourceQuestion": "Is the pain relieved when you pass stool or release gas, or does passing stool make it worse?"
+        },
+        {
+          "id": "symptom_5_q20",
+          "sourceQuestion": "Do you have jaundice — like your eyes or skin turning yellow — alongside this stomach pain?"
+        }
+      ],
+      "redFlags": [
+        {
+          "label": "Very severe or worsening belly pain",
+          "explanation": "Pain that is very strong, sudden, spreading, or getting worse."
+        },
+        {
+          "label": "Hard or swollen belly",
+          "explanation": "A new swelling that is large, painful, or getting bigger quickly."
+        },
+        {
+          "label": "Blood in vomit or stool",
+          "explanation": "You see blood or something very dark where it should not be."
+        },
+        {
+          "label": "Fainting or collapse",
+          "explanation": "You fall, nearly pass out, or become too weak to stand."
+        },
+        {
+          "label": "Unable to keep fluids down",
+          "explanation": "A sudden or serious change that should be checked quickly by a nurse or doctor."
+        }
+      ]
+    },
+    {
+      "id": "symptom_6",
+      "label": "Diarrhoea",
+      "focusedQuestions": [
+        {
+          "id": "symptom_6_q1",
+          "sourceQuestion": "How many times have you gone to toilet today — and how many times since this started?",
+          "label": "How many times have you gone to toilet today — and how many times since this started?",
+          "type": "select",
+          "options": [
+            "Once",
+            "A few times",
+            "Many times",
+            "Every day",
+            "Only at night",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_6_q2",
+          "sourceQuestion": "Is there blood or mucus — like a slimy substance — in the stool?",
+          "label": "Is there blood or mucus — like a slimy substance — in the stool?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_6_q3",
+          "sourceQuestion": "What does the stool look like — watery, loose, oily, or does it have an unusual colour like black, green, or red?",
+          "label": "What does the stool look like — watery, loose, oily, or does it have an unusual colour like black, green, or red?",
+          "type": "select",
+          "options": [
+            "Clear",
+            "White",
+            "Yellow",
+            "Green",
+            "Brown",
+            "Black",
+            "Red / blood",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_6_q4",
+          "sourceQuestion": "How long has the diarrhoea been going on — is it today only, or has it been days?",
+          "label": "How long has the diarrhoea been going on — is it today only, or has it been days?",
+          "type": "select",
+          "options": [
+            "Today",
+            "1–3 days",
+            "4–7 days",
+            "1–2 weeks",
+            "More than 2 weeks",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_6_q5",
+          "sourceQuestion": "Do you have stomach cramps or pain before or after going to the toilet?",
+          "label": "Do you have stomach cramps or pain before or after going to the toilet?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_6_q6",
+          "sourceQuestion": "Do you have fever, vomiting, or body weakness alongside the diarrhoea?",
+          "label": "Do you have fever, vomiting, or body weakness alongside the diarrhoea?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_6_q7",
+          "sourceQuestion": "Have you eaten anything different recently — like street food, iced water, salad, or food from a party or event?",
+          "label": "Have you eaten anything different recently — like street food, iced water, salad, or food from a party or event?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_6_q8",
+          "sourceQuestion": "Is anyone else in your house or people who ate the same food as you having the same problem?",
+          "label": "Is anyone else in your house or people who ate the same food as you having the same problem?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_6_q9",
+          "sourceQuestion": "Are you feeling dizzy, very weak, or is your mouth very dry — signs that your body is losing too much water?",
+          "label": "Are you feeling dizzy, very weak, or is your mouth very dry — signs that your body is losing too much water?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_6_q10",
+          "sourceQuestion": "Are you able to drink water and keep fluids down, or do you vomit everything you take?",
+          "label": "Are you able to drink water and keep fluids down, or do you vomit everything you take?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        }
+      ],
+      "allQuestions": [
+        {
+          "id": "symptom_6_q1",
+          "sourceQuestion": "How many times have you gone to toilet today — and how many times since this started?"
+        },
+        {
+          "id": "symptom_6_q2",
+          "sourceQuestion": "Is there blood or mucus — like a slimy substance — in the stool?"
+        },
+        {
+          "id": "symptom_6_q3",
+          "sourceQuestion": "What does the stool look like — watery, loose, oily, or does it have an unusual colour like black, green, or red?"
+        },
+        {
+          "id": "symptom_6_q4",
+          "sourceQuestion": "How long has the diarrhoea been going on — is it today only, or has it been days?"
+        },
+        {
+          "id": "symptom_6_q5",
+          "sourceQuestion": "Do you have stomach cramps or pain before or after going to the toilet?"
+        },
+        {
+          "id": "symptom_6_q6",
+          "sourceQuestion": "Do you have fever, vomiting, or body weakness alongside the diarrhoea?"
+        },
+        {
+          "id": "symptom_6_q7",
+          "sourceQuestion": "Have you eaten anything different recently — like street food, iced water, salad, or food from a party or event?"
+        },
+        {
+          "id": "symptom_6_q8",
+          "sourceQuestion": "Is anyone else in your house or people who ate the same food as you having the same problem?"
+        },
+        {
+          "id": "symptom_6_q9",
+          "sourceQuestion": "Are you feeling dizzy, very weak, or is your mouth very dry — signs that your body is losing too much water?"
+        },
+        {
+          "id": "symptom_6_q10",
+          "sourceQuestion": "Are you able to drink water and keep fluids down, or do you vomit everything you take?"
+        },
+        {
+          "id": "symptom_6_q11",
+          "sourceQuestion": "Is the person that is sick a baby or young child? Are their eyes sunken, do they have dry mouth, are they not urinating?"
+        },
+        {
+          "id": "symptom_6_q12",
+          "sourceQuestion": "Have you recently taken antibiotics or any new medication just before the diarrhoea started?"
+        },
+        {
+          "id": "symptom_6_q13",
+          "sourceQuestion": "Do you have a history of stomach ulcer, irritable bowel, or any bowel disease?"
+        },
+        {
+          "id": "symptom_6_q14",
+          "sourceQuestion": "Have you travelled recently to a new place, or drunk from a well, river, or untreated water source?"
+        },
+        {
+          "id": "symptom_6_q15",
+          "sourceQuestion": "Are you diabetic or do you have any condition that affects your immune system, like HIV?"
+        },
+        {
+          "id": "symptom_6_q16",
+          "sourceQuestion": "How is your urine — is it still coming out normally, or has it become very dark and small in amount?"
+        },
+        {
+          "id": "symptom_6_q17",
+          "sourceQuestion": "Are you able to eat anything, or have you completely lost your appetite?"
+        },
+        {
+          "id": "symptom_6_q18",
+          "sourceQuestion": "Have you used any herbal medicine, purgative, or local herbs recently that could have caused this?"
+        },
+        {
+          "id": "symptom_6_q19",
+          "sourceQuestion": "Do you have any pain in your right lower stomach — below your belly button on the right side?"
+        },
+        {
+          "id": "symptom_6_q20",
+          "sourceQuestion": "Is this the first time you are having this kind of diarrhoea, or does it keep coming back?"
+        }
+      ],
+      "redFlags": [
+        {
+          "label": "Blood or black stool",
+          "explanation": "You see blood or something very dark where it should not be."
+        },
+        {
+          "label": "Unable to drink or keep fluids down",
+          "explanation": "You cannot drink enough to replace lost fluids."
+        },
+        {
+          "label": "Very little urine",
+          "explanation": "You are passing very little urine or cannot pass it."
+        },
+        {
+          "label": "Fainting or severe weakness",
+          "explanation": "You fall, nearly pass out, or become too weak to stand."
+        },
+        {
+          "label": "Confusion or hard to wake",
+          "explanation": "Not thinking clearly, very sleepy, or difficult to wake."
+        }
+      ]
+    },
+    {
+      "id": "symptom_7",
+      "label": "High Blood Pressure",
+      "focusedQuestions": [
+        {
+          "id": "symptom_7_q1",
+          "sourceQuestion": "Have you ever been told by a doctor or nurse that you have high blood pressure before?",
+          "label": "Have you ever been told by a doctor or nurse that you have high blood pressure before?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_7_q2",
+          "sourceQuestion": "Are you currently taking any medicine for blood pressure — and have you been taking it regularly or have you been skipping?",
+          "label": "Are you currently taking any medicine for blood pressure — and have you been taking it regularly or have you been skipping?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_7_q3",
+          "sourceQuestion": "When did you last check your blood pressure, and what was the reading?",
+          "label": "When did you last check your blood pressure, and what was the reading?",
+          "type": "select",
+          "options": [
+            "Today",
+            "1–3 days",
+            "4–7 days",
+            "1–2 weeks",
+            "More than 2 weeks",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_7_q4",
+          "sourceQuestion": "Do you have headache, especially at the back of your head, or pain in your neck?",
+          "label": "Do you have headache, especially at the back of your head, or pain in your neck?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_7_q5",
+          "sourceQuestion": "Has your vision been blurry, or have you seen flashing lights or stars recently?",
+          "label": "Has your vision been blurry, or have you seen flashing lights or stars recently?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_7_q6",
+          "sourceQuestion": "Have you had any nose bleed recently that came without any injury?",
+          "label": "Have you had any nose bleed recently that came without any injury?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_7_q7",
+          "sourceQuestion": "Do you have swelling in your feet or ankles — does it leave a dent when you press it?",
+          "label": "Do you have swelling in your feet or ankles — does it leave a dent when you press it?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_7_q8",
+          "sourceQuestion": "Do you feel your heart beating very fast or irregularly — like it is jumping or skipping?",
+          "label": "Do you feel your heart beating very fast or irregularly — like it is jumping or skipping?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_7_q9",
+          "sourceQuestion": "How is your diet — do you eat a lot of salty food, fried food, or processed food like canned fish or stock cubes?",
+          "label": "How is your diet — do you eat a lot of salty food, fried food, or processed food like canned fish or stock cubes?",
+          "type": "select",
+          "options": [
+            "Low",
+            "Some",
+            "A lot",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_7_q10",
+          "sourceQuestion": "Do you smoke cigarettes or drink alcohol regularly?",
+          "label": "Do you smoke cigarettes or drink alcohol regularly?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        }
+      ],
+      "allQuestions": [
+        {
+          "id": "symptom_7_q1",
+          "sourceQuestion": "Have you ever been told by a doctor or nurse that you have high blood pressure before?"
+        },
+        {
+          "id": "symptom_7_q2",
+          "sourceQuestion": "Are you currently taking any medicine for blood pressure — and have you been taking it regularly or have you been skipping?"
+        },
+        {
+          "id": "symptom_7_q3",
+          "sourceQuestion": "When did you last check your blood pressure, and what was the reading?"
+        },
+        {
+          "id": "symptom_7_q4",
+          "sourceQuestion": "Do you have headache, especially at the back of your head, or pain in your neck?"
+        },
+        {
+          "id": "symptom_7_q5",
+          "sourceQuestion": "Has your vision been blurry, or have you seen flashing lights or stars recently?"
+        },
+        {
+          "id": "symptom_7_q6",
+          "sourceQuestion": "Have you had any nose bleed recently that came without any injury?"
+        },
+        {
+          "id": "symptom_7_q7",
+          "sourceQuestion": "Do you have swelling in your feet or ankles — does it leave a dent when you press it?"
+        },
+        {
+          "id": "symptom_7_q8",
+          "sourceQuestion": "Do you feel your heart beating very fast or irregularly — like it is jumping or skipping?"
+        },
+        {
+          "id": "symptom_7_q9",
+          "sourceQuestion": "How is your diet — do you eat a lot of salty food, fried food, or processed food like canned fish or stock cubes?"
+        },
+        {
+          "id": "symptom_7_q10",
+          "sourceQuestion": "Do you smoke cigarettes or drink alcohol regularly?"
+        },
+        {
+          "id": "symptom_7_q11",
+          "sourceQuestion": "How is your weight — have you been gaining weight recently?"
+        },
+        {
+          "id": "symptom_7_q12",
+          "sourceQuestion": "Do you have a family history of high blood pressure — your parents, siblings, or close relatives?"
+        },
+        {
+          "id": "symptom_7_q13",
+          "sourceQuestion": "Are you under a lot of stress at work or at home?"
+        },
+        {
+          "id": "symptom_7_q14",
+          "sourceQuestion": "Do you have diabetes as well, or have you been told your blood sugar is high?"
+        },
+        {
+          "id": "symptom_7_q15",
+          "sourceQuestion": "Have you ever had a stroke, heart attack, or kidney problem?"
+        },
+        {
+          "id": "symptom_7_q16",
+          "sourceQuestion": "How much exercise do you do — do you walk, do any sport, or are you mostly sitting all day?"
+        },
+        {
+          "id": "symptom_7_q17",
+          "sourceQuestion": "Are you pregnant or did this blood pressure start during or after a pregnancy?"
+        },
+        {
+          "id": "symptom_7_q18",
+          "sourceQuestion": "Have you been having chest pain or difficulty breathing recently?"
+        },
+        {
+          "id": "symptom_7_q19",
+          "sourceQuestion": "Do you have any kidney problems or does your doctor check your kidneys regularly?"
+        },
+        {
+          "id": "symptom_7_q20",
+          "sourceQuestion": "Are you on any other medication — like pain relievers, herbal supplements, or oral contraceptives — that may be affecting your blood pressure?"
+        }
+      ],
+      "redFlags": [
+        {
+          "label": "Chest pain",
+          "explanation": "Pain that is very strong, sudden, spreading, or getting worse."
+        },
+        {
+          "label": "Severe headache with vision change",
+          "explanation": "Your sight suddenly becomes blurred, dark, or missing."
+        },
+        {
+          "label": "Weakness or face drooping",
+          "explanation": "A sudden loss of strength or trouble moving part of the body."
+        },
+        {
+          "label": "Breathing difficulty",
+          "explanation": "Finding it hard to breathe or talk normally."
+        },
+        {
+          "label": "Confusion or collapse",
+          "explanation": "Not thinking clearly, very sleepy, or difficult to wake."
+        }
+      ]
+    },
+    {
+      "id": "symptom_8",
+      "label": "Diabetes Symptoms",
+      "focusedQuestions": [
+        {
+          "id": "symptom_8_q1",
+          "sourceQuestion": "Have you ever been told by a doctor that you have diabetes, or have you been on any diabetes medication?",
+          "label": "Have you ever been told by a doctor that you have diabetes, or have you been on any diabetes medication?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_8_q2",
+          "sourceQuestion": "Are you urinating (passing urine) too often — especially at night, does it wake you up from sleep?",
+          "label": "Are you urinating (passing urine) too often — especially at night, does it wake you up from sleep?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_8_q3",
+          "sourceQuestion": "Are you always thirsty, even just after drinking water?",
+          "label": "Are you always thirsty, even just after drinking water?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_8_q4",
+          "sourceQuestion": "Have you been losing weight without trying — are your clothes getting looser?",
+          "label": "Have you been losing weight without trying — are your clothes getting looser?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_8_q5",
+          "sourceQuestion": "Do you feel very tired and weak most of the time, even when you have not done much work?",
+          "label": "Do you feel very tired and weak most of the time, even when you have not done much work?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_8_q6",
+          "sourceQuestion": "When you get a cut or wound, does it take a very long time to heal?",
+          "label": "When you get a cut or wound, does it take a very long time to heal?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_8_q7",
+          "sourceQuestion": "Are your feet or hands numb, tingling, or burning — like pins and needles?",
+          "label": "Are your feet or hands numb, tingling, or burning — like pins and needles?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_8_q8",
+          "sourceQuestion": "Is your vision blurry or has it been changing recently?",
+          "label": "Is your vision blurry or has it been changing recently?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_8_q9",
+          "sourceQuestion": "Do you get recurring infections — like boils, skin infections, or frequent urinary infections?",
+          "label": "Do you get recurring infections — like boils, skin infections, or frequent urinary infections?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_8_q10",
+          "sourceQuestion": "Is anyone in your family — your parents, brothers, sisters — a diabetic?",
+          "label": "Is anyone in your family — your parents, brothers, sisters — a diabetic?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        }
+      ],
+      "allQuestions": [
+        {
+          "id": "symptom_8_q1",
+          "sourceQuestion": "Have you ever been told by a doctor that you have diabetes, or have you been on any diabetes medication?"
+        },
+        {
+          "id": "symptom_8_q2",
+          "sourceQuestion": "Are you urinating (passing urine) too often — especially at night, does it wake you up from sleep?"
+        },
+        {
+          "id": "symptom_8_q3",
+          "sourceQuestion": "Are you always thirsty, even just after drinking water?"
+        },
+        {
+          "id": "symptom_8_q4",
+          "sourceQuestion": "Have you been losing weight without trying — are your clothes getting looser?"
+        },
+        {
+          "id": "symptom_8_q5",
+          "sourceQuestion": "Do you feel very tired and weak most of the time, even when you have not done much work?"
+        },
+        {
+          "id": "symptom_8_q6",
+          "sourceQuestion": "When you get a cut or wound, does it take a very long time to heal?"
+        },
+        {
+          "id": "symptom_8_q7",
+          "sourceQuestion": "Are your feet or hands numb, tingling, or burning — like pins and needles?"
+        },
+        {
+          "id": "symptom_8_q8",
+          "sourceQuestion": "Is your vision blurry or has it been changing recently?"
+        },
+        {
+          "id": "symptom_8_q9",
+          "sourceQuestion": "Do you get recurring infections — like boils, skin infections, or frequent urinary infections?"
+        },
+        {
+          "id": "symptom_8_q10",
+          "sourceQuestion": "Is anyone in your family — your parents, brothers, sisters — a diabetic?"
+        },
+        {
+          "id": "symptom_8_q11",
+          "sourceQuestion": "Have you ever had your blood sugar checked, and what was the result?"
+        },
+        {
+          "id": "symptom_8_q12",
+          "sourceQuestion": "What do you normally eat — a lot of white rice, garri, soft drinks, or sugary foods?"
+        },
+        {
+          "id": "symptom_8_q13",
+          "sourceQuestion": "Are you overweight or have people been telling you to lose weight?"
+        },
+        {
+          "id": "symptom_8_q14",
+          "sourceQuestion": "Do you have high blood pressure as well?"
+        },
+        {
+          "id": "symptom_8_q15",
+          "sourceQuestion": "For women — have you ever been told you had diabetes during pregnancy (gestational diabetes)?"
+        },
+        {
+          "id": "symptom_8_q16",
+          "sourceQuestion": "Do you feel very hungry even shortly after eating a full meal?"
+        },
+        {
+          "id": "symptom_8_q17",
+          "sourceQuestion": "Do you have any sores on your feet that are not healing — or do you avoid cutting your nails because of sensitivity?"
+        },
+        {
+          "id": "symptom_8_q18",
+          "sourceQuestion": "Are you taking any steroids, or have you been given steroid injections recently?"
+        },
+        {
+          "id": "symptom_8_q19",
+          "sourceQuestion": "Have you ever had a situation where you felt shaky, confused, and sweaty — especially when you skipped a meal?"
+        },
+        {
+          "id": "symptom_8_q20",
+          "sourceQuestion": "Do you drink a lot of soft drinks, juice, or alcohol regularly?"
+        }
+      ],
+      "redFlags": [
+        {
+          "label": "Confusion or hard to wake",
+          "explanation": "Not thinking clearly, very sleepy, or difficult to wake."
+        },
+        {
+          "label": "Fainting or collapse",
+          "explanation": "You fall, nearly pass out, or become too weak to stand."
+        },
+        {
+          "label": "Very fast or deep breathing",
+          "explanation": "Finding it hard to breathe or talk normally."
+        },
+        {
+          "label": "Repeated vomiting",
+          "explanation": "A sudden or serious change that should be checked quickly by a nurse or doctor."
+        },
+        {
+          "label": "A wound becoming black or very swollen",
+          "explanation": "A new swelling that is large, painful, or getting bigger quickly."
+        }
+      ]
+    },
+    {
+      "id": "symptom_9",
+      "label": "Difficulty Breathing",
+      "focusedQuestions": [
+        {
+          "id": "symptom_9_q1",
+          "sourceQuestion": "When did the breathing difficulty start — did it come suddenly or has it been building up slowly?",
+          "label": "When did the breathing difficulty start — did it come suddenly or has it been building up slowly?",
+          "type": "select",
+          "options": [
+            "Today",
+            "1–3 days",
+            "4–7 days",
+            "1–2 weeks",
+            "More than 2 weeks",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_9_q2",
+          "sourceQuestion": "Is it hard to breathe when you are resting, or only when you walk or climb stairs?",
+          "label": "Is it hard to breathe when you are resting, or only when you walk or climb stairs?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_9_q3",
+          "sourceQuestion": "Can you lie flat to sleep, or do you have to sit up or use many pillows to breathe comfortably?",
+          "label": "Can you lie flat to sleep, or do you have to sit up or use many pillows to breathe comfortably?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_9_q4",
+          "sourceQuestion": "Do you hear a whistling or hissing sound when you breathe — especially when you breathe out?",
+          "label": "Do you hear a whistling or hissing sound when you breathe — especially when you breathe out?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_9_q5",
+          "sourceQuestion": "Do you have chest pain alongside the breathing difficulty?",
+          "label": "Do you have chest pain alongside the breathing difficulty?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_9_q6",
+          "sourceQuestion": "Do you have a cough — and if yes, are you bringing out phlegm or blood?",
+          "label": "Do you have a cough — and if yes, are you bringing out phlegm or blood?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_9_q7",
+          "sourceQuestion": "Have you had swelling in your legs or ankles recently?",
+          "label": "Have you had swelling in your legs or ankles recently?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_9_q8",
+          "sourceQuestion": "Do you have a history of asthma — and do you have an inhaler?",
+          "label": "Do you have a history of asthma — and do you have an inhaler?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_9_q9",
+          "sourceQuestion": "Do you have a history of heart disease or has any doctor ever told you your heart is not working well?",
+          "label": "Do you have a history of heart disease or has any doctor ever told you your heart is not working well?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_9_q10",
+          "sourceQuestion": "Have you had any recent infection — like pneumonia, COVID, or chest infection?",
+          "label": "Have you had any recent infection — like pneumonia, COVID, or chest infection?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        }
+      ],
+      "allQuestions": [
+        {
+          "id": "symptom_9_q1",
+          "sourceQuestion": "When did the breathing difficulty start — did it come suddenly or has it been building up slowly?"
+        },
+        {
+          "id": "symptom_9_q2",
+          "sourceQuestion": "Is it hard to breathe when you are resting, or only when you walk or climb stairs?"
+        },
+        {
+          "id": "symptom_9_q3",
+          "sourceQuestion": "Can you lie flat to sleep, or do you have to sit up or use many pillows to breathe comfortably?"
+        },
+        {
+          "id": "symptom_9_q4",
+          "sourceQuestion": "Do you hear a whistling or hissing sound when you breathe — especially when you breathe out?"
+        },
+        {
+          "id": "symptom_9_q5",
+          "sourceQuestion": "Do you have chest pain alongside the breathing difficulty?"
+        },
+        {
+          "id": "symptom_9_q6",
+          "sourceQuestion": "Do you have a cough — and if yes, are you bringing out phlegm or blood?"
+        },
+        {
+          "id": "symptom_9_q7",
+          "sourceQuestion": "Have you had swelling in your legs or ankles recently?"
+        },
+        {
+          "id": "symptom_9_q8",
+          "sourceQuestion": "Do you have a history of asthma — and do you have an inhaler?"
+        },
+        {
+          "id": "symptom_9_q9",
+          "sourceQuestion": "Do you have a history of heart disease or has any doctor ever told you your heart is not working well?"
+        },
+        {
+          "id": "symptom_9_q10",
+          "sourceQuestion": "Have you had any recent infection — like pneumonia, COVID, or chest infection?"
+        },
+        {
+          "id": "symptom_9_q11",
+          "sourceQuestion": "Do you smoke cigarettes or have you smoked for many years in the past?"
+        },
+        {
+          "id": "symptom_9_q12",
+          "sourceQuestion": "Have you been exposed to a lot of smoke, dust, chemicals, or fumes at work or at home?"
+        },
+        {
+          "id": "symptom_9_q13",
+          "sourceQuestion": "Have you lost weight, had night sweats, or been coughing for a long time — more than 3 weeks?"
+        },
+        {
+          "id": "symptom_9_q14",
+          "sourceQuestion": "Are you anaemic — have you been told your blood is low, or do you look pale?"
+        },
+        {
+          "id": "symptom_9_q15",
+          "sourceQuestion": "Do you have any swelling in your neck or does something feel like it is pressing on your throat?"
+        },
+        {
+          "id": "symptom_9_q16",
+          "sourceQuestion": "Have you recently had an injury to your chest — even a minor one?"
+        },
+        {
+          "id": "symptom_9_q17",
+          "sourceQuestion": "Are you pregnant?"
+        },
+        {
+          "id": "symptom_9_q18",
+          "sourceQuestion": "Have you recently taken any new medication or been exposed to something you are allergic to?"
+        },
+        {
+          "id": "symptom_9_q19",
+          "sourceQuestion": "Is your breathing difficulty getting worse every day, or does it come and go?"
+        },
+        {
+          "id": "symptom_9_q20",
+          "sourceQuestion": "Have you ever been admitted to the hospital for breathing problems before?"
+        }
+      ],
+      "redFlags": [
+        {
+          "label": "Cannot speak full sentences",
+          "explanation": "A sudden or serious change that should be checked quickly by a nurse or doctor."
+        },
+        {
+          "label": "Blue lips or face",
+          "explanation": "The lips or face look blue or grey."
+        },
+        {
+          "label": "Severe chest pain",
+          "explanation": "Pain that is very strong, sudden, spreading, or getting worse."
+        },
+        {
+          "label": "Fainting or collapse",
+          "explanation": "You fall, nearly pass out, or become too weak to stand."
+        },
+        {
+          "label": "Confusion or hard to wake",
+          "explanation": "Not thinking clearly, very sleepy, or difficult to wake."
+        }
+      ]
+    },
+    {
+      "id": "symptom_10",
+      "label": "Vomiting / Nausea",
+      "focusedQuestions": [
+        {
+          "id": "symptom_10_q1",
+          "sourceQuestion": "How many times have you vomited today — and when did it start?",
+          "label": "How many times have you vomited today — and when did it start?",
+          "type": "select",
+          "options": [
+            "Today",
+            "1–3 days",
+            "4–7 days",
+            "1–2 weeks",
+            "More than 2 weeks",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_10_q2",
+          "sourceQuestion": "What does the vomit look like — is it food, yellow or green bile, blood, or something that looks like coffee grounds?",
+          "label": "What does the vomit look like — is it food, yellow or green bile, blood, or something that looks like coffee grounds?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_10_q3",
+          "sourceQuestion": "Did the vomiting start after eating, after taking medication, or did it come out of nowhere?",
+          "label": "Did the vomiting start after eating, after taking medication, or did it come out of nowhere?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_10_q4",
+          "sourceQuestion": "Do you have stomach pain alongside the vomiting — and where exactly is the pain?",
+          "label": "Do you have stomach pain alongside the vomiting — and where exactly is the pain?",
+          "type": "select",
+          "options": [
+            "Front",
+            "Back",
+            "Left side",
+            "Right side",
+            "Middle",
+            "All over",
+            "Somewhere else",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_10_q5",
+          "sourceQuestion": "Do you have diarrhoea as well, or are you constipated?",
+          "label": "Do you have diarrhoea as well, or are you constipated?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_10_q6",
+          "sourceQuestion": "Do you have fever alongside the vomiting?",
+          "label": "Do you have fever alongside the vomiting?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_10_q7",
+          "sourceQuestion": "Are you able to keep any food or water down, or do you vomit immediately after taking anything?",
+          "label": "Are you able to keep any food or water down, or do you vomit immediately after taking anything?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_10_q8",
+          "sourceQuestion": "Are you pregnant or could there be any chance you are pregnant?",
+          "label": "Are you pregnant or could there be any chance you are pregnant?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_10_q9",
+          "sourceQuestion": "Have you eaten street food, party food, or anything that tasted off recently?",
+          "label": "Have you eaten street food, party food, or anything that tasted off recently?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_10_q10",
+          "sourceQuestion": "Is anyone else around you vomiting as well — someone who ate the same food?",
+          "label": "Is anyone else around you vomiting as well — someone who ate the same food?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        }
+      ],
+      "allQuestions": [
+        {
+          "id": "symptom_10_q1",
+          "sourceQuestion": "How many times have you vomited today — and when did it start?"
+        },
+        {
+          "id": "symptom_10_q2",
+          "sourceQuestion": "What does the vomit look like — is it food, yellow or green bile, blood, or something that looks like coffee grounds?"
+        },
+        {
+          "id": "symptom_10_q3",
+          "sourceQuestion": "Did the vomiting start after eating, after taking medication, or did it come out of nowhere?"
+        },
+        {
+          "id": "symptom_10_q4",
+          "sourceQuestion": "Do you have stomach pain alongside the vomiting — and where exactly is the pain?"
+        },
+        {
+          "id": "symptom_10_q5",
+          "sourceQuestion": "Do you have diarrhoea as well, or are you constipated?"
+        },
+        {
+          "id": "symptom_10_q6",
+          "sourceQuestion": "Do you have fever alongside the vomiting?"
+        },
+        {
+          "id": "symptom_10_q7",
+          "sourceQuestion": "Are you able to keep any food or water down, or do you vomit immediately after taking anything?"
+        },
+        {
+          "id": "symptom_10_q8",
+          "sourceQuestion": "Are you pregnant or could there be any chance you are pregnant?"
+        },
+        {
+          "id": "symptom_10_q9",
+          "sourceQuestion": "Have you eaten street food, party food, or anything that tasted off recently?"
+        },
+        {
+          "id": "symptom_10_q10",
+          "sourceQuestion": "Is anyone else around you vomiting as well — someone who ate the same food?"
+        },
+        {
+          "id": "symptom_10_q11",
+          "sourceQuestion": "Do you have a headache alongside the vomiting — especially a very severe one?"
+        },
+        {
+          "id": "symptom_10_q12",
+          "sourceQuestion": "Is the room spinning around you, or do you feel very dizzy when the vomiting happens?"
+        },
+        {
+          "id": "symptom_10_q13",
+          "sourceQuestion": "Have you had any injury to your head recently, even a minor one?"
+        },
+        {
+          "id": "symptom_10_q14",
+          "sourceQuestion": "Are you on any medication — especially pain killers, antibiotics, malaria drugs, or new drugs that were recently started?"
+        },
+        {
+          "id": "symptom_10_q15",
+          "sourceQuestion": "Have you taken alcohol recently?"
+        },
+        {
+          "id": "symptom_10_q16",
+          "sourceQuestion": "Do you have any history of ulcer or acid reflux?"
+        },
+        {
+          "id": "symptom_10_q17",
+          "sourceQuestion": "Are you feeling very weak, is your mouth dry, and have you not been urinating as much as usual?"
+        },
+        {
+          "id": "symptom_10_q18",
+          "sourceQuestion": "For children — how old is the child, and are they still drinking fluids or refusing everything?"
+        },
+        {
+          "id": "symptom_10_q19",
+          "sourceQuestion": "Do you have jaundice — are your eyes or skin turning yellow?"
+        },
+        {
+          "id": "symptom_10_q20",
+          "sourceQuestion": "Does the nausea come at specific times — like only in the morning, after eating, or at random times during the day?"
+        }
+      ],
+      "redFlags": [
+        {
+          "label": "Blood or coffee-coloured vomit",
+          "explanation": "You see blood or something very dark where it should not be."
+        },
+        {
+          "label": "Severe belly pain",
+          "explanation": "Pain that is very strong, sudden, spreading, or getting worse."
+        },
+        {
+          "label": "Unable to keep any fluid down",
+          "explanation": "A sudden or serious change that should be checked quickly by a nurse or doctor."
+        },
+        {
+          "label": "Very little urine",
+          "explanation": "You are passing very little urine or cannot pass it."
+        },
+        {
+          "label": "Fainting or confusion",
+          "explanation": "Not thinking clearly, very sleepy, or difficult to wake."
+        }
+      ]
+    },
+    {
+      "id": "symptom_11",
+      "label": "Typhoid Symptoms",
+      "focusedQuestions": [
+        {
+          "id": "symptom_11_q1",
+          "sourceQuestion": "How many days have you had this fever — and is it getting higher each day instead of coming down?",
+          "label": "How many days have you had this fever — and is it getting higher each day instead of coming down?",
+          "type": "select",
+          "options": [
+            "Today",
+            "1–3 days",
+            "4–7 days",
+            "1–2 weeks",
+            "More than 2 weeks",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_11_q2",
+          "sourceQuestion": "Is the fever always there throughout the day, unlike malaria fever that comes and goes?",
+          "label": "Is the fever always there throughout the day, unlike malaria fever that comes and goes?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_11_q3",
+          "sourceQuestion": "Do you have a severe headache and body weakness that makes it hard to even get up?",
+          "label": "Do you have a severe headache and body weakness that makes it hard to even get up?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_11_q4",
+          "sourceQuestion": "Have you had any diarrhoea or are you constipated — unable to pass stool?",
+          "label": "Have you had any diarrhoea or are you constipated — unable to pass stool?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_11_q5",
+          "sourceQuestion": "Do you have a stomach ache — especially in the middle part of your stomach?",
+          "label": "Do you have a stomach ache — especially in the middle part of your stomach?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_11_q6",
+          "sourceQuestion": "Have you noticed any small rash — like rose-coloured spots — on your chest or stomach area?",
+          "label": "Have you noticed any small rash — like rose-coloured spots — on your chest or stomach area?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_11_q7",
+          "sourceQuestion": "Do you feel extremely tired even after resting, like a deep bone tiredness?",
+          "label": "Do you feel extremely tired even after resting, like a deep bone tiredness?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_11_q8",
+          "sourceQuestion": "Have you had a loss of appetite — are you unable to eat or does food make you feel like vomiting?",
+          "label": "Have you had a loss of appetite — are you unable to eat or does food make you feel like vomiting?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_11_q9",
+          "sourceQuestion": "Have you drank from well water, borehole, sachet water from an unknown source, or eaten food from the roadside recently?",
+          "label": "Have you drank from well water, borehole, sachet water from an unknown source, or eaten food from the roadside recently?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_11_q10",
+          "sourceQuestion": "Have you done a Widal test — and what was the result? Was it 1/80, 1/160, or higher?",
+          "label": "Have you done a Widal test — and what was the result? Was it 1/80, 1/160, or higher?",
+          "type": "text"
+        }
+      ],
+      "allQuestions": [
+        {
+          "id": "symptom_11_q1",
+          "sourceQuestion": "How many days have you had this fever — and is it getting higher each day instead of coming down?"
+        },
+        {
+          "id": "symptom_11_q2",
+          "sourceQuestion": "Is the fever always there throughout the day, unlike malaria fever that comes and goes?"
+        },
+        {
+          "id": "symptom_11_q3",
+          "sourceQuestion": "Do you have a severe headache and body weakness that makes it hard to even get up?"
+        },
+        {
+          "id": "symptom_11_q4",
+          "sourceQuestion": "Have you had any diarrhoea or are you constipated — unable to pass stool?"
+        },
+        {
+          "id": "symptom_11_q5",
+          "sourceQuestion": "Do you have a stomach ache — especially in the middle part of your stomach?"
+        },
+        {
+          "id": "symptom_11_q6",
+          "sourceQuestion": "Have you noticed any small rash — like rose-coloured spots — on your chest or stomach area?"
+        },
+        {
+          "id": "symptom_11_q7",
+          "sourceQuestion": "Do you feel extremely tired even after resting, like a deep bone tiredness?"
+        },
+        {
+          "id": "symptom_11_q8",
+          "sourceQuestion": "Have you had a loss of appetite — are you unable to eat or does food make you feel like vomiting?"
+        },
+        {
+          "id": "symptom_11_q9",
+          "sourceQuestion": "Have you drank from well water, borehole, sachet water from an unknown source, or eaten food from the roadside recently?"
+        },
+        {
+          "id": "symptom_11_q10",
+          "sourceQuestion": "Have you done a Widal test — and what was the result? Was it 1/80, 1/160, or higher?"
+        },
+        {
+          "id": "symptom_11_q11",
+          "sourceQuestion": "Have you been treating yourself for malaria but the fever is not going away?"
+        },
+        {
+          "id": "symptom_11_q12",
+          "sourceQuestion": "Have you had typhoid before, and did you complete your treatment at that time?"
+        },
+        {
+          "id": "symptom_11_q13",
+          "sourceQuestion": "Do you have a cough or pain in your chest that came with the fever?"
+        },
+        {
+          "id": "symptom_11_q14",
+          "sourceQuestion": "Are you confused, talking strangely, or having difficulty staying alert?"
+        },
+        {
+          "id": "symptom_11_q15",
+          "sourceQuestion": "Have you noticed that your belly looks a little swollen or bloated?"
+        },
+        {
+          "id": "symptom_11_q16",
+          "sourceQuestion": "Have you seen blood in your stool or vomited anything with blood?"
+        },
+        {
+          "id": "symptom_11_q17",
+          "sourceQuestion": "Are you on any antibiotics currently — and if yes, for how long have you been taking them?"
+        },
+        {
+          "id": "symptom_11_q18",
+          "sourceQuestion": "Do you live in an area with poor drainage, flooding, or limited access to clean water?"
+        },
+        {
+          "id": "symptom_11_q19",
+          "sourceQuestion": "Is anyone else in your household or community having similar symptoms?"
+        },
+        {
+          "id": "symptom_11_q20",
+          "sourceQuestion": "Have you received a typhoid vaccine before?"
+        }
+      ],
+      "redFlags": [
+        {
+          "label": "Confusion or hard to wake",
+          "explanation": "Not thinking clearly, very sleepy, or difficult to wake."
+        },
+        {
+          "label": "Fits / seizure",
+          "explanation": "A shaking episode, loss of awareness, or body jerking."
+        },
+        {
+          "label": "Breathing difficulty",
+          "explanation": "Finding it hard to breathe or talk normally."
+        },
+        {
+          "label": "Blood in stool",
+          "explanation": "You see blood or something very dark where it should not be."
+        },
+        {
+          "label": "Unable to drink",
+          "explanation": "You cannot drink enough to replace lost fluids."
+        }
+      ]
+    },
+    {
+      "id": "symptom_12",
+      "label": "Urinary Problems (UTI / Prostate)",
+      "focusedQuestions": [
+        {
+          "id": "symptom_12_q1",
+          "sourceQuestion": "Do you feel pain or a burning sensation when you urinate — when is it worst, at the beginning, during, or at the end?",
+          "label": "Do you feel pain or a burning sensation when you urinate — when is it worst, at the beginning, during, or at the end?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_12_q2",
+          "sourceQuestion": "Do you feel like urinating very frequently but only a little urine comes out each time?",
+          "label": "Do you feel like urinating very frequently but only a little urine comes out each time?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_12_q3",
+          "sourceQuestion": "Have you noticed blood in your urine — is it pink, red, or brownish?",
+          "label": "Have you noticed blood in your urine — is it pink, red, or brownish?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_12_q4",
+          "sourceQuestion": "Is your urine cloudy, smelly, or a strange colour?",
+          "label": "Is your urine cloudy, smelly, or a strange colour?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_12_q5",
+          "sourceQuestion": "Do you have pain in your lower stomach, lower back, or in the area between your legs?",
+          "label": "Do you have pain in your lower stomach, lower back, or in the area between your legs?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_12_q6",
+          "sourceQuestion": "For men — do you have difficulty starting to urinate, does the urine flow stop and start, or is the stream very weak?",
+          "label": "For men — do you have difficulty starting to urinate, does the urine flow stop and start, or is the stream very weak?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_12_q7",
+          "sourceQuestion": "For men — do you feel like your bladder is never completely empty after urinating?",
+          "label": "For men — do you feel like your bladder is never completely empty after urinating?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_12_q8",
+          "sourceQuestion": "For men — do you get up at night many times just to urinate?",
+          "label": "For men — do you get up at night many times just to urinate?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_12_q9",
+          "sourceQuestion": "For women — do you have any unusual discharge, itching, or smell from your private part?",
+          "label": "For women — do you have any unusual discharge, itching, or smell from your private part?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_12_q10",
+          "sourceQuestion": "For women — when was your last menstrual period, and are you sexually active?",
+          "label": "For women — when was your last menstrual period, and are you sexually active?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        }
+      ],
+      "allQuestions": [
+        {
+          "id": "symptom_12_q1",
+          "sourceQuestion": "Do you feel pain or a burning sensation when you urinate — when is it worst, at the beginning, during, or at the end?"
+        },
+        {
+          "id": "symptom_12_q2",
+          "sourceQuestion": "Do you feel like urinating very frequently but only a little urine comes out each time?"
+        },
+        {
+          "id": "symptom_12_q3",
+          "sourceQuestion": "Have you noticed blood in your urine — is it pink, red, or brownish?"
+        },
+        {
+          "id": "symptom_12_q4",
+          "sourceQuestion": "Is your urine cloudy, smelly, or a strange colour?"
+        },
+        {
+          "id": "symptom_12_q5",
+          "sourceQuestion": "Do you have pain in your lower stomach, lower back, or in the area between your legs?"
+        },
+        {
+          "id": "symptom_12_q6",
+          "sourceQuestion": "For men — do you have difficulty starting to urinate, does the urine flow stop and start, or is the stream very weak?"
+        },
+        {
+          "id": "symptom_12_q7",
+          "sourceQuestion": "For men — do you feel like your bladder is never completely empty after urinating?"
+        },
+        {
+          "id": "symptom_12_q8",
+          "sourceQuestion": "For men — do you get up at night many times just to urinate?"
+        },
+        {
+          "id": "symptom_12_q9",
+          "sourceQuestion": "For women — do you have any unusual discharge, itching, or smell from your private part?"
+        },
+        {
+          "id": "symptom_12_q10",
+          "sourceQuestion": "For women — when was your last menstrual period, and are you sexually active?"
+        },
+        {
+          "id": "symptom_12_q11",
+          "sourceQuestion": "Do you have fever, chills, or shaking alongside the urinary problem?"
+        },
+        {
+          "id": "symptom_12_q12",
+          "sourceQuestion": "Do you have pain in your side — around your kidney area — or pain that goes from your back down to your groin?"
+        },
+        {
+          "id": "symptom_12_q13",
+          "sourceQuestion": "Do you have diabetes — because diabetics are more likely to get urinary infections?"
+        },
+        {
+          "id": "symptom_12_q14",
+          "sourceQuestion": "Have you had urinary infections before, and how were they treated?"
+        },
+        {
+          "id": "symptom_12_q15",
+          "sourceQuestion": "Have you had any kidney stones or have you passed small stones in your urine before?"
+        },
+        {
+          "id": "symptom_12_q16",
+          "sourceQuestion": "Are you pregnant?"
+        },
+        {
+          "id": "symptom_12_q17",
+          "sourceQuestion": "Do you hold your urine for long periods or do you drink enough water daily?"
+        },
+        {
+          "id": "symptom_12_q18",
+          "sourceQuestion": "Have you recently had a catheter inserted or any procedure involving your urinary system?"
+        },
+        {
+          "id": "symptom_12_q19",
+          "sourceQuestion": "Are you on any medication — especially diuretics (water tablets) or drugs that affect your kidneys?"
+        },
+        {
+          "id": "symptom_12_q20",
+          "sourceQuestion": "Have you noticed any swelling in your face, legs, or feet — which can happen if your kidneys are affected?"
+        }
+      ],
+      "redFlags": [
+        {
+          "label": "Unable to pass urine",
+          "explanation": "You are passing very little urine or cannot pass it."
+        },
+        {
+          "label": "Fever with back or side pain",
+          "explanation": "Pain that is very strong, sudden, spreading, or getting worse."
+        },
+        {
+          "label": "Blood in urine",
+          "explanation": "You see blood or something very dark where it should not be."
+        },
+        {
+          "label": "Confusion or hard to wake",
+          "explanation": "Not thinking clearly, very sleepy, or difficult to wake."
+        },
+        {
+          "label": "Severe weakness or collapse",
+          "explanation": "A sudden loss of strength or trouble moving part of the body."
+        }
+      ]
+    },
+    {
+      "id": "symptom_13",
+      "label": "Extreme Fatigue / Weakness",
+      "focusedQuestions": [
+        {
+          "id": "symptom_13_q1",
+          "sourceQuestion": "How long have you been feeling this tired and weak — is it days, weeks, or months?",
+          "label": "How long have you been feeling this tired and weak — is it days, weeks, or months?",
+          "type": "select",
+          "options": [
+            "Today",
+            "1–3 days",
+            "4–7 days",
+            "1–2 weeks",
+            "More than 2 weeks",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_13_q2",
+          "sourceQuestion": "Does rest or sleep improve your energy, or are you still tired even after a full night of sleep?",
+          "label": "Does rest or sleep improve your energy, or are you still tired even after a full night of sleep?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_13_q3",
+          "sourceQuestion": "Look at the inside of your lower eyelids and your palms — are they pale or white instead of pink?",
+          "label": "Look at the inside of your lower eyelids and your palms — are they pale or white instead of pink?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_13_q4",
+          "sourceQuestion": "Have you been eating well or have you lost your appetite recently?",
+          "label": "Have you been eating well or have you lost your appetite recently?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_13_q5",
+          "sourceQuestion": "Have you lost weight without trying — are your clothes feeling loose on you?",
+          "label": "Have you lost weight without trying — are your clothes feeling loose on you?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_13_q6",
+          "sourceQuestion": "Do you have fever, night sweats, or do you wake up at night sweating heavily?",
+          "label": "Do you have fever, night sweats, or do you wake up at night sweating heavily?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_13_q7",
+          "sourceQuestion": "Are you urinating too often, always thirsty, or do wounds on your body take long to heal?",
+          "label": "Are you urinating too often, always thirsty, or do wounds on your body take long to heal?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_13_q8",
+          "sourceQuestion": "Are you a woman — is your period very heavy or does it last more than 7 days?",
+          "label": "Are you a woman — is your period very heavy or does it last more than 7 days?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_13_q9",
+          "sourceQuestion": "Do you feel your heart racing or beating irregularly, or do you get short of breath easily?",
+          "label": "Do you feel your heart racing or beating irregularly, or do you get short of breath easily?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_13_q10",
+          "sourceQuestion": "Have you been tested for anaemia, diabetes, or thyroid problems before?",
+          "label": "Have you been tested for anaemia, diabetes, or thyroid problems before?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        }
+      ],
+      "allQuestions": [
+        {
+          "id": "symptom_13_q1",
+          "sourceQuestion": "How long have you been feeling this tired and weak — is it days, weeks, or months?"
+        },
+        {
+          "id": "symptom_13_q2",
+          "sourceQuestion": "Does rest or sleep improve your energy, or are you still tired even after a full night of sleep?"
+        },
+        {
+          "id": "symptom_13_q3",
+          "sourceQuestion": "Look at the inside of your lower eyelids and your palms — are they pale or white instead of pink?"
+        },
+        {
+          "id": "symptom_13_q4",
+          "sourceQuestion": "Have you been eating well or have you lost your appetite recently?"
+        },
+        {
+          "id": "symptom_13_q5",
+          "sourceQuestion": "Have you lost weight without trying — are your clothes feeling loose on you?"
+        },
+        {
+          "id": "symptom_13_q6",
+          "sourceQuestion": "Do you have fever, night sweats, or do you wake up at night sweating heavily?"
+        },
+        {
+          "id": "symptom_13_q7",
+          "sourceQuestion": "Are you urinating too often, always thirsty, or do wounds on your body take long to heal?"
+        },
+        {
+          "id": "symptom_13_q8",
+          "sourceQuestion": "Are you a woman — is your period very heavy or does it last more than 7 days?"
+        },
+        {
+          "id": "symptom_13_q9",
+          "sourceQuestion": "Do you feel your heart racing or beating irregularly, or do you get short of breath easily?"
+        },
+        {
+          "id": "symptom_13_q10",
+          "sourceQuestion": "Have you been tested for anaemia, diabetes, or thyroid problems before?"
+        },
+        {
+          "id": "symptom_13_q11",
+          "sourceQuestion": "Are you pregnant?"
+        },
+        {
+          "id": "symptom_13_q12",
+          "sourceQuestion": "Do you feel sad most of the time, have you lost interest in things you used to enjoy, or do you feel there is no point?"
+        },
+        {
+          "id": "symptom_13_q13",
+          "sourceQuestion": "Do you have any difficulty sleeping — are you sleeping too much or too little?"
+        },
+        {
+          "id": "symptom_13_q14",
+          "sourceQuestion": "Are you on any long-term medication — like blood pressure drugs, diabetes drugs, or any psychiatric medication?"
+        },
+        {
+          "id": "symptom_13_q15",
+          "sourceQuestion": "Have you had a recent illness — like malaria, typhoid, or a bad infection that you recovered from?"
+        },
+        {
+          "id": "symptom_13_q16",
+          "sourceQuestion": "Do you have any swelling in your neck — like a lump in the throat area?"
+        },
+        {
+          "id": "symptom_13_q17",
+          "sourceQuestion": "Do you feel cold all the time, has your hair been falling, or have you gained weight without eating much?"
+        },
+        {
+          "id": "symptom_13_q18",
+          "sourceQuestion": "Do you eat enough protein — like eggs, fish, beans, or meat — or is your diet mostly carbohydrates?"
+        },
+        {
+          "id": "symptom_13_q19",
+          "sourceQuestion": "Do you drink alcohol heavily or have you been using any substance?"
+        },
+        {
+          "id": "symptom_13_q20",
+          "sourceQuestion": "How much water do you drink per day — are you keeping yourself well hydrated?"
+        }
+      ],
+      "redFlags": [
+        {
+          "label": "Fainting or collapse",
+          "explanation": "You fall, nearly pass out, or become too weak to stand."
+        },
+        {
+          "label": "Breathing difficulty",
+          "explanation": "Finding it hard to breathe or talk normally."
+        },
+        {
+          "label": "Chest pain",
+          "explanation": "Pain that is very strong, sudden, spreading, or getting worse."
+        },
+        {
+          "label": "New weakness on one side",
+          "explanation": "A sudden loss of strength or trouble moving part of the body."
+        },
+        {
+          "label": "Heavy bleeding",
+          "explanation": "Bleeding is much heavier than usual or will not stop."
+        }
+      ]
+    },
+    {
+      "id": "symptom_14",
+      "label": "Joint / Body Pain",
+      "focusedQuestions": [
+        {
+          "id": "symptom_14_q1",
+          "sourceQuestion": "Which part of the body or which joints are paining you — is it your knee, waist, ankle, hand, shoulder, or all over?",
+          "label": "Which part of the body or which joints are paining you — is it your knee, waist, ankle, hand, shoulder, or all over?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_14_q2",
+          "sourceQuestion": "Is there any swelling, redness, or warmth on the joint that is paining?",
+          "label": "Is there any swelling, redness, or warmth on the joint that is paining?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_14_q3",
+          "sourceQuestion": "How long has the pain been there — did it start suddenly or has it been building up over time?",
+          "label": "How long has the pain been there — did it start suddenly or has it been building up over time?",
+          "type": "select",
+          "options": [
+            "Today",
+            "1–3 days",
+            "4–7 days",
+            "1–2 weeks",
+            "More than 2 weeks",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_14_q4",
+          "sourceQuestion": "Is the pain worse in the morning when you wake up — do you feel very stiff and it takes time before you can move normally?",
+          "label": "Is the pain worse in the morning when you wake up — do you feel very stiff and it takes time before you can move normally?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_14_q5",
+          "sourceQuestion": "Does the pain come after physical activity like walking or climbing stairs, or is it there even when you are resting?",
+          "label": "Does the pain come after physical activity like walking or climbing stairs, or is it there even when you are resting?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_14_q6",
+          "sourceQuestion": "Have you had any injury, fall, or accident recently that might have caused this?",
+          "label": "Have you had any injury, fall, or accident recently that might have caused this?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_14_q7",
+          "sourceQuestion": "Do you have a history of sickle cell disease?",
+          "label": "Do you have a history of sickle cell disease?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_14_q8",
+          "sourceQuestion": "Have you had gout before — where a joint, especially the big toe, becomes very painful and swollen suddenly?",
+          "label": "Have you had gout before — where a joint, especially the big toe, becomes very painful and swollen suddenly?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_14_q9",
+          "sourceQuestion": "Do you have a rash anywhere on your body — especially a butterfly-shaped rash on your face?",
+          "label": "Do you have a rash anywhere on your body — especially a butterfly-shaped rash on your face?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_14_q10",
+          "sourceQuestion": "Have you had fever recently, or a sore throat that was not properly treated a few weeks ago?",
+          "label": "Have you had fever recently, or a sore throat that was not properly treated a few weeks ago?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        }
+      ],
+      "allQuestions": [
+        {
+          "id": "symptom_14_q1",
+          "sourceQuestion": "Which part of the body or which joints are paining you — is it your knee, waist, ankle, hand, shoulder, or all over?"
+        },
+        {
+          "id": "symptom_14_q2",
+          "sourceQuestion": "Is there any swelling, redness, or warmth on the joint that is paining?"
+        },
+        {
+          "id": "symptom_14_q3",
+          "sourceQuestion": "How long has the pain been there — did it start suddenly or has it been building up over time?"
+        },
+        {
+          "id": "symptom_14_q4",
+          "sourceQuestion": "Is the pain worse in the morning when you wake up — do you feel very stiff and it takes time before you can move normally?"
+        },
+        {
+          "id": "symptom_14_q5",
+          "sourceQuestion": "Does the pain come after physical activity like walking or climbing stairs, or is it there even when you are resting?"
+        },
+        {
+          "id": "symptom_14_q6",
+          "sourceQuestion": "Have you had any injury, fall, or accident recently that might have caused this?"
+        },
+        {
+          "id": "symptom_14_q7",
+          "sourceQuestion": "Do you have a history of sickle cell disease?"
+        },
+        {
+          "id": "symptom_14_q8",
+          "sourceQuestion": "Have you had gout before — where a joint, especially the big toe, becomes very painful and swollen suddenly?"
+        },
+        {
+          "id": "symptom_14_q9",
+          "sourceQuestion": "Do you have a rash anywhere on your body — especially a butterfly-shaped rash on your face?"
+        },
+        {
+          "id": "symptom_14_q10",
+          "sourceQuestion": "Have you had fever recently, or a sore throat that was not properly treated a few weeks ago?"
+        },
+        {
+          "id": "symptom_14_q11",
+          "sourceQuestion": "Is the pain in many joints at the same time, or just one specific joint?"
+        },
+        {
+          "id": "symptom_14_q12",
+          "sourceQuestion": "Has the pain been getting worse over months or years — making it harder to use your hands, walk, or do daily activities?"
+        },
+        {
+          "id": "symptom_14_q13",
+          "sourceQuestion": "Do you have high uric acid or have you been told to avoid offal, red meat, or alcohol because of your joints?"
+        },
+        {
+          "id": "symptom_14_q14",
+          "sourceQuestion": "Are you overweight — because extra weight puts more pressure on joints like the knee and hip?"
+        },
+        {
+          "id": "symptom_14_q15",
+          "sourceQuestion": "Do you have any tingling, numbness, or weakness in the limb where the pain is?"
+        },
+        {
+          "id": "symptom_14_q16",
+          "sourceQuestion": "Are you on any medication like diuretics, some antibiotics, or steroids that might be affecting your joints?"
+        },
+        {
+          "id": "symptom_14_q17",
+          "sourceQuestion": "Has anyone in your family had arthritis, lupus, or any autoimmune disease?"
+        },
+        {
+          "id": "symptom_14_q18",
+          "sourceQuestion": "Have you been doing a lot of physical or manual labour recently?"
+        },
+        {
+          "id": "symptom_14_q19",
+          "sourceQuestion": "Do you have pain in your lower back that goes down to your leg or foot — like a shooting pain?"
+        },
+        {
+          "id": "symptom_14_q20",
+          "sourceQuestion": "Is the joint pain associated with any redness of the eye, skin rash, or diarrhoea?"
+        }
+      ],
+      "redFlags": [
+        {
+          "label": "Severely swollen, hot, or red joint",
+          "explanation": "A new swelling that is large, painful, or getting bigger quickly."
+        },
+        {
+          "label": "Unable to use the limb",
+          "explanation": "A sudden or serious change that should be checked quickly by a nurse or doctor."
+        },
+        {
+          "label": "Severe injury or deformity",
+          "explanation": "A serious injury or the body part looks out of shape."
+        },
+        {
+          "label": "Fever with a very painful joint",
+          "explanation": "Pain that is very strong, sudden, spreading, or getting worse."
+        },
+        {
+          "label": "Fainting or collapse",
+          "explanation": "You fall, nearly pass out, or become too weak to stand."
+        }
+      ]
+    },
+    {
+      "id": "symptom_15",
+      "label": "Eye Problems",
+      "focusedQuestions": [
+        {
+          "id": "symptom_15_q1",
+          "sourceQuestion": "Is it one eye or both eyes that are affected?",
+          "label": "Is it one eye or both eyes that are affected?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_15_q2",
+          "sourceQuestion": "When did this problem start — did it come suddenly or gradually?",
+          "label": "When did this problem start — did it come suddenly or gradually?",
+          "type": "select",
+          "options": [
+            "Today",
+            "1–3 days",
+            "4–7 days",
+            "1–2 weeks",
+            "More than 2 weeks",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_15_q3",
+          "sourceQuestion": "Is your eye red, swollen, or does it have any discharge — like yellow or white sticky fluid especially in the morning?",
+          "label": "Is your eye red, swollen, or does it have any discharge — like yellow or white sticky fluid especially in the morning?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_15_q4",
+          "sourceQuestion": "Is your vision blurry, or are you seeing double, or seeing things that are not there?",
+          "label": "Is your vision blurry, or are you seeing double, or seeing things that are not there?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_15_q5",
+          "sourceQuestion": "Do you have severe eye pain — is the pain inside the eye or around the eye?",
+          "label": "Do you have severe eye pain — is the pain inside the eye or around the eye?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_15_q6",
+          "sourceQuestion": "Are you seeing flashes of light, floating spots, or dark shadows in your vision?",
+          "label": "Are you seeing flashes of light, floating spots, or dark shadows in your vision?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_15_q7",
+          "sourceQuestion": "Has your vision been getting worse over time, or did it change suddenly?",
+          "label": "Has your vision been getting worse over time, or did it change suddenly?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_15_q8",
+          "sourceQuestion": "Is your eye itching and are you rubbing it a lot?",
+          "label": "Is your eye itching and are you rubbing it a lot?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_15_q9",
+          "sourceQuestion": "Have you been exposed to dust, smoke, chemicals, or bright welding light recently?",
+          "label": "Have you been exposed to dust, smoke, chemicals, or bright welding light recently?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_15_q10",
+          "sourceQuestion": "Did anything enter your eye — like an insect, sand, a chemical, or a foreign object?",
+          "label": "Did anything enter your eye — like an insect, sand, a chemical, or a foreign object?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        }
+      ],
+      "allQuestions": [
+        {
+          "id": "symptom_15_q1",
+          "sourceQuestion": "Is it one eye or both eyes that are affected?"
+        },
+        {
+          "id": "symptom_15_q2",
+          "sourceQuestion": "When did this problem start — did it come suddenly or gradually?"
+        },
+        {
+          "id": "symptom_15_q3",
+          "sourceQuestion": "Is your eye red, swollen, or does it have any discharge — like yellow or white sticky fluid especially in the morning?"
+        },
+        {
+          "id": "symptom_15_q4",
+          "sourceQuestion": "Is your vision blurry, or are you seeing double, or seeing things that are not there?"
+        },
+        {
+          "id": "symptom_15_q5",
+          "sourceQuestion": "Do you have severe eye pain — is the pain inside the eye or around the eye?"
+        },
+        {
+          "id": "symptom_15_q6",
+          "sourceQuestion": "Are you seeing flashes of light, floating spots, or dark shadows in your vision?"
+        },
+        {
+          "id": "symptom_15_q7",
+          "sourceQuestion": "Has your vision been getting worse over time, or did it change suddenly?"
+        },
+        {
+          "id": "symptom_15_q8",
+          "sourceQuestion": "Is your eye itching and are you rubbing it a lot?"
+        },
+        {
+          "id": "symptom_15_q9",
+          "sourceQuestion": "Have you been exposed to dust, smoke, chemicals, or bright welding light recently?"
+        },
+        {
+          "id": "symptom_15_q10",
+          "sourceQuestion": "Did anything enter your eye — like an insect, sand, a chemical, or a foreign object?"
+        },
+        {
+          "id": "symptom_15_q11",
+          "sourceQuestion": "Do you have diabetes or high blood pressure — both of which can affect the eyes?"
+        },
+        {
+          "id": "symptom_15_q12",
+          "sourceQuestion": "Do you have HIV or are you on any long-term medication?"
+        },
+        {
+          "id": "symptom_15_q13",
+          "sourceQuestion": "Do you currently wear glasses or contacts — and when was the last time you changed your prescription?"
+        },
+        {
+          "id": "symptom_15_q14",
+          "sourceQuestion": "Do you have a headache alongside the eye problem?"
+        },
+        {
+          "id": "symptom_15_q15",
+          "sourceQuestion": "Have you or any family member been diagnosed with glaucoma or cataract?"
+        },
+        {
+          "id": "symptom_15_q16",
+          "sourceQuestion": "Do your eyes look yellowish — could there be jaundice?"
+        },
+        {
+          "id": "symptom_15_q17",
+          "sourceQuestion": "Have you had eye surgery or a serious eye injury in the past?"
+        },
+        {
+          "id": "symptom_15_q18",
+          "sourceQuestion": "Do you wake up with your eyelids stuck together with discharge?"
+        },
+        {
+          "id": "symptom_15_q19",
+          "sourceQuestion": "Is there a white or grey patch forming on your eye, or does it look like a film is covering your eye?"
+        },
+        {
+          "id": "symptom_15_q20",
+          "sourceQuestion": "Are children in your house also having eye problems — is this spreading in your household?"
+        }
+      ],
+      "redFlags": [
+        {
+          "label": "Sudden loss of vision",
+          "explanation": "Your sight suddenly becomes blurred, dark, or missing."
+        },
+        {
+          "label": "Severe eye pain",
+          "explanation": "Pain that is very strong, sudden, spreading, or getting worse."
+        },
+        {
+          "label": "Chemical in the eye",
+          "explanation": "A chemical or strong substance has entered the eye."
+        },
+        {
+          "label": "Eye injury",
+          "explanation": "A serious injury or the body part looks out of shape."
+        },
+        {
+          "label": "New weakness or severe headache",
+          "explanation": "A sudden loss of strength or trouble moving part of the body."
+        }
+      ]
+    },
+    {
+      "id": "symptom_16",
+      "label": "Dizziness / Fainting",
+      "focusedQuestions": [
+        {
+          "id": "symptom_16_q1",
+          "sourceQuestion": "Is the room spinning around you — like you are on a moving boat — or do you just feel lightheaded like you want to fall?",
+          "label": "Is the room spinning around you — like you are on a moving boat — or do you just feel lightheaded like you want to fall?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_16_q2",
+          "sourceQuestion": "Did you actually faint and fall to the ground, or did you just feel like you were going to faint?",
+          "label": "Did you actually faint and fall to the ground, or did you just feel like you were going to faint?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_16_q3",
+          "sourceQuestion": "How long does each episode last — is it seconds, minutes, or does it stay for a long time?",
+          "label": "How long does each episode last — is it seconds, minutes, or does it stay for a long time?",
+          "type": "select",
+          "options": [
+            "Today",
+            "1–3 days",
+            "4–7 days",
+            "1–2 weeks",
+            "More than 2 weeks",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_16_q4",
+          "sourceQuestion": "Does the dizziness happen when you stand up quickly from sitting or lying down?",
+          "label": "Does the dizziness happen when you stand up quickly from sitting or lying down?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_16_q5",
+          "sourceQuestion": "When did you last eat — could this be coming from low blood sugar or not eating enough?",
+          "label": "When did you last eat — could this be coming from low blood sugar or not eating enough?",
+          "type": "select",
+          "options": [
+            "Today",
+            "1–3 days",
+            "4–7 days",
+            "1–2 weeks",
+            "More than 2 weeks",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_16_q6",
+          "sourceQuestion": "Have you been drinking enough water today or do you think you might be dehydrated?",
+          "label": "Have you been drinking enough water today or do you think you might be dehydrated?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_16_q7",
+          "sourceQuestion": "Do you have any ear problem — like ear pain, hearing loss, ringing in your ear, or a feeling of fullness in the ear?",
+          "label": "Do you have any ear problem — like ear pain, hearing loss, ringing in your ear, or a feeling of fullness in the ear?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_16_q8",
+          "sourceQuestion": "Do you have headache, vomiting, or neck pain alongside the dizziness?",
+          "label": "Do you have headache, vomiting, or neck pain alongside the dizziness?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_16_q9",
+          "sourceQuestion": "Do you have numbness or weakness on one side of your face, arm, or leg — even briefly?",
+          "label": "Do you have numbness or weakness on one side of your face, arm, or leg — even briefly?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_16_q10",
+          "sourceQuestion": "Have you had any difficulty speaking or any confusion when the dizziness happened?",
+          "label": "Have you had any difficulty speaking or any confusion when the dizziness happened?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        }
+      ],
+      "allQuestions": [
+        {
+          "id": "symptom_16_q1",
+          "sourceQuestion": "Is the room spinning around you — like you are on a moving boat — or do you just feel lightheaded like you want to fall?"
+        },
+        {
+          "id": "symptom_16_q2",
+          "sourceQuestion": "Did you actually faint and fall to the ground, or did you just feel like you were going to faint?"
+        },
+        {
+          "id": "symptom_16_q3",
+          "sourceQuestion": "How long does each episode last — is it seconds, minutes, or does it stay for a long time?"
+        },
+        {
+          "id": "symptom_16_q4",
+          "sourceQuestion": "Does the dizziness happen when you stand up quickly from sitting or lying down?"
+        },
+        {
+          "id": "symptom_16_q5",
+          "sourceQuestion": "When did you last eat — could this be coming from low blood sugar or not eating enough?"
+        },
+        {
+          "id": "symptom_16_q6",
+          "sourceQuestion": "Have you been drinking enough water today or do you think you might be dehydrated?"
+        },
+        {
+          "id": "symptom_16_q7",
+          "sourceQuestion": "Do you have any ear problem — like ear pain, hearing loss, ringing in your ear, or a feeling of fullness in the ear?"
+        },
+        {
+          "id": "symptom_16_q8",
+          "sourceQuestion": "Do you have headache, vomiting, or neck pain alongside the dizziness?"
+        },
+        {
+          "id": "symptom_16_q9",
+          "sourceQuestion": "Do you have numbness or weakness on one side of your face, arm, or leg — even briefly?"
+        },
+        {
+          "id": "symptom_16_q10",
+          "sourceQuestion": "Have you had any difficulty speaking or any confusion when the dizziness happened?"
+        },
+        {
+          "id": "symptom_16_q11",
+          "sourceQuestion": "Do you have a history of low blood pressure or anaemia?"
+        },
+        {
+          "id": "symptom_16_q12",
+          "sourceQuestion": "Do you have a history of high blood pressure or diabetes?"
+        },
+        {
+          "id": "symptom_16_q13",
+          "sourceQuestion": "Are you on any medication — especially blood pressure drugs, water tablets, or sedatives?"
+        },
+        {
+          "id": "symptom_16_q14",
+          "sourceQuestion": "Have you taken alcohol recently, or are you on any drug that could make you dizzy?"
+        },
+        {
+          "id": "symptom_16_q15",
+          "sourceQuestion": "Have you had any injury to your head recently?"
+        },
+        {
+          "id": "symptom_16_q16",
+          "sourceQuestion": "Do you have a history of seizure (convulsion) or epilepsy?"
+        },
+        {
+          "id": "symptom_16_q17",
+          "sourceQuestion": "Does the dizziness come on when you move your head in a certain direction?"
+        },
+        {
+          "id": "symptom_16_q18",
+          "sourceQuestion": "Are you pregnant?"
+        },
+        {
+          "id": "symptom_16_q19",
+          "sourceQuestion": "Does the dizziness come with sweating, heart racing, or shaking — especially if you have diabetes?"
+        },
+        {
+          "id": "symptom_16_q20",
+          "sourceQuestion": "Have you had recent illness like a chest infection or ear infection just before this started?"
+        }
+      ],
+      "redFlags": [
+        {
+          "label": "Chest pain",
+          "explanation": "Pain that is very strong, sudden, spreading, or getting worse."
+        },
+        {
+          "label": "Breathing difficulty",
+          "explanation": "Finding it hard to breathe or talk normally."
+        },
+        {
+          "label": "Weakness or face drooping",
+          "explanation": "A sudden loss of strength or trouble moving part of the body."
+        },
+        {
+          "label": "Seizure",
+          "explanation": "A shaking episode, loss of awareness, or body jerking."
+        },
+        {
+          "label": "Fainting during exercise",
+          "explanation": "You fall, nearly pass out, or become too weak to stand."
+        }
+      ]
+    },
+    {
+      "id": "symptom_17",
+      "label": "Cold / Flu Symptoms",
+      "focusedQuestions": [
+        {
+          "id": "symptom_17_q1",
+          "sourceQuestion": "How many days have you had these symptoms?",
+          "label": "How many days have you had these symptoms?",
+          "type": "select",
+          "options": [
+            "Today",
+            "1–3 days",
+            "4–7 days",
+            "1–2 weeks",
+            "More than 2 weeks",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_17_q2",
+          "sourceQuestion": "Do you have fever — and if yes, how high is it and does it come with shaking and chills?",
+          "label": "Do you have fever — and if yes, how high is it and does it come with shaking and chills?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_17_q3",
+          "sourceQuestion": "Do you have a runny nose or blocked nose — and what colour is the discharge coming from the nose?",
+          "label": "Do you have a runny nose or blocked nose — and what colour is the discharge coming from the nose?",
+          "type": "select",
+          "options": [
+            "Clear",
+            "White",
+            "Yellow",
+            "Green",
+            "Brown",
+            "Black",
+            "Red / blood",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_17_q4",
+          "sourceQuestion": "Do you have a sore throat — does it hurt to swallow?",
+          "label": "Do you have a sore throat — does it hurt to swallow?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_17_q5",
+          "sourceQuestion": "Are you sneezing a lot?",
+          "label": "Are you sneezing a lot?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_17_q6",
+          "sourceQuestion": "Do you have body aches and pains all over — like your bones and muscles are aching?",
+          "label": "Do you have body aches and pains all over — like your bones and muscles are aching?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_17_q7",
+          "sourceQuestion": "Do you have a headache alongside?",
+          "label": "Do you have a headache alongside?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_17_q8",
+          "sourceQuestion": "Are you coughing — and are you bringing out phlegm or blood?",
+          "label": "Are you coughing — and are you bringing out phlegm or blood?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_17_q9",
+          "sourceQuestion": "Do you have difficulty breathing or does your chest feel tight?",
+          "label": "Do you have difficulty breathing or does your chest feel tight?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_17_q10",
+          "sourceQuestion": "Do you have a history of asthma, COPD, or any chest condition?",
+          "label": "Do you have a history of asthma, COPD, or any chest condition?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        }
+      ],
+      "allQuestions": [
+        {
+          "id": "symptom_17_q1",
+          "sourceQuestion": "How many days have you had these symptoms?"
+        },
+        {
+          "id": "symptom_17_q2",
+          "sourceQuestion": "Do you have fever — and if yes, how high is it and does it come with shaking and chills?"
+        },
+        {
+          "id": "symptom_17_q3",
+          "sourceQuestion": "Do you have a runny nose or blocked nose — and what colour is the discharge coming from the nose?"
+        },
+        {
+          "id": "symptom_17_q4",
+          "sourceQuestion": "Do you have a sore throat — does it hurt to swallow?"
+        },
+        {
+          "id": "symptom_17_q5",
+          "sourceQuestion": "Are you sneezing a lot?"
+        },
+        {
+          "id": "symptom_17_q6",
+          "sourceQuestion": "Do you have body aches and pains all over — like your bones and muscles are aching?"
+        },
+        {
+          "id": "symptom_17_q7",
+          "sourceQuestion": "Do you have a headache alongside?"
+        },
+        {
+          "id": "symptom_17_q8",
+          "sourceQuestion": "Are you coughing — and are you bringing out phlegm or blood?"
+        },
+        {
+          "id": "symptom_17_q9",
+          "sourceQuestion": "Do you have difficulty breathing or does your chest feel tight?"
+        },
+        {
+          "id": "symptom_17_q10",
+          "sourceQuestion": "Do you have a history of asthma, COPD, or any chest condition?"
+        },
+        {
+          "id": "symptom_17_q11",
+          "sourceQuestion": "Is anyone else in your house, workplace, or school having the same symptoms?"
+        },
+        {
+          "id": "symptom_17_q12",
+          "sourceQuestion": "Have you been around someone who was very sick recently, or been in a crowded place like a market or church?"
+        },
+        {
+          "id": "symptom_17_q13",
+          "sourceQuestion": "Have you had COVID-19 before and could this be a repeat — have you tested recently?"
+        },
+        {
+          "id": "symptom_17_q14",
+          "sourceQuestion": "Do you have diabetes, HIV, hypertension, or any condition that reduces your immune system?"
+        },
+        {
+          "id": "symptom_17_q15",
+          "sourceQuestion": "Have you taken any medicine for this — like paracetamol, vitamin C, or any antibiotic?"
+        },
+        {
+          "id": "symptom_17_q16",
+          "sourceQuestion": "Have you completely lost your sense of taste or smell?"
+        },
+        {
+          "id": "symptom_17_q17",
+          "sourceQuestion": "Are you vomiting or having diarrhoea alongside the cold symptoms?"
+        },
+        {
+          "id": "symptom_17_q18",
+          "sourceQuestion": "For children — is the child feeding well, and are there any ear problems or ear pain?"
+        },
+        {
+          "id": "symptom_17_q19",
+          "sourceQuestion": "Have you had a flu or cold vaccine recently?"
+        },
+        {
+          "id": "symptom_17_q20",
+          "sourceQuestion": "Have you been under stress or sleeping poorly recently, which can weaken your immune system?"
+        }
+      ],
+      "redFlags": [
+        {
+          "label": "Breathing difficulty",
+          "explanation": "Finding it hard to breathe or talk normally."
+        },
+        {
+          "label": "Blue lips",
+          "explanation": "The lips or face look blue or grey."
+        },
+        {
+          "label": "Confusion or hard to wake",
+          "explanation": "Not thinking clearly, very sleepy, or difficult to wake."
+        },
+        {
+          "label": "Severe dehydration",
+          "explanation": "A sudden or serious change that should be checked quickly by a nurse or doctor."
+        },
+        {
+          "label": "Chest pain",
+          "explanation": "Pain that is very strong, sudden, spreading, or getting worse."
+        }
+      ]
+    },
+    {
+      "id": "symptom_18",
+      "label": "Skin Rash / Itching",
+      "focusedQuestions": [
+        {
+          "id": "symptom_18_q1",
+          "sourceQuestion": "Where on your body did the rash first appear — and has it spread since then?",
+          "label": "Where on your body did the rash first appear — and has it spread since then?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_18_q2",
+          "sourceQuestion": "How long have you had this rash — when exactly did you first notice it?",
+          "label": "How long have you had this rash — when exactly did you first notice it?",
+          "type": "select",
+          "options": [
+            "Today",
+            "1–3 days",
+            "4–7 days",
+            "1–2 weeks",
+            "More than 2 weeks",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_18_q3",
+          "sourceQuestion": "Is the rash itching, painful, burning, or numb?",
+          "label": "Is the rash itching, painful, burning, or numb?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_18_q4",
+          "sourceQuestion": "What does the rash look like — is it flat, raised, blistery, scaly, or is it weeping (releasing fluid)?",
+          "label": "What does the rash look like — is it flat, raised, blistery, scaly, or is it weeping (releasing fluid)?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_18_q5",
+          "sourceQuestion": "Did the rash start after eating something new, taking new medication, or touching a new substance?",
+          "label": "Did the rash start after eating something new, taking new medication, or touching a new substance?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_18_q6",
+          "sourceQuestion": "Have you recently used a new soap, cream, perfume, detergent, or jewellery?",
+          "label": "Have you recently used a new soap, cream, perfume, detergent, or jewellery?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_18_q7",
+          "sourceQuestion": "Do you have a history of eczema, psoriasis, or allergies?",
+          "label": "Do you have a history of eczema, psoriasis, or allergies?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_18_q8",
+          "sourceQuestion": "Have you had chickenpox before — and could this rash be shingles (which looks like blisters following a line on one side of the body)?",
+          "label": "Have you had chickenpox before — and could this rash be shingles (which looks like blisters following a line on one side of the body)?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_18_q9",
+          "sourceQuestion": "Is the rash only on the parts that are exposed to the sun or covered by clothing?",
+          "label": "Is the rash only on the parts that are exposed to the sun or covered by clothing?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_18_q10",
+          "sourceQuestion": "Do you have fever alongside the rash?",
+          "label": "Do you have fever alongside the rash?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        }
+      ],
+      "allQuestions": [
+        {
+          "id": "symptom_18_q1",
+          "sourceQuestion": "Where on your body did the rash first appear — and has it spread since then?"
+        },
+        {
+          "id": "symptom_18_q2",
+          "sourceQuestion": "How long have you had this rash — when exactly did you first notice it?"
+        },
+        {
+          "id": "symptom_18_q3",
+          "sourceQuestion": "Is the rash itching, painful, burning, or numb?"
+        },
+        {
+          "id": "symptom_18_q4",
+          "sourceQuestion": "What does the rash look like — is it flat, raised, blistery, scaly, or is it weeping (releasing fluid)?"
+        },
+        {
+          "id": "symptom_18_q5",
+          "sourceQuestion": "Did the rash start after eating something new, taking new medication, or touching a new substance?"
+        },
+        {
+          "id": "symptom_18_q6",
+          "sourceQuestion": "Have you recently used a new soap, cream, perfume, detergent, or jewellery?"
+        },
+        {
+          "id": "symptom_18_q7",
+          "sourceQuestion": "Do you have a history of eczema, psoriasis, or allergies?"
+        },
+        {
+          "id": "symptom_18_q8",
+          "sourceQuestion": "Have you had chickenpox before — and could this rash be shingles (which looks like blisters following a line on one side of the body)?"
+        },
+        {
+          "id": "symptom_18_q9",
+          "sourceQuestion": "Is the rash only on the parts that are exposed to the sun or covered by clothing?"
+        },
+        {
+          "id": "symptom_18_q10",
+          "sourceQuestion": "Do you have fever alongside the rash?"
+        },
+        {
+          "id": "symptom_18_q11",
+          "sourceQuestion": "Is the rash spreading fast — did it start from one place and is now covering a large area?"
+        },
+        {
+          "id": "symptom_18_q12",
+          "sourceQuestion": "Do you have any joint pain, red eyes, or mouth sores alongside the rash?"
+        },
+        {
+          "id": "symptom_18_q13",
+          "sourceQuestion": "Have you been in contact with someone who has a similar rash — especially chickenpox or measles?"
+        },
+        {
+          "id": "symptom_18_q14",
+          "sourceQuestion": "Are you on any medication currently — especially antibiotics, anti-seizure drugs, or new drugs started recently?"
+        },
+        {
+          "id": "symptom_18_q15",
+          "sourceQuestion": "Do you have HIV or are you on any immunosuppressive medication?"
+        },
+        {
+          "id": "symptom_18_q16",
+          "sourceQuestion": "Do you work with chemicals, latex, or any substance that touches your skin regularly?"
+        },
+        {
+          "id": "symptom_18_q17",
+          "sourceQuestion": "Is there a ring-shaped pattern to the rash — like a circle with a clear centre, which could be ringworm?"
+        },
+        {
+          "id": "symptom_18_q18",
+          "sourceQuestion": "Do you have white patches on the rash — could it be a fungal infection?"
+        },
+        {
+          "id": "symptom_18_q19",
+          "sourceQuestion": "Is the itching worse at night — especially on the fingers, wrist, and between the toes, which could be scabies?"
+        },
+        {
+          "id": "symptom_18_q20",
+          "sourceQuestion": "Have you recently travelled to a forest area, or were you in contact with animals, plants, or insects?"
+        }
+      ],
+      "redFlags": [
+        {
+          "label": "Swelling of lips, tongue, or face",
+          "explanation": "A sudden or serious change that should be checked quickly by a nurse or doctor."
+        },
+        {
+          "label": "Breathing difficulty",
+          "explanation": "Finding it hard to breathe or talk normally."
+        },
+        {
+          "label": "Blisters or skin peeling widely",
+          "explanation": "A sudden or serious change that should be checked quickly by a nurse or doctor."
+        },
+        {
+          "label": "Fever and very unwell",
+          "explanation": "A high temperature together with feeling very unwell."
+        },
+        {
+          "label": "Rash with purple or black spots",
+          "explanation": "A sudden or serious change that should be checked quickly by a nurse or doctor."
+        }
+      ]
+    },
+    {
+      "id": "symptom_19",
+      "label": "Sickle Cell Crisis",
+      "focusedQuestions": [
+        {
+          "id": "symptom_19_q1",
+          "sourceQuestion": "Where is the pain right now — is it your bones, joints, chest, stomach, or all over your body?",
+          "label": "Where is the pain right now — is it your bones, joints, chest, stomach, or all over your body?",
+          "type": "select",
+          "options": [
+            "Front",
+            "Back",
+            "Left side",
+            "Right side",
+            "Middle",
+            "All over",
+            "Somewhere else",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_19_q2",
+          "sourceQuestion": "On a scale of 1 to 10, how bad is the pain — with 1 being mild and 10 being the worst pain you have ever felt?",
+          "label": "On a scale of 1 to 10, how bad is the pain — with 1 being mild and 10 being the worst pain you have ever felt?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_19_q3",
+          "sourceQuestion": "When did the pain start and what do you think may have triggered it — cold weather, stress, dehydration, infection?",
+          "label": "When did the pain start and what do you think may have triggered it — cold weather, stress, dehydration, infection?",
+          "type": "select",
+          "options": [
+            "Today",
+            "1–3 days",
+            "4–7 days",
+            "1–2 weeks",
+            "More than 2 weeks",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_19_q4",
+          "sourceQuestion": "Have you been drinking enough water today and the days before this started?",
+          "label": "Have you been drinking enough water today and the days before this started?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_19_q5",
+          "sourceQuestion": "Were you exposed to cold — like cold water, cold air conditioning, or cold weather?",
+          "label": "Were you exposed to cold — like cold water, cold air conditioning, or cold weather?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_19_q6",
+          "sourceQuestion": "Do you have fever alongside the pain?",
+          "label": "Do you have fever alongside the pain?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_19_q7",
+          "sourceQuestion": "Do you have difficulty breathing or chest pain — which can be a sign of Acute Chest Syndrome, which is an emergency?",
+          "label": "Do you have difficulty breathing or chest pain — which can be a sign of Acute Chest Syndrome, which is an emergency?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_19_q8",
+          "sourceQuestion": "Is there swelling or stiffness in any joint alongside the pain?",
+          "label": "Is there swelling or stiffness in any joint alongside the pain?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_19_q9",
+          "sourceQuestion": "What is your last PCV (haematocrit) result, and when was it done?",
+          "label": "What is your last PCV (haematocrit) result, and when was it done?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_19_q10",
+          "sourceQuestion": "When was the last time you had a blood transfusion — and do you think you may need one now?",
+          "label": "When was the last time you had a blood transfusion — and do you think you may need one now?",
+          "type": "select",
+          "options": [
+            "Today",
+            "1–3 days",
+            "4–7 days",
+            "1–2 weeks",
+            "More than 2 weeks",
+            "Not sure"
+          ]
+        }
+      ],
+      "allQuestions": [
+        {
+          "id": "symptom_19_q1",
+          "sourceQuestion": "Where is the pain right now — is it your bones, joints, chest, stomach, or all over your body?"
+        },
+        {
+          "id": "symptom_19_q2",
+          "sourceQuestion": "On a scale of 1 to 10, how bad is the pain — with 1 being mild and 10 being the worst pain you have ever felt?"
+        },
+        {
+          "id": "symptom_19_q3",
+          "sourceQuestion": "When did the pain start and what do you think may have triggered it — cold weather, stress, dehydration, infection?"
+        },
+        {
+          "id": "symptom_19_q4",
+          "sourceQuestion": "Have you been drinking enough water today and the days before this started?"
+        },
+        {
+          "id": "symptom_19_q5",
+          "sourceQuestion": "Were you exposed to cold — like cold water, cold air conditioning, or cold weather?"
+        },
+        {
+          "id": "symptom_19_q6",
+          "sourceQuestion": "Do you have fever alongside the pain?"
+        },
+        {
+          "id": "symptom_19_q7",
+          "sourceQuestion": "Do you have difficulty breathing or chest pain — which can be a sign of Acute Chest Syndrome, which is an emergency?"
+        },
+        {
+          "id": "symptom_19_q8",
+          "sourceQuestion": "Is there swelling or stiffness in any joint alongside the pain?"
+        },
+        {
+          "id": "symptom_19_q9",
+          "sourceQuestion": "What is your last PCV (haematocrit) result, and when was it done?"
+        },
+        {
+          "id": "symptom_19_q10",
+          "sourceQuestion": "When was the last time you had a blood transfusion — and do you think you may need one now?"
+        },
+        {
+          "id": "symptom_19_q11",
+          "sourceQuestion": "Are you on hydroxyurea or folic acid — and have you been taking them regularly?"
+        },
+        {
+          "id": "symptom_19_q12",
+          "sourceQuestion": "Do you have any signs of stroke — like weakness on one side, difficulty speaking, or facial drooping?"
+        },
+        {
+          "id": "symptom_19_q13",
+          "sourceQuestion": "Has your urine been dark or brownish, which can signal kidney stress?"
+        },
+        {
+          "id": "symptom_19_q14",
+          "sourceQuestion": "Do you have any erection that will not go down (priapism), especially if you are a male?"
+        },
+        {
+          "id": "symptom_19_q15",
+          "sourceQuestion": "Do you have any leg ulcers that are not healing?"
+        },
+        {
+          "id": "symptom_19_q16",
+          "sourceQuestion": "What medicines did you take at home before coming to see the doctor today?"
+        },
+        {
+          "id": "symptom_19_q17",
+          "sourceQuestion": "How often are you having these crises — is it more frequent now than it used to be?"
+        },
+        {
+          "id": "symptom_19_q18",
+          "sourceQuestion": "Have you had any infection recently — like malaria, chest infection, or urinary infection — that may have triggered this?"
+        },
+        {
+          "id": "symptom_19_q19",
+          "sourceQuestion": "Have you been doing strenuous physical activity or have you been very stressed emotionally?"
+        },
+        {
+          "id": "symptom_19_q20",
+          "sourceQuestion": "Who is your haematologist or the specialist that manages your sickle cell, and when did you last see them?"
+        }
+      ],
+      "redFlags": [
+        {
+          "label": "Breathing difficulty or chest pain",
+          "explanation": "Finding it hard to breathe or talk normally."
+        },
+        {
+          "label": "Sudden weakness or confusion",
+          "explanation": "Not thinking clearly, very sleepy, or difficult to wake."
+        },
+        {
+          "label": "Severe pain not improving",
+          "explanation": "Pain that is very strong, sudden, spreading, or getting worse."
+        },
+        {
+          "label": "Fever with severe weakness",
+          "explanation": "A sudden loss of strength or trouble moving part of the body."
+        },
+        {
+          "label": "Very pale or yellow eyes with collapse",
+          "explanation": "A sudden or serious change that should be checked quickly by a nurse or doctor."
+        }
+      ]
+    },
+    {
+      "id": "symptom_20",
+      "label": "Women's Health (Menstrual / Pelvic)",
+      "focusedQuestions": [
+        {
+          "id": "symptom_20_q1",
+          "sourceQuestion": "When was your last menstrual period — the first day of your last flow?",
+          "label": "When was your last menstrual period — the first day of your last flow?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_20_q2",
+          "sourceQuestion": "Is your period regular — does it come every month at roughly the same time?",
+          "label": "Is your period regular — does it come every month at roughly the same time?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_20_q3",
+          "sourceQuestion": "Is your bleeding heavier than normal — are you soaking through more pads than usual, or passing clots?",
+          "label": "Is your bleeding heavier than normal — are you soaking through more pads than usual, or passing clots?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_20_q4",
+          "sourceQuestion": "Is your bleeding lighter than normal, or has your period been absent for one or more months?",
+          "label": "Is your bleeding lighter than normal, or has your period been absent for one or more months?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_20_q5",
+          "sourceQuestion": "Do you have severe cramps or pain during your period — is it getting worse over time?",
+          "label": "Do you have severe cramps or pain during your period — is it getting worse over time?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_20_q6",
+          "sourceQuestion": "Do you have pain in your lower stomach or pelvic area outside of your period?",
+          "label": "Do you have pain in your lower stomach or pelvic area outside of your period?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_20_q7",
+          "sourceQuestion": "Do you have pain during sex — is it on entry or deep inside?",
+          "label": "Do you have pain during sex — is it on entry or deep inside?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_20_q8",
+          "sourceQuestion": "Do you have any unusual discharge — what colour is it, does it smell, and how much?",
+          "label": "Do you have any unusual discharge — what colour is it, does it smell, and how much?",
+          "type": "select",
+          "options": [
+            "Clear",
+            "White",
+            "Yellow",
+            "Green",
+            "Brown",
+            "Black",
+            "Red / blood",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_20_q9",
+          "sourceQuestion": "Is there any itching or burning in your private area?",
+          "label": "Is there any itching or burning in your private area?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "id": "symptom_20_q10",
+          "sourceQuestion": "Are you sexually active, and if yes, are you using any form of contraception?",
+          "label": "Are you sexually active, and if yes, are you using any form of contraception?",
+          "type": "yesno",
+          "options": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        }
+      ],
+      "allQuestions": [
+        {
+          "id": "symptom_20_q1",
+          "sourceQuestion": "When was your last menstrual period — the first day of your last flow?"
+        },
+        {
+          "id": "symptom_20_q2",
+          "sourceQuestion": "Is your period regular — does it come every month at roughly the same time?"
+        },
+        {
+          "id": "symptom_20_q3",
+          "sourceQuestion": "Is your bleeding heavier than normal — are you soaking through more pads than usual, or passing clots?"
+        },
+        {
+          "id": "symptom_20_q4",
+          "sourceQuestion": "Is your bleeding lighter than normal, or has your period been absent for one or more months?"
+        },
+        {
+          "id": "symptom_20_q5",
+          "sourceQuestion": "Do you have severe cramps or pain during your period — is it getting worse over time?"
+        },
+        {
+          "id": "symptom_20_q6",
+          "sourceQuestion": "Do you have pain in your lower stomach or pelvic area outside of your period?"
+        },
+        {
+          "id": "symptom_20_q7",
+          "sourceQuestion": "Do you have pain during sex — is it on entry or deep inside?"
+        },
+        {
+          "id": "symptom_20_q8",
+          "sourceQuestion": "Do you have any unusual discharge — what colour is it, does it smell, and how much?"
+        },
+        {
+          "id": "symptom_20_q9",
+          "sourceQuestion": "Is there any itching or burning in your private area?"
+        },
+        {
+          "id": "symptom_20_q10",
+          "sourceQuestion": "Are you sexually active, and if yes, are you using any form of contraception?"
+        },
+        {
+          "id": "symptom_20_q11",
+          "sourceQuestion": "Is there any chance you could be pregnant — have you done a pregnancy test?"
+        },
+        {
+          "id": "symptom_20_q12",
+          "sourceQuestion": "Have you had any pregnancy before — how many times have you been pregnant and how many children do you have?"
+        },
+        {
+          "id": "symptom_20_q13",
+          "sourceQuestion": "Have you ever had a miscarriage or a pregnancy outside the womb (ectopic pregnancy)?"
+        },
+        {
+          "id": "symptom_20_q14",
+          "sourceQuestion": "Do you have any swelling or lump you can feel in your lower stomach?"
+        },
+        {
+          "id": "symptom_20_q15",
+          "sourceQuestion": "Have you been told you have fibroids, cysts, or endometriosis before?"
+        },
+        {
+          "id": "symptom_20_q16",
+          "sourceQuestion": "Do you have pain when you urinate or when you open your bowels during your period?"
+        },
+        {
+          "id": "symptom_20_q17",
+          "sourceQuestion": "Do you have fever or chills alongside the pelvic pain — which could mean infection?"
+        },
+        {
+          "id": "symptom_20_q18",
+          "sourceQuestion": "Are you approaching menopause — do you have hot flushes, irregular periods, or mood changes?"
+        },
+        {
+          "id": "symptom_20_q19",
+          "sourceQuestion": "Have you had any STI (sexually transmitted infection) before, and were you treated?"
+        },
+        {
+          "id": "symptom_20_q20",
+          "sourceQuestion": "When was your last cervical cancer screening (Pap smear) — have you ever had one done?"
+        }
+      ],
+      "redFlags": [
+        {
+          "label": "Very heavy bleeding",
+          "explanation": "Bleeding is much heavier than usual or will not stop."
+        },
+        {
+          "label": "Severe or one-sided belly pain",
+          "explanation": "Pain that is very strong, sudden, or getting worse."
+        },
+        {
+          "label": "Fainting or collapse",
+          "explanation": "You fall, nearly pass out, or become too weak to stand."
+        },
+        {
+          "label": "Possible pregnancy with pain or bleeding",
+          "explanation": "You may be pregnant and have pain or bleeding."
+        },
+        {
+          "label": "Fever with severe pelvic pain",
+          "explanation": "A high temperature together with very strong lower-belly pain."
+        }
+      ]
+    }
+  ],
+  "changeRules": {
+    "whenMainSymptomChanges": [
+      "Load the focusedQuestions and redFlags for the newly selected symptom group.",
+      "Hide pain location and pain severity unless the selected symptom is pain-related.",
+      "Clear all answers, selected red flags, associated answers, and pain fields from the previous symptom group."
+    ],
+    "whenFocusedQuestionChanges": [
+      "Render one focused question at a time.",
+      "Use the question type and options; do not force Yes/No onto duration, location, frequency, appearance, pain-feel, activity, treatment, or numeric-reading questions.",
+      "Save the answer under the question id and use any showIf rule before displaying a dependent question."
+    ],
+    "whenRedFlagIsSelected": [
+      "Save the selected warning-sign id and label.",
+      "Allow more than one selection.",
+      "Send the case for human clinical review; do not present it as a diagnosis."
+    ]
+  }
+}

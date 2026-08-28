@@ -4,6 +4,7 @@ import React, { FormEvent, useEffect, useState, useRef } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { apiClient } from '@/services/apiClient';
 import { GoogleGenAI } from '@google/genai';
+import formData from '@/app/data/echoai_form_data.json';
 
 interface TextChatProps {
   isOpen: boolean;
@@ -14,14 +15,6 @@ interface TextChatProps {
   illnessIcon?: string;
 }
 
-const RED_FLAGS_OPTIONS = [
-  "Very hard to wake or confused",
-  "Fits / seizure",
-  "Severe bleeding",
-  "Stiff neck",
-  "Fast breathing",
-  "Yellow eyes/skin"
-];
 
 // Helper to convert Blob to Base64
 function blobToBase64(blob: Blob): Promise<string> {
@@ -61,6 +54,13 @@ export default function TextChat({
   const [duration, setDuration] = useState('');
   const [redFlags, setRedFlags] = useState<string[]>([]);
   
+  // Dynamic Form State
+  const [selectedSymptomGroupId, setSelectedSymptomGroupId] = useState<string>('');
+  const [clinicalAnswers, setClinicalAnswers] = useState<Record<string, { question: string, answer: string }>>({});
+  
+  const currentGroup = formData.symptomGroups.find(g => g.id === selectedSymptomGroupId);
+
+  
   // Health Readings
   const [bloodPressure, setBloodPressure] = useState('');
   const [temperature, setTemperature] = useState('');
@@ -77,6 +77,19 @@ export default function TextChat({
     if (!isOpen || loading || !user) return;
     
     setChiefComplaint(illnessTitle);
+    
+    // Auto-select symptom group if it loosely matches illnessTitle
+    const matchedGroup = formData.symptomGroups.find(g => 
+      g.label.toLowerCase().includes(illnessTitle.toLowerCase()) ||
+      illnessTitle.toLowerCase().includes(g.label.toLowerCase().split(' / ')[0])
+    );
+    if (matchedGroup) {
+      setSelectedSymptomGroupId(matchedGroup.id);
+    } else {
+      setSelectedSymptomGroupId('');
+    }
+    setClinicalAnswers({});
+    setRedFlags([]);
     
     const fetchDMK = async () => {
       setStatus('loading');
@@ -110,6 +123,22 @@ export default function TextChat({
     setRedFlags(prev => 
       prev.includes(flag) ? prev.filter(f => f !== flag) : [...prev, flag]
     );
+  };
+
+  const handleSymptomGroupChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedSymptomGroupId(e.target.value);
+    setClinicalAnswers({});
+    setRedFlags([]);
+  };
+
+  const handleDynamicQuestionChange = (questionId: string, questionLabel: string, answer: string) => {
+    setClinicalAnswers(prev => ({
+      ...prev,
+      [questionId]: {
+        question: questionLabel,
+        answer
+      }
+    }));
   };
 
   const startRecording = async () => {
@@ -209,8 +238,9 @@ If a piece of information is not mentioned in the audio, leave the field empty o
         }
 
         if (Array.isArray(intakeData.redFlags)) {
-          // Only add valid red flags
-          const validFlags = intakeData.redFlags.filter((flag: string) => RED_FLAGS_OPTIONS.includes(flag));
+          // Only add valid red flags for the current group
+          const currentFlags = currentGroup?.redFlags?.map((f: any) => f.label) || [];
+          const validFlags = intakeData.redFlags.filter((flag: string) => currentFlags.includes(flag));
           setRedFlags(prev => Array.from(new Set([...prev, ...validFlags])));
         }
       }
@@ -243,7 +273,12 @@ If a piece of information is not mentioned in the audio, leave the field empty o
       drugAll: drugAll ? drugAll.split(',').map(s => s.trim()).filter(Boolean) : undefined,
       foodAll: foodAll ? foodAll.split(',').map(s => s.trim()).filter(Boolean) : undefined,
       rxMeds: rxMeds ? rxMeds.split(',').map(s => s.trim()).filter(Boolean) : undefined,
-      otcMeds: otcMeds ? otcMeds.split(',').map(s => s.trim()).filter(Boolean) : undefined
+      otcMeds: otcMeds ? otcMeds.split(',').map(s => s.trim()).filter(Boolean) : undefined,
+      formData: currentGroup ? {
+        symptomGroup: currentGroup.id,
+        symptomGroupLabel: currentGroup.label,
+        answers: clinicalAnswers
+      } : undefined
     };
 
     try {
@@ -384,21 +419,73 @@ If a piece of information is not mentioned in the audio, leave the field empty o
               </div>
 
               <div style={formGroupStyle}>
-                <label style={labelStyle}>Warning Signs (Select any that apply)</label>
-                <div style={checkboxGroupStyle}>
-                  {RED_FLAGS_OPTIONS.map(flag => (
-                    <label key={flag} style={checkboxLabelStyle}>
-                      <input 
-                        type="checkbox"
-                        checked={redFlags.includes(flag)}
-                        onChange={() => handleRedFlagToggle(flag)}
-                        style={{ marginRight: 8, accentColor: illnessColor }}
-                      />
-                      {flag}
-                    </label>
+                <label style={labelStyle}>Symptom Group (Triage Questionnaire)</label>
+                <select 
+                  value={selectedSymptomGroupId} 
+                  onChange={handleSymptomGroupChange}
+                  style={inputStyle}
+                >
+                  <option value="">-- Select a Symptom Category --</option>
+                  {formData.symptomGroups.map(group => (
+                    <option key={group.id} value={group.id}>{group.label}</option>
                   ))}
-                </div>
+                </select>
               </div>
+
+              {currentGroup && currentGroup.focusedQuestions && currentGroup.focusedQuestions.length > 0 && (
+                <div style={{ padding: '16px', background: 'rgba(15, 23, 42, 0.4)', borderRadius: '12px', border: '1px solid rgba(147, 197, 253, .14)', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  <h4 style={{ margin: 0, color: '#93c5fd', fontSize: '15px' }}>Clinical Questionnaire: {currentGroup.label}</h4>
+                  
+                  {currentGroup.focusedQuestions.map((q: any) => {
+                    const answerObj = clinicalAnswers[q.id];
+                    const currentAnswer = answerObj ? answerObj.answer : '';
+
+                    return (
+                      <div key={q.id} style={formGroupStyle}>
+                        <label style={labelStyle}>{q.label}</label>
+                        {q.type === 'select' || q.type === 'yesno' ? (
+                          <select 
+                            value={currentAnswer} 
+                            onChange={(e) => handleDynamicQuestionChange(q.id, q.label, e.target.value)}
+                            style={inputStyle}
+                          >
+                            <option value="">-- Select --</option>
+                            {q.options?.map((opt: string) => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                        ) : (
+                          <input 
+                            type="text" 
+                            value={currentAnswer}
+                            onChange={(e) => handleDynamicQuestionChange(q.id, q.label, e.target.value)}
+                            style={inputStyle}
+                          />
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {currentGroup && currentGroup.redFlags && currentGroup.redFlags.length > 0 && (
+                <div style={formGroupStyle}>
+                  <label style={{ ...labelStyle, color: '#ef4444' }}>Warning Signs (Red Flags - Select any that apply)</label>
+                  <div style={checkboxGroupStyle}>
+                    {currentGroup.redFlags.map((flag: any) => (
+                      <label key={flag.label} style={checkboxLabelStyle}>
+                        <input 
+                          type="checkbox"
+                          checked={redFlags.includes(flag.label)}
+                          onChange={() => handleRedFlagToggle(flag.label)}
+                          style={{ marginRight: 8, accentColor: '#ef4444' }}
+                        />
+                        {flag.label}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <div style={rowStyle}>
                 <div style={formGroupStyle}>
