@@ -74,19 +74,71 @@ export default function SharedDMKPage() {
           <p style={{ margin: '0.25rem 0 0', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
             Confidential medical profile provided for emergency response.
           </p>
+          <div style={{ marginTop: '1rem', fontSize: '1.2rem', fontWeight: 'bold' }}>
+            {dmk.patient?.fullName || 'Patient Name Not Provided'}
+          </div>
+        </div>
+
+        {/* Demographics & Emergency Contacts */}
+        <div style={sectionStyle}>
+          <h3 style={sectionTitleStyle}>DEMOGRAPHICS & EMERGENCY CONTACTS</h3>
+          <div style={vitalsGridStyle}>
+            <VitalBox label="GENDER" value={dmk.patient?.patientProfile?.gender} />
+            <VitalBox label="DOB" value={dmk.patient?.patientProfile?.dateOfBirth ? new Date(dmk.patient.patientProfile.dateOfBirth).toLocaleDateString() : null} />
+            <VitalBox label="LANGUAGE" value={dmk.primaryLanguage} />
+            <VitalBox label="RELIGION" value={dmk.patient?.patientProfile?.religion} />
+            <VitalBox label="NATIONALITY" value={dmk.patient?.patientProfile?.nationality} />
+            <VitalBox label="MARITAL STATUS" value={dmk.patient?.patientProfile?.maritalStatus} />
+          </div>
+          {(dmk.patient?.patientProfile?.emergencyContactName || dmk.patient?.patientProfile?.emergencyContactPhone) && (
+            <div style={{...vitalsGridStyle, marginTop: '0.75rem'}}>
+              <VitalBox label="EMERGENCY CONTACT" value={dmk.patient.patientProfile.emergencyContactName} />
+              <VitalBox label="RELATIONSHIP" value={dmk.patient.patientProfile.emergencyContactRelation} />
+              <VitalBox label="PRIMARY PHONE" value={dmk.patient.patientProfile.emergencyContactPhone} highlight={true} />
+              <VitalBox label="SECONDARY PHONE" value={dmk.patient.patientProfile.secondaryEmergencyPhone} />
+            </div>
+          )}
         </div>
 
         {/* Vitals */}
         <div style={sectionStyle}>
-          <h3 style={sectionTitleStyle}>VITALS & DEMOGRAPHICS</h3>
+          <h3 style={sectionTitleStyle}>VITALS</h3>
           <div style={vitalsGridStyle}>
             <VitalBox label="BLOOD TYPE" value={dmk.bloodType} />
+            <VitalBox label="GENOTYPE" value={dmk.genotype} />
             <VitalBox label="HEIGHT" value={dmk.heightCm ? `${dmk.heightCm} cm` : null} />
             <VitalBox label="WEIGHT" value={dmk.weightKg ? `${dmk.weightKg} kg` : null} />
             <VitalBox label="BMI" value={dmk.bmi} />
             <VitalBox label="ORGAN DONOR" value={dmk.organDonorStatus ? 'YES' : 'NO'} highlight={dmk.organDonorStatus} />
           </div>
         </div>
+
+        {/* Lifestyle */}
+        <div style={sectionStyle}>
+          <h3 style={sectionTitleStyle}>LIFESTYLE</h3>
+          <div style={vitalsGridStyle}>
+            <VitalBox label="SMOKING STATUS" value={dmk.smokingStatus} />
+            <VitalBox label="ALCOHOL USE" value={dmk.alcoholUse} />
+            <VitalBox label="EXERCISE LEVEL" value={dmk.exerciseLevel} />
+          </div>
+        </div>
+
+        {/* Reproductive Health */}
+        {(dmk.patient?.patientProfile?.gender === 'Female' || dmk.lastMenstrualDate || dmk.contraceptionUse) && (
+          <div style={sectionStyle}>
+            <h3 style={sectionTitleStyle}>REPRODUCTIVE HEALTH</h3>
+            <div style={vitalsGridStyle}>
+              <VitalBox label="PREGNANCY STATUS" value={dmk.pregnancyStatus} />
+              <VitalBox label="CONTRACEPTION" value={dmk.contraceptionUse} />
+              <VitalBox label="LAST MENSTRUAL DATE" value={dmk.lastMenstrualDate ? new Date(dmk.lastMenstrualDate).toLocaleDateString() : null} />
+            </div>
+            {dmk.pregnancyComplications && (
+              <div style={{marginTop: '0.75rem', ...listItemStyle}}>
+                <strong>Pregnancy Complications:</strong> <span style={notesStyle}>{dmk.pregnancyComplications}</span>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Conditions */}
         <div style={sectionStyle}>
@@ -145,6 +197,52 @@ export default function SharedDMKPage() {
               ))}
             </div>
           )}
+        </div>
+
+        {/* Additional Medical History */}
+        <div style={sectionStyle}>
+          <h3 style={sectionTitleStyle}>ADDITIONAL MEDICAL HISTORY</h3>
+          <div style={listStyle}>
+            {dmk.surgeries && (
+              <div style={listItemStyle}>
+                <strong>Surgeries</strong>
+                <div style={subtextStyle}>{dmk.surgeries}</div>
+              </div>
+            )}
+            {dmk.familyHistory && (
+              <div style={listItemStyle}>
+                <strong>Family History</strong>
+                <div style={subtextStyle}>{dmk.familyHistory}</div>
+              </div>
+            )}
+            {dmk.cognitiveStatus && (
+              <div style={listItemStyle}>
+                <strong>Cognitive Status</strong>
+                <div style={subtextStyle}>{dmk.cognitiveStatus}</div>
+              </div>
+            )}
+            {dmk.directives && (
+              <div style={listItemStyle}>
+                <strong>Advance Directives</strong>
+                <div style={subtextStyle}>{dmk.directives}</div>
+              </div>
+            )}
+            {dmk.substanceUse && (
+              <div style={listItemStyle}>
+                <strong>Substance Use History</strong>
+                <div style={subtextStyle}>{dmk.substanceUse}</div>
+              </div>
+            )}
+            {dmk.pets && (
+              <div style={listItemStyle}>
+                <strong>Pets at Home</strong>
+                <div style={subtextStyle}>{dmk.pets}</div>
+              </div>
+            )}
+            {(!dmk.surgeries && !dmk.familyHistory && !dmk.cognitiveStatus && !dmk.directives && !dmk.substanceUse && !dmk.pets) && (
+              <p style={emptyStyle}>No additional history recorded.</p>
+            )}
+          </div>
         </div>
 
         <div style={footerStyle}>
