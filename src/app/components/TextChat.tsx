@@ -206,7 +206,6 @@ Output ONLY a raw JSON object with the following structure:
 {
   "chiefComplaint": "string",
   "symptomOnset": "string",
-  "duration": "string",
   "redFlags": ["array of matching warning signs"],
   "healthReadings": { "bloodPressure": "string", "temperature": "string", "pulse": "string" },
   "drugAll": ["array of drug allergies"],
@@ -224,7 +223,6 @@ If a piece of information is not mentioned in the audio, leave the field empty o
         // Populate fields if present
         if (intakeData.chiefComplaint) setChiefComplaint(intakeData.chiefComplaint);
         if (intakeData.symptomOnset) setSymptomOnset(intakeData.symptomOnset);
-        if (intakeData.duration) setDuration(intakeData.duration);
         if (intakeData.drugAll && Array.isArray(intakeData.drugAll)) setDrugAll(intakeData.drugAll.join(', '));
         if (intakeData.foodAll && Array.isArray(intakeData.foodAll)) setFoodAll(intakeData.foodAll.join(', '));
         if (intakeData.rxMeds && Array.isArray(intakeData.rxMeds)) setRxMeds(intakeData.rxMeds.join(', '));
@@ -293,7 +291,6 @@ If a piece of information is not mentioned in the audio, leave the field empty o
           setStatus('idle');
           setRedFlags([]);
           setSymptomOnset('');
-          setDuration('');
           setBloodPressure('');
           setTemperature('');
           setPulse('');
