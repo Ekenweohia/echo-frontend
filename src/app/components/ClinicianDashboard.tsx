@@ -466,8 +466,11 @@ export default function ClinicianDashboard() {
               <div className={styles.queueGrid}>
                 {queue.length === 0 ? (
                   <div className={styles.emptyQueue}>
-                    <i>🛰️</i>
-                    <h3>No Patients Currently in Queue</h3>
+                    <div className={styles.emptyIconWrapper}>
+                      <span className={styles.pulseDot}></span>
+                      <i>📡</i>
+                    </div>
+                    <h3>No pending consultations</h3>
                     <p>Standing by for incoming AI triage intakes. New requests will appear automatically.</p>
                   </div>
                 ) : (
@@ -545,7 +548,7 @@ export default function ClinicianDashboard() {
                             entry.session.triageResult?.acuity === 'CRITICAL' || entry.isSOS ? styles.acuityCritical :
                             entry.session.triageResult?.acuity === 'MODERATE' ? styles.acuityModerate : styles.acuityStable
                           }`}>
-                            {entry.session.triageResult?.acuity || 'STANDBY'} (Score: {entry.session.triageResult?.urgencyScore || 0})
+                            {entry.session.triageResult?.acuity || 'STANDBY'} {user?.role === 'NURSE' ? `(Score: ${entry.session.triageResult?.urgencyScore || 0})` : ''}
                           </span>
                         </div>
 
