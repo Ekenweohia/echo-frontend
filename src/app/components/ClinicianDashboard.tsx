@@ -534,7 +534,7 @@ export default function ClinicianDashboard() {
                     const rawFindings = entry.session.patient.supportiveFindings || entry.session.triageResult?.reasons || entry.session.clinicalIntake?.clinicalSummary || 'Patient reported symptoms via Echo AI intake.';
                     const supportiveFindings = cleanClinicalText(rawFindings);
 
-                    const vitalsAndAllergies = entry.session.patient.vitalsAndAllergies || 'O+, AA | Penicillin';
+                    const vitalsAndAllergies = entry.session.patient.vitalsAndAllergies || 'Unknown Vitals | No Known Allergies';
 
                     return (
                       <div key={entry.id} className={`${styles.cardOuter} ${entry.isSOS ? styles.cardOuterSos : ''}`}>
