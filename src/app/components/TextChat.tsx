@@ -179,46 +179,25 @@ export default function TextChat({
   const processVoiceIntake = async (audioBlob: Blob) => {
     try {
       const base64Audio = await blobToBase64(audioBlob);
-      const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
-
-      if (!apiKey) {
-        throw new Error("Missing NEXT_PUBLIC_GEMINI_API_KEY in environment variables.");
-      }
-
-      const ai = new GoogleGenAI({ apiKey });
-
-      const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: [
-          {
-            inlineData: {
-              data: base64Audio,
-              mimeType: 'audio/webm'
-            }
-          },
-          "Extract the clinical intake information from this audio."
-        ],
-        config: {
-          responseMimeType: "application/json",
-          systemInstruction: `You are an expert clinical triage assistant.
-Listen to the patient's audio recording and extract their clinical intake information.
-Output ONLY a raw JSON object with the following structure:
-{
-  "chiefComplaint": "string",
-  "symptomOnset": "string",
-  "redFlags": ["array of matching warning signs"],
-  "healthReadings": { "bloodPressure": "string", "temperature": "string", "pulse": "string" },
-  "drugAll": ["array of drug allergies"],
-  "foodAll": ["array of food allergies"],
-  "rxMeds": ["array of prescription medications"],
-  "otcMeds": ["array of over-the-counter medications"]
-}
-If a piece of information is not mentioned in the audio, leave the field empty or omit it.`
-        }
+      const token = localStorage.getItem('token');
+      
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/echo-ai/voice-extract`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ base64Audio, mimeType: 'audio/webm' })
       });
 
-      if (response.text) {
-        const intakeData = JSON.parse(response.text);
+      if (!response.ok) {
+        throw new Error('Failed to process voice intake');
+      }
+
+      const resData = await response.json();
+      const intakeData = resData.data;
+
+      if (intakeData) {
 
         // Populate fields if present
         if (intakeData.chiefComplaint) setChiefComplaint(intakeData.chiefComplaint);
